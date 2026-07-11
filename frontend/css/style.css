@@ -2712,3 +2712,85 @@ a {
         gap: 3px;
     }
 }
+
+/* =========================================================
+   RESULTS MANAGEMENT MODULE SPECIFIC STYLES
+   ========================================================= */
+
+.results-table-container {
+    overflow-x: auto;
+}
+
+.marks-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: #eef2f7;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.grade-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grade-excellent {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border: 1px solid #badbcc;
+}
+
+.grade-good {
+    color: #084298;
+    background-color: #cfe2ff;
+    border: 1px solid #b6d4fe;
+}
+
+.grade-pass {
+    color: #664d03;
+    background-color: #fff3cd;
+    border: 1px solid #ffecb5;
+}
+
+.grade-fail {
+    color: #842029;
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+}
+
+.result-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.result-empty-icon {
+    font-size: 48px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+}
+
+.result-empty-state h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.result-empty-state p {
+    font-size: 14px;
+    color: var(--text-medium);
+    max-width: 400px;
+    margin: 0;
+}
