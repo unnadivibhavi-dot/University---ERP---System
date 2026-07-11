@@ -124,3 +124,47 @@ Columns:
 
 Purpose:
 Stores student marks and grades.
+
+# Primary Keys
+
+## Users
+Primary Key: UserID
+
+## Students
+Primary Key: StudentID
+
+## Courses
+Primary Key: CourseID
+
+## Enrollments
+Primary Key: EnrollmentID
+
+## Attendance
+Primary Key: AttendanceID
+
+## Examinations
+Primary Key: ExaminationID
+
+## Results
+Primary Key: ResultID
+
+# Foreign Keys
+
+## Enrollments
+
+- StudentID references Students.StudentID
+- CourseID references Courses.CourseID
+
+## Attendance
+
+- StudentID references Students.StudentID
+- CourseID references Courses.CourseID
+
+## Examinations
+
+- CourseID references Courses.CourseID
+
+## Results
+
+- StudentID references Students.StudentID
+- ExaminationID references Examinations.ExaminationID
