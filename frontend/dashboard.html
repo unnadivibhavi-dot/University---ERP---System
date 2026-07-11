@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="University ERP dashboard">
+
+    <title>Dashboard | University ERP</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Shared stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="erp-page">
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-header">
+
+                <div class="sidebar-logo">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+
+                <div class="sidebar-brand">
+                    <h1>University ERP</h1>
+                    <p>Academic Management</p>
+                </div>
+
+                <button type="button" class="sidebar-close-button" id="sidebarCloseButton" aria-label="Close sidebar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
+            </div>
+
+            <nav class="sidebar-navigation">
+
+                <p class="sidebar-section-title">
+                    MAIN MENU
+                </p>
+
+                <a href="dashboard.html" class="sidebar-link active">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="students.html" class="sidebar-link">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Students</span>
+                </a>
+
+                <a href="courses.html" class="sidebar-link">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                    <span>Courses</span>
+                </a>
+
+                <a href="enrollment.html" class="sidebar-link">
+                    <i class="bi bi-person-check-fill"></i>
+                    <span>Enrollments</span>
+                </a>
+
+                <p class="sidebar-section-title">
+                    ACADEMIC
+                </p>
+
+                <a href="attendance.html" class="sidebar-link">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    <span>Attendance</span>
+                </a>
+
+                <a href="examinations.html" class="sidebar-link">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="results.html" class="sidebar-link">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Results</span>
+                </a>
+
+                <p class="sidebar-section-title">
+                    SYSTEM
+                </p>
+
+                <button type="button" class="sidebar-link sidebar-button" id="sidebarLogoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </button>
+
+            </nav>
+
+            <div class="sidebar-footer">
+
+                <div class="sidebar-user-avatar">
+                    A
+                </div>
+
+                <div class="sidebar-user-details">
+                    <strong id="sidebarUsername">
+                        Administrator
+                    </strong>
+
+                    <span id="sidebarRole">
+                        System Admin
+                    </span>
+                </div>
+
+            </div>
+
+        </aside>
+
+        <!-- Mobile sidebar overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+
+            <!-- Top Navigation -->
+            <header class="top-navbar">
+
+                <div class="top-navbar-left">
+
+                    <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+
+                    <div>
+                        <h2>Dashboard</h2>
+                        <p>
+                            University ERP System Overview
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="top-navbar-right">
+
+                    <button type="button" class="navbar-icon-button" aria-label="Notifications">
+                        <i class="bi bi-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+
+                    <div class="dropdown">
+
+                        <button class="user-profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+
+                            <div class="user-profile-avatar">
+                                A
+                            </div>
+
+                            <div class="user-profile-text">
+                                <strong id="topUsername">
+                                    Administrator
+                                </strong>
+
+                                <span id="topRole">
+                                    System Admin
+                                </span>
+                            </div>
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+                                <button class="dropdown-item" type="button">
+                                    <i class="bi bi-person me-2"></i>
+                                    My Profile
+                                </button>
+                            </li>
+
+                            <li>
+                                <button class="dropdown-item" type="button">
+                                    <i class="bi bi-gear me-2"></i>
+                                    Settings
+                                </button>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <button class="dropdown-item text-danger" type="button" id="topLogoutButton">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Logout
+                                </button>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- Dashboard Content -->
+            <section class="dashboard-content">
+
+                <!-- Welcome Section -->
+                <section class="welcome-banner">
+
+                    <div class="welcome-banner-content">
+
+                        <p class="welcome-banner-label">
+                            UNIVERSITY ERP SYSTEM
+                        </p>
+
+                        <h2 id="welcomeHeading">
+                            Welcome back, Administrator
+                        </h2>
+
+                        <p>
+                            Manage university students, courses,
+                            registrations, attendance, examinations and
+                            results from one integrated platform.
+                        </p>
+
+                        <div class="welcome-banner-actions">
+
+                            <a href="students.html" class="btn welcome-primary-button">
+                                <i class="bi bi-person-plus-fill"></i>
+                                Add Student
+                            </a>
+
+                            <a href="enrollment.html" class="btn welcome-secondary-button">
+                                <i class="bi bi-journal-plus"></i>
+                                Register Course
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="welcome-banner-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+
+                </section>
+
+                <!-- Summary Cards -->
+                <section class="summary-grid">
+
+                    <article class="summary-card">
+
+                        <div class="summary-card-top">
+
+                            <div class="summary-icon students-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+
+                            <span class="summary-change positive-change">
+                                <i class="bi bi-arrow-up"></i>
+                                8.4%
+                            </span>
+
+                        </div>
+
+                        <div class="summary-card-body">
+                            <p>Total Students</p>
+                            <h3 id="studentCount">0</h3>
+                            <span>Registered students</span>
+                        </div>
+
+                    </article>
+
+                    <article class="summary-card">
+
+                        <div class="summary-card-top">
+
+                            <div class="summary-icon courses-icon">
+                                <i class="bi bi-journal-bookmark-fill"></i>
+                            </div>
+
+                            <span class="summary-change positive-change">
+                                <i class="bi bi-arrow-up"></i>
+                                3.2%
+                            </span>
+
+                        </div>
+
+                        <div class="summary-card-body">
+                            <p>Total Courses</p>
+                            <h3 id="courseCount">0</h3>
+                            <span>Available courses</span>
+                        </div>
+
+                    </article>
+
+                    <article class="summary-card">
+
+                        <div class="summary-card-top">
+
+                            <div class="summary-icon enrollment-icon">
+                                <i class="bi bi-person-check-fill"></i>
+                            </div>
+
+                            <span class="summary-change positive-change">
+                                <i class="bi bi-arrow-up"></i>
+                                6.7%
+                            </span>
+
+                        </div>
+
+                        <div class="summary-card-body">
+                            <p>Enrollments</p>
+                            <h3 id="enrollmentCount">0</h3>
+                            <span>Active registrations</span>
+                        </div>
+
+                    </article>
+
+                    <article class="summary-card">
+
+                        <div class="summary-card-top">
+
+                            <div class="summary-icon attendance-icon">
+                                <i class="bi bi-calendar-check-fill"></i>
+                            </div>
+
+                            <span class="summary-change neutral-change">
+                                Current
+                            </span>
+
+                        </div>
+
+                        <div class="summary-card-body">
+                            <p>Attendance Rate</p>
+                            <h3 id="attendanceRate">0%</h3>
+                            <span>Overall attendance</span>
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <!-- Main Dashboard Grid -->
+                <section class="dashboard-grid">
+
+                    <!-- Recent Activity -->
+                    <article class="dashboard-panel recent-activity-panel">
+
+                        <div class="dashboard-panel-header">
+
+                            <div>
+                                <h3>Recent Activity</h3>
+                                <p>
+                                    Latest actions performed in the system
+                                </p>
+                            </div>
+
+                            <button type="button" class="panel-action-button">
+                                View All
+                            </button>
+
+                        </div>
+
+                        <div class="activity-list" id="activityList">
+
+                            <div class="activity-item">
+
+                                <div class="activity-icon student-activity">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                </div>
+
+                                <div class="activity-details">
+                                    <strong>New student registered</strong>
+                                    <p>
+                                        Nimal Perera joined the Computing
+                                        department.
+                                    </p>
+                                    <span>10 minutes ago</span>
+                                </div>
+
+                            </div>
+
+                            <div class="activity-item">
+
+                                <div class="activity-icon course-activity">
+                                    <i class="bi bi-journal-plus"></i>
+                                </div>
+
+                                <div class="activity-details">
+                                    <strong>Course enrollment completed</strong>
+                                    <p>
+                                        A student enrolled in Database
+                                        Management Systems.
+                                    </p>
+                                    <span>35 minutes ago</span>
+                                </div>
+
+                            </div>
+
+                            <div class="activity-item">
+
+                                <div class="activity-icon attendance-activity">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+
+                                <div class="activity-details">
+                                    <strong>Attendance recorded</strong>
+                                    <p>
+                                        Attendance was updated for CS101.
+                                    </p>
+                                    <span>1 hour ago</span>
+                                </div>
+
+                            </div>
+
+                            <div class="activity-item">
+
+                                <div class="activity-icon result-activity">
+                                    <i class="bi bi-bar-chart-fill"></i>
+                                </div>
+
+                                <div class="activity-details">
+                                    <strong>Results published</strong>
+                                    <p>
+                                        Final examination results were
+                                        published.
+                                    </p>
+                                    <span>2 hours ago</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                    <!-- Quick Actions -->
+                    <article class="dashboard-panel">
+
+                        <div class="dashboard-panel-header">
+
+                            <div>
+                                <h3>Quick Actions</h3>
+                                <p>
+                                    Access common ERP operations
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="quick-action-grid">
+
+                            <a href="students.html" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Add Student</strong>
+                                    <span>Create a student profile</span>
+                                </div>
+                            </a>
+
+                            <a href="courses.html" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-journal-plus"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Add Course</strong>
+                                    <span>Create a new course</span>
+                                </div>
+                            </a>
+
+                            <a href="enrollment.html" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Enroll Student</strong>
+                                    <span>Register for a course</span>
+                                </div>
+                            </a>
+
+                            <a href="attendance.html" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Mark Attendance</strong>
+                                    <span>Record attendance</span>
+                                </div>
+                            </a>
+
+                            <a href="examinations.html" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-file-earmark-plus-fill"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Create Exam</strong>
+                                    <span>Add examination details</span>
+                                </div>
+                            </a>
+
+                            <a href="results.html" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-clipboard-data-fill"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Add Result</strong>
+                                    <span>Enter student marks</span>
+                                </div>
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <!-- Academic Overview -->
+                <section class="dashboard-panel academic-overview-panel">
+
+                    <div class="dashboard-panel-header">
+
+                        <div>
+                            <h3>Academic Overview</h3>
+                            <p>
+                                Current university academic information
+                            </p>
+                        </div>
+
+                        <select class="form-select overview-select" aria-label="Select academic year">
+                            <option selected>
+                                Academic Year 2026
+                            </option>
+
+                            <option>
+                                Academic Year 2025
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table overview-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Department</th>
+                                    <th>Students</th>
+                                    <th>Attendance</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="academicOverviewBody">
+
+                                <tr>
+                                    <td>
+                                        <span class="course-code">
+                                            CS101
+                                        </span>
+                                    </td>
+
+                                    <td>Programming Fundamentals</td>
+                                    <td>Computing</td>
+                                    <td>48</td>
+                                    <td>91%</td>
+
+                                    <td>
+                                        <span class="status-badge active-status">
+                                            Active
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <span class="course-code">
+                                            CS102
+                                        </span>
+                                    </td>
+
+                                    <td>Database Management Systems</td>
+                                    <td>Computing</td>
+                                    <td>42</td>
+                                    <td>87%</td>
+
+                                    <td>
+                                        <span class="status-badge active-status">
+                                            Active
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <span class="course-code">
+                                            BM101
+                                        </span>
+                                    </td>
+
+                                    <td>Business Management</td>
+                                    <td>Business</td>
+                                    <td>55</td>
+                                    <td>84%</td>
+
+                                    <td>
+                                        <span class="status-badge active-status">
+                                            Active
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <span class="course-code">
+                                            SE201
+                                        </span>
+                                    </td>
+
+                                    <td>Software Engineering</td>
+                                    <td>Computing</td>
+                                    <td>39</td>
+                                    <td>89%</td>
+
+                                    <td>
+                                        <span class="status-badge pending-status">
+                                            Upcoming
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </section>
+
+            <footer class="dashboard-footer">
+                <p>
+                    © 2026 University ERP System
+                </p>
+
+                <p>
+                    Integrated Academic Management Platform
+                </p>
+            </footer>
+
+        </main>
+
+    </div>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dashboard JavaScript -->
+    <script src="js/dashboard.js"></script>
+
+</body>
+
+</html>
