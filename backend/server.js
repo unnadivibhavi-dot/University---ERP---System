@@ -4,16 +4,24 @@ require("dotenv").config();
 
 const { connectDB } = require("./config/db");
 
+const studentRoutes = require("./routes/studentRoutes");
+const courseRoutes = require("./routes/courseRoutes");
+const enrollmentRoutes = require("./routes/enrollmentRoutes");
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+app.use("/api/students", studentRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/enrollments", enrollmentRoutes);
 
 app.get("/", (req, res) => {
     res.send("University ERP Backend Running");
 });
+
+const PORT = process.env.PORT || 5000;
 
 connectDB();
 
