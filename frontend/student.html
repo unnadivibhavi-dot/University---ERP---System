@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Student management module for the University ERP System">
+
+    <title>Students | University ERP</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Shared stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="erp-page">
+
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-header">
+
+                <div class="sidebar-logo">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+
+                <div class="sidebar-brand">
+                    <h1>University ERP</h1>
+                    <p>Academic Management</p>
+                </div>
+
+                <button type="button" class="sidebar-close-button" id="sidebarCloseButton" aria-label="Close sidebar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
+            </div>
+
+            <nav class="sidebar-navigation">
+
+                <p class="sidebar-section-title">
+                    MAIN MENU
+                </p>
+
+                <a href="dashboard.html" class="sidebar-link">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="students.html" class="sidebar-link active">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Students</span>
+                </a>
+
+                <a href="courses.html" class="sidebar-link">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                    <span>Courses</span>
+                </a>
+
+                <a href="enrollment.html" class="sidebar-link">
+                    <i class="bi bi-person-check-fill"></i>
+                    <span>Enrollments</span>
+                </a>
+
+                <p class="sidebar-section-title">
+                    ACADEMIC
+                </p>
+
+                <a href="attendance.html" class="sidebar-link">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    <span>Attendance</span>
+                </a>
+
+                <a href="examinations.html" class="sidebar-link">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="results.html" class="sidebar-link">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Results</span>
+                </a>
+
+                <p class="sidebar-section-title">
+                    SYSTEM
+                </p>
+
+                <button type="button" class="sidebar-link sidebar-button" id="sidebarLogoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </button>
+
+            </nav>
+
+            <div class="sidebar-footer">
+
+                <div class="sidebar-user-avatar">
+                    A
+                </div>
+
+                <div class="sidebar-user-details">
+                    <strong id="sidebarUsername">
+                        Administrator
+                    </strong>
+
+                    <span id="sidebarRole">
+                        System Admin
+                    </span>
+                </div>
+
+            </div>
+
+        </aside>
+
+        <!-- Mobile overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main content -->
+        <main class="dashboard-main">
+
+            <!-- Top Navigation -->
+            <header class="top-navbar">
+
+                <div class="top-navbar-left">
+
+                    <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+
+                    <div>
+                        <h2>Student Management</h2>
+
+                        <p>
+                            Add, view, update and manage university students
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="top-navbar-right">
+
+                    <button type="button" class="navbar-icon-button" aria-label="Notifications">
+                        <i class="bi bi-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+
+                    <div class="dropdown">
+
+                        <button class="user-profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+
+                            <div class="user-profile-avatar">
+                                A
+                            </div>
+
+                            <div class="user-profile-text">
+                                <strong id="topUsername">
+                                    Administrator
+                                </strong>
+
+                                <span id="topRole">
+                                    System Admin
+                                </span>
+                            </div>
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+                                <button type="button" class="dropdown-item">
+                                    <i class="bi bi-person me-2"></i>
+                                    My Profile
+                                </button>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <button type="button" class="dropdown-item text-danger" id="topLogoutButton">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Logout
+                                </button>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- Page Content -->
+            <section class="dashboard-content">
+
+                <!-- Page heading -->
+                <section class="module-heading">
+
+                    <div>
+                        <p class="module-label">
+                            STUDENT MANAGEMENT MODULE
+                        </p>
+
+                        <h2>Registered Students</h2>
+
+                        <p>
+                            Maintain student academic and personal records
+                            in one centralized system.
+                        </p>
+                    </div>
+
+                    <button type="button" class="btn module-primary-button" data-bs-toggle="modal"
+                        data-bs-target="#studentModal" id="openAddStudentButton">
+                        <i class="bi bi-person-plus-fill"></i>
+                        Add Student
+                    </button>
+
+                </section>
+
+                <!-- Summary cards -->
+                <section class="module-summary-grid">
+
+                    <article class="module-summary-card">
+
+                        <div class="module-summary-icon blue-summary-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+
+                        <div>
+                            <p>Total Students</p>
+                            <h3 id="totalStudentsValue">0</h3>
+                        </div>
+
+                    </article>
+
+                    <article class="module-summary-card">
+
+                        <div class="module-summary-icon green-summary-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+
+                        <div>
+                            <p>Departments</p>
+                            <h3 id="departmentCountValue">0</h3>
+                        </div>
+
+                    </article>
+
+                    <article class="module-summary-card">
+
+                        <div class="module-summary-icon orange-summary-icon">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+
+                        <div>
+                            <p>First Year</p>
+                            <h3 id="firstYearCountValue">0</h3>
+                        </div>
+
+                    </article>
+
+                    <article class="module-summary-card">
+
+                        <div class="module-summary-icon purple-summary-icon">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+
+                        <div>
+                            <p>Final Year</p>
+                            <h3 id="finalYearCountValue">0</h3>
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <!-- Student Table Panel -->
+                <section class="dashboard-panel">
+
+                    <div class="student-toolbar">
+
+                        <div>
+
+                            <h3>Student Directory</h3>
+
+                            <p>
+                                Search and manage all registered students
+                            </p>
+
+                        </div>
+
+                        <div class="student-toolbar-actions">
+
+                            <div class="student-search-box">
+
+                                <i class="bi bi-search"></i>
+
+                                <input type="search" id="studentSearchInput" placeholder="Search students..."
+                                    aria-label="Search students">
+
+                            </div>
+
+                            <select id="departmentFilter" class="form-select student-filter-select"
+                                aria-label="Filter by department">
+                                <option value="">
+                                    All Departments
+                                </option>
+
+                                <option value="Computing">
+                                    Computing
+                                </option>
+
+                                <option value="Business">
+                                    Business
+                                </option>
+
+                                <option value="Engineering">
+                                    Engineering
+                                </option>
+
+                                <option value="Science">
+                                    Science
+                                </option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div id="studentPageMessage" class="module-message" aria-live="polite"></div>
+
+                    <div class="table-responsive">
+
+                        <table class="table student-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Registration No.</th>
+                                    <th>Student</th>
+                                    <th>Department</th>
+                                    <th>Academic Year</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="studentTableBody">
+
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        Student records will appear here.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="student-table-footer">
+
+                        <p id="studentRecordCount">
+                            Showing 0 students
+                        </p>
+
+                        <button type="button" class="btn refresh-button" id="refreshStudentsButton">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Refresh
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </section>
+
+            <footer class="dashboard-footer">
+                <p>© 2026 University ERP System</p>
+
+                <p>Student Management Module</p>
+            </footer>
+
+        </main>
+
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalTitle" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content student-modal-content">
+
+                <div class="modal-header">
+
+                    <div>
+                        <p class="module-label">
+                            STUDENT INFORMATION
+                        </p>
+
+                        <h2 class="modal-title" id="studentModalTitle">
+                            Add New Student
+                        </h2>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                </div>
+
+                <form id="studentForm" novalidate>
+
+                    <div class="modal-body">
+
+                        <input type="hidden" id="studentId">
+
+                        <div id="studentFormMessage" class="module-message" aria-live="polite"></div>
+
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+
+                                <label for="registrationNumber" class="form-label">
+                                    Registration Number
+                                </label>
+
+                                <input type="text" id="registrationNumber" class="form-control module-form-control"
+                                    placeholder="Example: UGC001" required>
+
+                                <small id="registrationNumberError" class="field-error"></small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="fullName" class="form-label">
+                                    Full Name
+                                </label>
+
+                                <input type="text" id="fullName" class="form-control module-form-control"
+                                    placeholder="Enter full name" required>
+
+                                <small id="fullNameError" class="field-error"></small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="studentEmail" class="form-label">
+                                    Email Address
+                                </label>
+
+                                <input type="email" id="studentEmail" class="form-control module-form-control"
+                                    placeholder="student@example.com" required>
+
+                                <small id="studentEmailError" class="field-error"></small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="studentPhone" class="form-label">
+                                    Phone Number
+                                </label>
+
+                                <input type="tel" id="studentPhone" class="form-control module-form-control"
+                                    placeholder="0771234567">
+
+                                <small id="studentPhoneError" class="field-error"></small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="studentDepartment" class="form-label">
+                                    Department
+                                </label>
+
+                                <select id="studentDepartment" class="form-select module-form-control" required>
+                                    <option value="">
+                                        Select Department
+                                    </option>
+
+                                    <option value="Computing">
+                                        Computing
+                                    </option>
+
+                                    <option value="Business">
+                                        Business
+                                    </option>
+
+                                    <option value="Engineering">
+                                        Engineering
+                                    </option>
+
+                                    <option value="Science">
+                                        Science
+                                    </option>
+                                </select>
+
+                                <small id="studentDepartmentError" class="field-error"></small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="academicYear" class="form-label">
+                                    Academic Year
+                                </label>
+
+                                <select id="academicYear" class="form-select module-form-control" required>
+                                    <option value="">
+                                        Select Academic Year
+                                    </option>
+
+                                    <option value="1">
+                                        Year 1
+                                    </option>
+
+                                    <option value="2">
+                                        Year 2
+                                    </option>
+
+                                    <option value="3">
+                                        Year 3
+                                    </option>
+
+                                    <option value="4">
+                                        Year 4
+                                    </option>
+                                </select>
+
+                                <small id="academicYearError" class="field-error"></small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="studentStatus" class="form-label">
+                                    Student Status
+                                </label>
+
+                                <select id="studentStatus" class="form-select module-form-control" required>
+                                    <option value="Active">
+                                        Active
+                                    </option>
+
+                                    <option value="Inactive">
+                                        Inactive
+                                    </option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn module-secondary-button" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn module-primary-button" id="saveStudentButton">
+                            <span id="saveStudentButtonText">
+                                Save Student
+                            </span>
+
+                            <span id="saveStudentSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalTitle"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content delete-modal-content">
+
+                <div class="modal-body text-center">
+
+                    <div class="delete-warning-icon">
+                        <i class="bi bi-trash3-fill"></i>
+                    </div>
+
+                    <h2 id="deleteStudentModalTitle">
+                        Delete Student?
+                    </h2>
+
+                    <p>
+                        This action will remove the selected student from
+                        the current frontend records.
+                    </p>
+
+                    <input type="hidden" id="deleteStudentId">
+
+                    <div class="delete-modal-actions">
+
+                        <button type="button" class="btn module-secondary-button" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="button" class="btn delete-confirm-button" id="confirmDeleteStudentButton">
+                            Delete Student
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Student module JavaScript -->
+    <script src="js/students.js"></script>
+
+</body>
+
+</html>
