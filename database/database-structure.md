@@ -168,3 +168,53 @@ Primary Key: ResultID
 
 - StudentID references Students.StudentID
 - ExaminationID references Examinations.ExaminationID
+
+# Database Constraints
+
+## Users
+- Username: NOT NULL, UNIQUE
+- PasswordHash: NOT NULL
+- Role: NOT NULL
+- Role must be Admin, Lecturer, or Student
+
+## Students
+- RegistrationNumber: NOT NULL, UNIQUE
+- FullName: NOT NULL
+- Email: NOT NULL, UNIQUE
+- Department: NOT NULL
+- AcademicYear: NOT NULL
+- AcademicYear must be between 1 and 4
+
+## Courses
+- CourseCode: NOT NULL, UNIQUE
+- CourseName: NOT NULL
+- Credits: NOT NULL
+- Credits must be between 1 and 6
+- Department: NOT NULL
+
+## Enrollments
+- StudentID: NOT NULL, FOREIGN KEY
+- CourseID: NOT NULL, FOREIGN KEY
+- EnrollmentDate: NOT NULL, DEFAULT GETDATE()
+- StudentID and CourseID combination must be unique
+
+## Attendance
+- StudentID: NOT NULL, FOREIGN KEY
+- CourseID: NOT NULL, FOREIGN KEY
+- AttendanceDate: NOT NULL
+- Status: NOT NULL
+- Status must be Present, Absent, or Late
+- StudentID, CourseID, and AttendanceDate combination must be unique
+
+## Examinations
+- CourseID: NOT NULL, FOREIGN KEY
+- ExaminationName: NOT NULL
+- ExaminationDate: NOT NULL
+
+## Results
+- ExaminationID: NOT NULL, FOREIGN KEY
+- StudentID: NOT NULL, FOREIGN KEY
+- Marks: NOT NULL
+- Marks must be between 0 and 100
+- Grade: NOT NULL
+- StudentID and ExaminationID combination must be unique
