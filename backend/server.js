@@ -15,15 +15,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "University ERP Backend Running"
+    });
+});
+
 app.use("/api/students", studentRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/examinations", examinationRoutes);
 app.use("/api/results", resultRoutes);
-
-app.get("/", (req, res) => {
-    res.send("University ERP Backend Running");
-});
 
 const PORT = process.env.PORT || 5000;
 
