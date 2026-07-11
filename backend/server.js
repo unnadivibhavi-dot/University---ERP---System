@@ -10,6 +10,10 @@ const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const examinationRoutes = require("./routes/examinationRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 
+const attendanceRoutes = require("./routes/attendanceRoutes");
+const examinationRoutes = require("./routes/examinationRoutes");
+const resultRoutes = require("./routes/resultRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -24,6 +28,10 @@ app.get("/", (req, res) => {
 app.use("/api/students", studentRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
+app.use("/api/examinations", examinationRoutes);
+app.use("/api/results", resultRoutes);
+
+app.use("/api/attendance", attendanceRoutes);
 app.use("/api/examinations", examinationRoutes);
 app.use("/api/results", resultRoutes);
 
