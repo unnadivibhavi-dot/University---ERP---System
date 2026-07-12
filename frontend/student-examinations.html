@@ -6,19 +6,19 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Attendance | University ERP</title>
+    <title>Examinations | University ERP</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/student-attendance.css">
+    <link rel="stylesheet" href="css/student-examinations.css">
 </head>
 
 <body>
 
-    <div class="attendance-layout">
+    <div class="exam-layout">
 
         <!-- Sidebar -->
         <aside class="student-sidebar" id="studentSidebar">
@@ -59,16 +59,14 @@
                     <span>My Enrollments</span>
                 </a>
 
-                <p class="sidebar-title section-title">
-                    ACADEMIC
-                </p>
+                <p class="sidebar-title section-title">ACADEMIC</p>
 
-                <a href="student-attendance.html" class="sidebar-link active">
+                <a href="student-attendance.html" class="sidebar-link">
                     <i class="bi bi-calendar-check-fill"></i>
                     <span>Attendance</span>
                 </a>
 
-                <a href="student-examinations.html" class="sidebar-link">
+                <a href="student-examinations.html" class="sidebar-link active">
                     <i class="bi bi-file-earmark-text-fill"></i>
                     <span>Examinations</span>
                 </a>
@@ -78,9 +76,7 @@
                     <span>Results</span>
                 </a>
 
-                <p class="sidebar-title section-title">
-                    ACCOUNT
-                </p>
+                <p class="sidebar-title section-title">ACCOUNT</p>
 
                 <a href="student-dashboard.html#studentProfile" class="sidebar-link">
                     <i class="bi bi-person-circle"></i>
@@ -116,8 +112,8 @@
 
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Main section -->
-        <main class="attendance-main">
+        <!-- Main Content -->
+        <main class="exam-main">
 
             <header class="top-navigation">
 
@@ -128,7 +124,7 @@
                     </button>
 
                     <div>
-                        <h2>Attendance</h2>
+                        <h2>Examinations</h2>
                         <p id="currentDate">Loading date...</p>
                     </div>
 
@@ -154,23 +150,23 @@
 
             </header>
 
-            <section class="attendance-content">
+            <section class="exam-content">
 
                 <!-- Banner -->
-                <section class="attendance-banner">
+                <section class="exam-banner">
 
                     <div>
-                        <span>ATTENDANCE TRACKING</span>
+                        <span>EXAMINATION SCHEDULE</span>
 
-                        <h1>Monitor Your Attendance</h1>
+                        <h1>Manage Your Upcoming Exams</h1>
 
                         <p>
-                            Review your overall attendance and check
-                            course-by-course attendance records.
+                            View examination dates, times, locations,
+                            exam types and important instructions.
                         </p>
                     </div>
 
-                    <i class="bi bi-calendar2-check-fill"></i>
+                    <i class="bi bi-file-earmark-text-fill"></i>
 
                 </section>
 
@@ -178,11 +174,20 @@
                 <section class="summary-grid">
 
                     <article class="summary-card blue-card">
-                        <i class="bi bi-percent"></i>
+                        <i class="bi bi-calendar-event-fill"></i>
 
                         <div>
-                            <span>Overall Attendance</span>
-                            <h2 id="overallAttendance">0%</h2>
+                            <span>Total Exams</span>
+                            <h2 id="totalExamCount">0</h2>
+                        </div>
+                    </article>
+
+                    <article class="summary-card orange-card">
+                        <i class="bi bi-hourglass-split"></i>
+
+                        <div>
+                            <span>Upcoming</span>
+                            <h2 id="upcomingExamCount">0</h2>
                         </div>
                     </article>
 
@@ -190,54 +195,19 @@
                         <i class="bi bi-check-circle-fill"></i>
 
                         <div>
-                            <span>Present</span>
-                            <h2 id="presentCount">0</h2>
-                        </div>
-                    </article>
-
-                    <article class="summary-card red-card">
-                        <i class="bi bi-x-circle-fill"></i>
-
-                        <div>
-                            <span>Absent</span>
-                            <h2 id="absentCount">0</h2>
-                        </div>
-                    </article>
-
-                    <article class="summary-card purple-card">
-                        <i class="bi bi-calendar3"></i>
-
-                        <div>
-                            <span>Total Classes</span>
-                            <h2 id="totalClasses">0</h2>
+                            <span>Completed</span>
+                            <h2 id="completedExamCount">0</h2>
                         </div>
                     </article>
 
                 </section>
 
-                <!-- Warning -->
-                <div class="attendance-warning d-none" id="attendanceWarning">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-
-                    <div>
-                        <strong>Low attendance warning</strong>
-
-                        <p>
-                            One or more courses are below the required
-                            attendance percentage.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Search -->
+                <!-- Filter -->
                 <section class="filter-panel">
 
                     <div>
-                        <h2>Course Attendance</h2>
-
-                        <p>
-                            Search by course name or code.
-                        </p>
+                        <h2>Examination List</h2>
+                        <p>Search and filter your examinations.</p>
                     </div>
 
                     <div class="filter-controls">
@@ -245,21 +215,20 @@
                         <div class="search-wrapper">
                             <i class="bi bi-search"></i>
 
-                            <input type="search" id="attendanceSearch" placeholder="Search courses">
+                            <input type="search" id="examSearch" placeholder="Search course or code">
                         </div>
 
-                        <select id="attendanceFilter">
-                            <option value="">
-                                All attendance levels
-                            </option>
+                        <select id="examStatusFilter">
+                            <option value="">All statuses</option>
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Completed">Completed</option>
+                        </select>
 
-                            <option value="good">
-                                Good attendance
-                            </option>
-
-                            <option value="low">
-                                Low attendance
-                            </option>
+                        <select id="examTypeFilter">
+                            <option value="">All exam types</option>
+                            <option value="Midterm">Midterm</option>
+                            <option value="Final">Final</option>
+                            <option value="Practical">Practical</option>
                         </select>
 
                         <button type="button" id="clearFilterButton">
@@ -270,14 +239,14 @@
 
                 </section>
 
-                <!-- Cards -->
-                <section class="attendance-grid" id="attendanceGrid"></section>
+                <!-- Examination cards -->
+                <section class="exam-grid" id="examGrid" aria-live="polite"></section>
 
                 <!-- Empty state -->
                 <div class="empty-state d-none" id="emptyState">
-                    <i class="bi bi-calendar-x"></i>
-                    <h3>No attendance records found</h3>
-                    <p>Try changing your search or filter.</p>
+                    <i class="bi bi-file-earmark-x"></i>
+                    <h3>No examinations found</h3>
+                    <p>Try changing your search or filters.</p>
                 </div>
 
             </section>
@@ -293,9 +262,32 @@
 
             <div class="spinner-border text-primary"></div>
 
-            <h2>Loading Attendance</h2>
+            <h2>Loading Examinations</h2>
 
-            <p>Preparing your attendance records.</p>
+            <p>Preparing your examination schedule.</p>
+
+        </div>
+
+    </div>
+
+    <!-- Exam details modal -->
+    <div class="modal fade" id="examDetailsModal" tabindex="-1" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content details-modal">
+
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalExamTitle">
+                        Examination Details
+                    </h2>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="modalExamBody"></div>
+
+            </div>
 
         </div>
 
@@ -314,9 +306,7 @@
 
                     <h2>Logout Confirmation</h2>
 
-                    <p>
-                        Are you sure you want to logout?
-                    </p>
+                    <p>Are you sure you want to logout?</p>
 
                     <div class="modal-actions">
 
@@ -340,7 +330,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="js/student-attendance.js"></script>
+    <script src="js/student-examinations.js"></script>
 
 </body>
 
