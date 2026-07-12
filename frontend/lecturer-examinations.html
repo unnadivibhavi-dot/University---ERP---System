@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Examinations | University ERP</title>
+
+    <link rel="stylesheet" href="css/lecturer.css">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-label="Lecturer navigation">
+            <div class="sidebar-header">
+                <div class="brand-logo">U</div>
+
+                <div class="brand-text">
+                    <h1>University ERP</h1>
+                    <p>Lecturer Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-navigation">
+                <a href="lecturer-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="lecturer-courses.html" class="sidebar-link">
+                    <span class="sidebar-icon">▤</span>
+                    <span>My Courses</span>
+                </a>
+
+                <a href="lecturer-attendance.html" class="sidebar-link">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Mark Attendance</span>
+                </a>
+
+                <a href="lecturer-examinations.html" class="sidebar-link active" aria-current="page">
+                    <span class="sidebar-icon">□</span>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="lecturer-results.html" class="sidebar-link">
+                    <span class="sidebar-icon">★</span>
+                    <span>Results</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" class="logout-button" id="logoutButton">
+                    <span>↪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <div class="main-area">
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button type="button" class="menu-button" id="menuButton" aria-label="Open navigation menu"
+                        aria-expanded="false" aria-controls="sidebar">
+                        ☰
+                    </button>
+
+                    <div>
+                        <h2>Create Examinations</h2>
+                        <p>
+                            Schedule examinations for your assigned courses
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lecturer-account">
+                    <div class="lecturer-avatar" id="lecturerInitials">
+                        LE
+                    </div>
+
+                    <div class="lecturer-account-details">
+                        <strong id="headerLecturerName">
+                            Lecturer
+                        </strong>
+
+                        <span id="headerLecturerDepartment">
+                            Department
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="dashboard-content">
+
+                <div id="pageMessage" class="message" role="alert" hidden></div>
+
+                <!-- Introduction -->
+                <section class="welcome-section">
+                    <div>
+                        <p class="welcome-label">
+                            Examination Management
+                        </p>
+
+                        <h2>Create a New Examination</h2>
+
+                        <p>
+                            Select a course and enter the examination details.
+                        </p>
+                    </div>
+
+                    <div class="welcome-date">
+                        <span>Total Examinations</span>
+
+                        <strong id="examinationCount">
+                            0
+                        </strong>
+                    </div>
+                </section>
+
+                <!-- Examination form -->
+                <section class="dashboard-section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Examination Details</h2>
+
+                            <p>
+                                Complete all required fields
+                            </p>
+                        </div>
+                    </div>
+
+                    <form id="examinationForm" class="examination-form-grid" novalidate>
+                        <div class="form-group">
+                            <label for="examinationCourseSelect">
+                                Assigned Course
+                            </label>
+
+                            <select id="examinationCourseSelect" name="courseId" required>
+                                <option value="">
+                                    Select a course
+                                </option>
+                            </select>
+
+                            <small id="examinationCourseError" class="field-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="examNameInput">
+                                Examination Name
+                            </label>
+
+                            <input type="text" id="examNameInput" name="examName"
+                                placeholder="Example: Mid-Semester Examination" maxlength="100" required>
+
+                            <small id="examNameError" class="field-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="examDateInput">
+                                Examination Date
+                            </label>
+
+                            <input type="date" id="examDateInput" name="examDate" required>
+
+                            <small id="examDateError" class="field-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="totalMarksInput">
+                                Total Marks
+                            </label>
+
+                            <input type="number" id="totalMarksInput" name="totalMarks" min="1" max="1000" step="1"
+                                placeholder="Example: 100" required>
+
+                            <small id="totalMarksError" class="field-error"></small>
+                        </div>
+
+                        <div class="examination-form-actions">
+                            <button type="button" class="secondary-button" id="clearExaminationFormButton">
+                                Clear
+                            </button>
+
+                            <button type="submit" class="primary-button" id="createExaminationButton">
+                                Create Examination
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Loading -->
+                <div id="examinationsLoading" class="loading-state" aria-live="polite">
+                    Loading examinations...
+                </div>
+
+                <!-- Examination list -->
+                <section id="examinationsMainContent" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h2>Created Examinations</h2>
+
+                            <p>
+                                Examinations created for your assigned courses
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Course</th>
+                                    <th scope="col">Examination</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Total Marks</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="examinationsTableBody">
+                                <tr>
+                                    <td colspan="4" class="empty-table-message">
+                                        No examinations are available.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- Lecturer scripts -->
+    <script src="js/lecturer-config.js"></script>
+    <script src="js/lecturer-data.js"></script>
+    <script src="js/lecturer-common.js"></script>
+    <script src="js/lecturer-examinations.js"></script>
+</body>
+
+</html>

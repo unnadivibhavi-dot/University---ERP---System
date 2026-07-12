@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lecturer Dashboard | University ERP</title>
+
+    <link rel="stylesheet" href="css/lecturer.css">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-label="Lecturer navigation">
+            <div class="sidebar-header">
+                <div class="brand-logo">U</div>
+
+                <div class="brand-text">
+                    <h1>University ERP</h1>
+                    <p>Lecturer Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-navigation">
+                <a href="lecturer-dashboard.html" class="sidebar-link active" aria-current="page">
+                    <span class="sidebar-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="lecturer-courses.html" class="sidebar-link">
+                    <span class="sidebar-icon">▤</span>
+                    <span>My Courses</span>
+                </a>
+
+                <a href="lecturer-attendance.html" class="sidebar-link">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Mark Attendance</span>
+                </a>
+
+                <a href="lecturer-examinations.html" class="sidebar-link">
+                    <span class="sidebar-icon">□</span>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="lecturer-results.html" class="sidebar-link">
+                    <span class="sidebar-icon">★</span>
+                    <span>Results</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" class="logout-button" id="logoutButton">
+                    <span>↪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <div class="main-area">
+
+            <!-- Top header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button type="button" class="menu-button" id="menuButton" aria-label="Open navigation menu"
+                        aria-expanded="false" aria-controls="sidebar">
+                        ☰
+                    </button>
+
+                    <div>
+                        <h2>Lecturer Dashboard</h2>
+                        <p>Manage your academic activities</p>
+                    </div>
+                </div>
+
+                <div class="lecturer-account">
+                    <div class="lecturer-avatar" id="lecturerInitials">
+                        LP
+                    </div>
+
+                    <div class="lecturer-account-details">
+                        <strong id="headerLecturerName">
+                            Lecturer
+                        </strong>
+
+                        <span id="headerLecturerDepartment">
+                            Department
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="dashboard-content">
+
+                <div id="dashboardMessage" class="message" role="alert" hidden></div>
+
+                <!-- Welcome section -->
+                <section class="welcome-section">
+                    <div>
+                        <p class="welcome-label">
+                            Welcome back
+                        </p>
+
+                        <h2>
+                            <span id="welcomeLecturerName">
+                                Lecturer
+                            </span>
+                        </h2>
+
+                        <p>
+                            Here is an overview of your assigned courses,
+                            students and upcoming examinations.
+                        </p>
+                    </div>
+
+                    <div class="welcome-date">
+                        <span>Today</span>
+                        <strong id="currentDate">--</strong>
+                    </div>
+                </section>
+
+                <!-- Loading state -->
+                <div id="dashboardLoading" class="loading-state" aria-live="polite">
+                    Loading Lecturer Dashboard...
+                </div>
+
+                <!-- Dashboard information -->
+                <div id="dashboardMainContent" hidden>
+
+                    <!-- Statistics -->
+                    <section class="statistics-grid" aria-label="Lecturer statistics">
+                        <article class="stat-card">
+                            <div class="stat-icon courses-icon">
+                                ▤
+                            </div>
+
+                            <div>
+                                <p>Assigned Courses</p>
+
+                                <strong id="assignedCoursesCount">
+                                    0
+                                </strong>
+
+                                <a href="lecturer-courses.html">
+                                    View courses
+                                </a>
+                            </div>
+                        </article>
+
+                        <article class="stat-card">
+                            <div class="stat-icon students-icon">
+                                ♟
+                            </div>
+
+                            <div>
+                                <p>Total Students</p>
+
+                                <strong id="totalStudentsCount">
+                                    0
+                                </strong>
+
+                                <span>Across assigned courses</span>
+                            </div>
+                        </article>
+
+                        <article class="stat-card">
+                            <div class="stat-icon examination-icon">
+                                □
+                            </div>
+
+                            <div>
+                                <p>Upcoming Examinations</p>
+
+                                <strong id="upcomingExaminationsCount">
+                                    0
+                                </strong>
+
+                                <a href="lecturer-examinations.html">
+                                    Manage examinations
+                                </a>
+                            </div>
+                        </article>
+                    </section>
+
+                    <!-- Quick actions -->
+                    <section class="dashboard-section">
+                        <div class="section-heading">
+                            <div>
+                                <h2>Quick Actions</h2>
+                                <p>
+                                    Access common Lecturer activities
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions-grid">
+
+                            <a href="lecturer-courses.html" class="quick-action-card">
+                                <span class="quick-action-icon">
+                                    ▤
+                                </span>
+
+                                <div>
+                                    <h3>My Courses</h3>
+                                    <p>
+                                        View assigned courses and students
+                                    </p>
+                                </div>
+
+                                <span class="action-arrow">→</span>
+                            </a>
+
+                            <a href="lecturer-attendance.html" class="quick-action-card">
+                                <span class="quick-action-icon">
+                                    ✓
+                                </span>
+
+                                <div>
+                                    <h3>Mark Attendance</h3>
+                                    <p>
+                                        Record student attendance
+                                    </p>
+                                </div>
+
+                                <span class="action-arrow">→</span>
+                            </a>
+
+                            <a href="lecturer-examinations.html" class="quick-action-card">
+                                <span class="quick-action-icon">
+                                    □
+                                </span>
+
+                                <div>
+                                    <h3>Create Examination</h3>
+                                    <p>
+                                        Schedule a new examination
+                                    </p>
+                                </div>
+
+                                <span class="action-arrow">→</span>
+                            </a>
+
+                            <a href="lecturer-results.html" class="quick-action-card">
+                                <span class="quick-action-icon">
+                                    ★
+                                </span>
+
+                                <div>
+                                    <h3>Enter Results</h3>
+                                    <p>
+                                        Add or update student marks
+                                    </p>
+                                </div>
+
+                                <span class="action-arrow">→</span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- Upcoming examinations -->
+                    <section class="dashboard-section">
+                        <div class="section-heading">
+                            <div>
+                                <h2>Upcoming Examinations</h2>
+                                <p>
+                                    Recently scheduled examinations
+                                </p>
+                            </div>
+
+                            <a href="lecturer-examinations.html" class="secondary-link">
+                                View all
+                            </a>
+                        </div>
+
+                        <div id="upcomingExaminationsList" class="examination-list">
+                            <div class="empty-state">
+                                No upcoming examinations available.
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Assigned courses -->
+                    <section class="dashboard-section">
+                        <div class="section-heading">
+                            <div>
+                                <h2>Assigned Courses</h2>
+                                <p>
+                                    Courses assigned to the logged-in lecturer
+                                </p>
+                            </div>
+
+                            <a href="lecturer-courses.html" class="secondary-link">
+                                View all
+                            </a>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Course Code</th>
+                                        <th scope="col">Course Name</th>
+                                        <th scope="col">Credits</th>
+                                        <th scope="col">Students</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="dashboardCoursesTableBody">
+                                    <tr>
+                                        <td colspan="5" class="empty-table-message">
+                                            No assigned courses available.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- Lecturer scripts -->
+    <script src="js/lecturer-config.js"></script>
+    <script src="js/lecturer-data.js"></script>
+    <script src="js/lecturer-common.js"></script>
+    <script src="js/lecturer-dashboard.js"></script>
+</body>
+
+</html>
