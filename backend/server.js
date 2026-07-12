@@ -15,8 +15,14 @@ app.get("/", (req, res) => {
     res.send("University ERP Backend Running");
 });
 
-connectDB();
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error("Backend could not start.");
+        console.error(error.message);
+        process.exit(1);
+    });
