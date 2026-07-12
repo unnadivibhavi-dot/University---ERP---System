@@ -115,3 +115,40 @@ CREATE TABLE Results (
         UNIQUE (StudentID, ExaminationID)
 );
 GO
+
+USE UniversityERP;
+GO
+
+
+CREATE TABLE Lecturers (
+    LecturerID      INT IDENTITY(1,1) PRIMARY KEY,
+    UserID          INT NOT NULL,
+    EmployeeNumber  NVARCHAR(50)  NOT NULL UNIQUE,
+    FullName        NVARCHAR(150) NOT NULL,
+    Email           NVARCHAR(150) NOT NULL UNIQUE,
+    Department      NVARCHAR(100) NOT NULL,
+
+    CONSTRAINT FK_Lecturers_Users
+        FOREIGN KEY (UserID)
+        REFERENCES Users(UserID)
+);
+GO
+
+
+CREATE TABLE LecturerCourses (
+    LecturerCourseID INT IDENTITY(1,1) PRIMARY KEY,
+    LecturerID       INT NOT NULL,
+    CourseID         INT NOT NULL,
+
+    CONSTRAINT FK_LecturerCourses_Lecturers
+        FOREIGN KEY (LecturerID)
+        REFERENCES Lecturers(LecturerID),
+
+    CONSTRAINT FK_LecturerCourses_Courses
+        FOREIGN KEY (CourseID)
+        REFERENCES Courses(CourseID),
+
+    CONSTRAINT UQ_LecturerCourses_LecturerCourse
+        UNIQUE (LecturerID, CourseID)
+);
+GO
