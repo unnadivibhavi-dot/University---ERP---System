@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mark Attendance | University ERP</title>
+
+    <link rel="stylesheet" href="css/lecturer.css">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-label="Lecturer navigation">
+            <div class="sidebar-header">
+                <div class="brand-logo">U</div>
+
+                <div class="brand-text">
+                    <h1>University ERP</h1>
+                    <p>Lecturer Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-navigation">
+                <a href="lecturer-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="lecturer-courses.html" class="sidebar-link">
+                    <span class="sidebar-icon">▤</span>
+                    <span>My Courses</span>
+                </a>
+
+                <a href="lecturer-attendance.html" class="sidebar-link active" aria-current="page">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Mark Attendance</span>
+                </a>
+
+                <a href="lecturer-examinations.html" class="sidebar-link">
+                    <span class="sidebar-icon">□</span>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="lecturer-results.html" class="sidebar-link">
+                    <span class="sidebar-icon">★</span>
+                    <span>Results</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" class="logout-button" id="logoutButton">
+                    <span>↪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <div class="main-area">
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button type="button" class="menu-button" id="menuButton" aria-label="Open navigation menu"
+                        aria-expanded="false" aria-controls="sidebar">
+                        ☰
+                    </button>
+
+                    <div>
+                        <h2>Mark Attendance</h2>
+                        <p>
+                            Record attendance for students in your assigned courses
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lecturer-account">
+                    <div class="lecturer-avatar" id="lecturerInitials">
+                        LE
+                    </div>
+
+                    <div class="lecturer-account-details">
+                        <strong id="headerLecturerName">
+                            Lecturer
+                        </strong>
+
+                        <span id="headerLecturerDepartment">
+                            Department
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="dashboard-content">
+
+                <div id="pageMessage" class="message" role="alert" hidden></div>
+
+                <!-- Page introduction -->
+                <section class="welcome-section">
+                    <div>
+                        <p class="welcome-label">
+                            Attendance Management
+                        </p>
+
+                        <h2>Record Student Attendance</h2>
+
+                        <p>
+                            Select a course and date, then mark each student
+                            as Present, Absent, or Late.
+                        </p>
+                    </div>
+
+                    <div class="welcome-date">
+                        <span>Today</span>
+                        <strong id="currentDate">--</strong>
+                    </div>
+                </section>
+
+                <!-- Attendance selection form -->
+                <section class="dashboard-section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Attendance Details</h2>
+
+                            <p>
+                                Choose the assigned course and attendance date
+                            </p>
+                        </div>
+                    </div>
+
+                    <form id="attendanceSelectionForm" class="form-grid" novalidate>
+                        <div class="form-group">
+                            <label for="attendanceCourseSelect">
+                                Assigned Course
+                            </label>
+
+                            <select id="attendanceCourseSelect" name="courseId" required>
+                                <option value="">
+                                    Select a course
+                                </option>
+                            </select>
+
+                            <small id="attendanceCourseError" class="field-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="attendanceDateInput">
+                                Attendance Date
+                            </label>
+
+                            <input type="date" id="attendanceDateInput" name="attendanceDate" required>
+
+                            <small id="attendanceDateError" class="field-error"></small>
+                        </div>
+
+                        <div class="form-action-group">
+                            <button type="submit" class="primary-button" id="loadStudentsButton">
+                                Load Students
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Loading state -->
+                <div id="attendanceLoading" class="loading-state" hidden aria-live="polite">
+                    Loading registered students...
+                </div>
+
+                <!-- Attendance section -->
+                <section id="attendanceMainContent" class="dashboard-section" hidden>
+                    <div class="section-heading attendance-heading">
+                        <div>
+                            <h2 id="attendanceCourseTitle">
+                                Course Attendance
+                            </h2>
+
+                            <p id="attendanceSummary">
+                                Mark attendance for registered students
+                            </p>
+                        </div>
+
+                        <button type="button" class="secondary-button" id="markAllPresentButton">
+                            Mark All Present
+                        </button>
+                    </div>
+
+                    <form id="attendanceForm" novalidate>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            Student Number
+                                        </th>
+
+                                        <th scope="col">
+                                            Full Name
+                                        </th>
+
+                                        <th scope="col">
+                                            Email
+                                        </th>
+
+                                        <th scope="col">
+                                            Attendance Status
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="attendanceStudentsTableBody">
+                                    <tr>
+                                        <td colspan="4" class="empty-table-message">
+                                            Select a course and date to load students.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="attendance-actions">
+                            <button type="button" class="secondary-button" id="clearAttendanceButton">
+                                Clear Selection
+                            </button>
+
+                            <button type="submit" class="primary-button" id="saveAttendanceButton">
+                                Save Attendance
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Recent attendance -->
+                <section class="dashboard-section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Recent Attendance Records</h2>
+
+                            <p>
+                                Recently saved attendance entries
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Course</th>
+                                    <th scope="col">Student</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recentAttendanceTableBody">
+                                <tr>
+                                    <td colspan="4" class="empty-table-message">
+                                        No recent attendance records available.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- Lecturer scripts -->
+    <script src="js/lecturer-config.js"></script>
+    <script src="js/lecturer-data.js"></script>
+    <script src="js/lecturer-common.js"></script>
+    <script src="js/lecturer-attendance.js"></script>
+</body>
+
+</html>

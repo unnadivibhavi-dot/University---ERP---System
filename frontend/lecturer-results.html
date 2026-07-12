@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Enter Results | University ERP</title>
+
+    <link rel="stylesheet" href="css/lecturer.css">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-label="Lecturer navigation">
+            <div class="sidebar-header">
+                <div class="brand-logo">U</div>
+
+                <div class="brand-text">
+                    <h1>University ERP</h1>
+                    <p>Lecturer Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-navigation">
+
+                <a href="lecturer-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="lecturer-courses.html" class="sidebar-link">
+                    <span class="sidebar-icon">▤</span>
+                    <span>My Courses</span>
+                </a>
+
+                <a href="lecturer-attendance.html" class="sidebar-link">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Mark Attendance</span>
+                </a>
+
+                <a href="lecturer-examinations.html" class="sidebar-link">
+                    <span class="sidebar-icon">□</span>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="lecturer-results.html" class="sidebar-link active" aria-current="page">
+                    <span class="sidebar-icon">★</span>
+                    <span>Results</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" class="logout-button" id="logoutButton">
+                    <span>↪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <div class="main-area">
+
+            <!-- Header -->
+            <header class="top-header">
+
+                <div class="header-left">
+
+                    <button type="button" class="menu-button" id="menuButton" aria-label="Open navigation menu"
+                        aria-expanded="false" aria-controls="sidebar">
+                        ☰
+                    </button>
+
+                    <div>
+                        <h2>Enter and Update Results</h2>
+
+                        <p>
+                            Record and update marks for student examinations
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lecturer-account">
+
+                    <div class="lecturer-avatar" id="lecturerInitials">
+                        LE
+                    </div>
+
+                    <div class="lecturer-account-details">
+
+                        <strong id="headerLecturerName">
+                            Lecturer
+                        </strong>
+
+                        <span id="headerLecturerDepartment">
+                            Department
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="dashboard-content">
+
+                <div id="pageMessage" class="message" role="alert" hidden></div>
+
+                <!-- Introduction -->
+                <section class="welcome-section">
+
+                    <div>
+                        <p class="welcome-label">
+                            Results Management
+                        </p>
+
+                        <h2>Student Examination Results</h2>
+
+                        <p>
+                            Select an examination, enter marks, and save the
+                            calculated student grades.
+                        </p>
+                    </div>
+
+                    <div class="welcome-date">
+
+                        <span>Saved Results</span>
+
+                        <strong id="savedResultCount">
+                            0
+                        </strong>
+                    </div>
+                </section>
+
+                <!-- Examination selection -->
+                <section class="dashboard-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <h2>Select Examination</h2>
+
+                            <p>
+                                Choose an examination to load registered students
+                            </p>
+                        </div>
+                    </div>
+
+                    <form id="resultSelectionForm" class="result-selection-grid" novalidate>
+                        <div class="form-group">
+
+                            <label for="resultExaminationSelect">
+                                Examination
+                            </label>
+
+                            <select id="resultExaminationSelect" name="examinationId" required>
+                                <option value="">
+                                    Select an examination
+                                </option>
+                            </select>
+
+                            <small id="resultExaminationError" class="field-error"></small>
+                        </div>
+
+                        <div class="form-action-group">
+
+                            <button type="submit" class="primary-button" id="loadResultStudentsButton">
+                                Load Students
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Selected examination information -->
+                <section id="selectedExaminationSection" class="dashboard-section selected-examination-card" hidden>
+                    <div class="selected-examination-grid">
+
+                        <div>
+                            <span class="information-label">
+                                Examination
+                            </span>
+
+                            <strong id="selectedExamName">
+                                --
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="information-label">
+                                Course
+                            </span>
+
+                            <strong id="selectedExamCourse">
+                                --
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="information-label">
+                                Examination Date
+                            </span>
+
+                            <strong id="selectedExamDate">
+                                --
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="information-label">
+                                Total Marks
+                            </span>
+
+                            <strong id="selectedExamTotalMarks">
+                                --
+                            </strong>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Loading state -->
+                <div id="resultsLoading" class="loading-state" hidden aria-live="polite">
+                    Loading registered students and results...
+                </div>
+
+                <!-- Results entry section -->
+                <section id="resultsMainContent" class="dashboard-section" hidden>
+                    <div class="section-heading results-section-heading">
+
+                        <div>
+                            <h2>Enter Student Marks</h2>
+
+                            <p id="resultEntrySummary">
+                                Enter marks for every registered student
+                            </p>
+                        </div>
+
+                        <button type="button" class="secondary-button" id="clearMarksButton">
+                            Clear Marks
+                        </button>
+                    </div>
+
+                    <form id="resultsForm" novalidate>
+                        <div class="table-wrapper">
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            Student Number
+                                        </th>
+
+                                        <th scope="col">
+                                            Full Name
+                                        </th>
+
+                                        <th scope="col">
+                                            Marks
+                                        </th>
+
+                                        <th scope="col">
+                                            Grade
+                                        </th>
+
+                                        <th scope="col">
+                                            Status
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="resultsStudentsTableBody">
+                                    <tr>
+                                        <td colspan="5" class="empty-table-message">
+                                            Select an examination to load students.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="results-actions">
+
+                            <button type="button" class="secondary-button" id="cancelResultEntryButton">
+                                Cancel
+                            </button>
+
+                            <button type="submit" class="primary-button" id="saveResultsButton">
+                                Save Results
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Existing results -->
+                <section class="dashboard-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <h2>Existing Results</h2>
+
+                            <p>
+                                Previously saved and updated examination results
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="search-container result-search-container">
+
+                        <label for="resultSearchInput" class="search-label">
+                            Search results
+                        </label>
+
+                        <input type="search" id="resultSearchInput" class="search-input"
+                            placeholder="Search by student, course, or examination" autocomplete="off">
+                    </div>
+
+                    <div class="table-wrapper result-list-table">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        Student
+                                    </th>
+
+                                    <th scope="col">
+                                        Course
+                                    </th>
+
+                                    <th scope="col">
+                                        Examination
+                                    </th>
+
+                                    <th scope="col">
+                                        Marks
+                                    </th>
+
+                                    <th scope="col">
+                                        Grade
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="existingResultsTableBody">
+                                <tr>
+                                    <td colspan="5" class="empty-table-message">
+                                        No saved results are available.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- Lecturer scripts -->
+    <script src="js/lecturer-config.js"></script>
+    <script src="js/lecturer-data.js"></script>
+    <script src="js/lecturer-common.js"></script>
+    <script src="js/lecturer-results.js"></script>
+</body>
+
+</html>

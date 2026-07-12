@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Course Students | University ERP</title>
+
+    <link rel="stylesheet" href="css/lecturer.css">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-label="Lecturer navigation">
+            <div class="sidebar-header">
+                <div class="brand-logo">U</div>
+
+                <div class="brand-text">
+                    <h1>University ERP</h1>
+                    <p>Lecturer Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-navigation">
+                <a href="lecturer-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="lecturer-courses.html" class="sidebar-link active" aria-current="page">
+                    <span class="sidebar-icon">▤</span>
+                    <span>My Courses</span>
+                </a>
+
+                <a href="lecturer-attendance.html" class="sidebar-link">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Mark Attendance</span>
+                </a>
+
+                <a href="lecturer-examinations.html" class="sidebar-link">
+                    <span class="sidebar-icon">□</span>
+                    <span>Examinations</span>
+                </a>
+
+                <a href="lecturer-results.html" class="sidebar-link">
+                    <span class="sidebar-icon">★</span>
+                    <span>Results</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" class="logout-button" id="logoutButton">
+                    <span>↪️</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <div class="main-area">
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button type="button" class="menu-button" id="menuButton" aria-label="Open navigation menu"
+                        aria-expanded="false" aria-controls="sidebar">
+                        ☰
+                    </button>
+
+                    <div>
+                        <h2>Course Students</h2>
+                        <p>
+                            View students registered for the selected course
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lecturer-account">
+                    <div class="lecturer-avatar" id="lecturerInitials">
+                        LE
+                    </div>
+
+                    <div class="lecturer-account-details">
+                        <strong id="headerLecturerName">
+                            Lecturer
+                        </strong>
+
+                        <span id="headerLecturerDepartment">
+                            Department
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="dashboard-content">
+
+                <div id="pageMessage" class="message" role="alert" hidden></div>
+
+                <!-- Back button -->
+                <div class="page-toolbar">
+                    <a href="lecturer-courses.html" class="back-link">
+                        ← Back to My Courses
+                    </a>
+                </div>
+
+                <!-- Course information -->
+                <section class="welcome-section">
+                    <div>
+                        <p class="welcome-label">
+                            Selected Course
+                        </p>
+
+                        <h2 id="selectedCourseName">
+                            Loading course...
+                        </h2>
+
+                        <p>
+                            Course Code:
+                            <strong id="selectedCourseCode">
+                                --
+                            </strong>
+
+                            &nbsp; | &nbsp;
+
+                            Credits:
+                            <strong id="selectedCourseCredits">
+                                --
+                            </strong>
+                        </p>
+                    </div>
+
+                    <div class="welcome-date">
+                        <span>Registered Students</span>
+
+                        <strong id="registeredStudentCount">
+                            0
+                        </strong>
+                    </div>
+                </section>
+
+                <!-- Search section -->
+                <section class="dashboard-section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Search Students</h2>
+
+                            <p>
+                                Search using student number, name, or email
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="search-container">
+                        <label for="studentSearchInput" class="search-label">
+                            Search registered students
+                        </label>
+
+                        <input type="search" id="studentSearchInput" class="search-input"
+                            placeholder="Example: STU001 or Nimal" autocomplete="off">
+                    </div>
+                </section>
+
+                <!-- Loading state -->
+                <div id="studentsLoading" class="loading-state" aria-live="polite">
+                    Loading registered students...
+                </div>
+
+                <!-- Students table -->
+                <section id="studentsMainContent" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h2>Registered Students</h2>
+
+                            <p id="studentResultSummary">
+                                Showing all registered students
+                            </p>
+                        </div>
+
+                        <a id="markAttendanceLink" href="lecturer-attendance.html" class="table-action-button">
+                            Mark Attendance
+                        </a>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        Student Number
+                                    </th>
+
+                                    <th scope="col">
+                                        Full Name
+                                    </th>
+
+                                    <th scope="col">
+                                        Email
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="courseStudentsTableBody">
+                                <tr>
+                                    <td colspan="3" class="empty-table-message">
+                                        No registered students available.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- Lecturer scripts -->
+    <script src="js/lecturer-config.js"></script>
+    <script src="js/lecturer-data.js"></script>
+    <script src="js/lecturer-common.js"></script>
+    <script src="js/lecturer-students.js"></script>
+</body>
+
+</html>
