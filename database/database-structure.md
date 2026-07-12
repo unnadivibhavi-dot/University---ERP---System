@@ -218,3 +218,4 @@ Primary Key: ResultID
 - Marks must be between 0 and 100
 - Grade: NOT NULL
 - StudentID and ExaminationID combination must be unique
+

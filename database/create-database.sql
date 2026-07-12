@@ -1,0 +1,5 @@
+IF DB_ID('UniversityERP') IS NULL
+BEGIN
+    CREATE DATABASE UniversityERP;
+END
+GO
