@@ -4,15 +4,17 @@ require("dotenv").config();
 
 const { connectDB } = require("./config/db");
 
+const authRoutes = require("./routes/authRoutes");
+
 const studentRoutes = require("./routes/studentRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
-const examinationRoutes = require("./routes/examinationRoutes");
-const resultRoutes = require("./routes/resultRoutes");
 
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const examinationRoutes = require("./routes/examinationRoutes");
 const resultRoutes = require("./routes/resultRoutes");
+
+const studentPortalRoutes = require("./routes/studentPortalRoutes");
 
 const app = express();
 
@@ -25,20 +27,43 @@ app.get("/", (req, res) => {
     });
 });
 
+/*
+  Shared authentication route
+  Final endpoint:
+  POST /api/auth/login
+*/
+app.use("/api/auth", authRoutes);
+
+/*
+  Administrator management routes
+*/
 app.use("/api/students", studentRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
-app.use("/api/examinations", examinationRoutes);
-app.use("/api/results", resultRoutes);
+
 
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/examinations", examinationRoutes);
 app.use("/api/results", resultRoutes);
 
+/*
+  Student Portal routes
+*/
+app.use("/api/student-portal", studentPortalRoutes);
+
 const PORT = process.env.PORT || 5000;
 
-connectDB();
+async function startServer() {
+    try {
+        await connectDB();
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error("Server could not start:", error.message);
+        process.exit(1);
+    }
+}
+
+startServer();
