@@ -133,6 +133,7 @@ IF NOT EXISTS
 BEGIN
     INSERT INTO dbo.Students
     (
+        UserID,
         RegistrationNumber,
         FullName,
         Email,
@@ -142,6 +143,7 @@ BEGIN
     )
     VALUES
     (
+        (SELECT UserID FROM dbo.Users WHERE Username = N'student.2026001'),
         N'UNI-2026-001',
         N'Nethmi Silva',
         N'nethmi.silva@example.edu',
@@ -160,6 +162,7 @@ IF NOT EXISTS
 BEGIN
     INSERT INTO dbo.Students
     (
+        UserID,
         RegistrationNumber,
         FullName,
         Email,
@@ -169,6 +172,7 @@ BEGIN
     )
     VALUES
     (
+        (SELECT UserID FROM dbo.Users WHERE Username = N'student.2026002'),
         N'UNI-2026-002',
         N'Kavindu Fernando',
         N'kavindu.fernando@example.edu',

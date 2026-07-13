@@ -1087,7 +1087,7 @@ function escapeHTML(value) {
    Example:
 
    const API_BASE_URL =
-       "http://localhost:5000/api";
+       "http://localhost:5001/api";
 
    GET:
    fetch(`${API_BASE_URL}/students`);
