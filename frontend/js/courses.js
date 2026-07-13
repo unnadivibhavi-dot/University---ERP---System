@@ -1268,7 +1268,7 @@ function escapeHTML(value) {
    Example:
 
    const API_BASE_URL =
-       "http://localhost:5000/api";
+       "http://localhost:5001/api";
 
    const response = await fetch(
        `${API_BASE_URL}/courses`
