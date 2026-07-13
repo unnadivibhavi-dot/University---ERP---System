@@ -1,7 +1,3 @@
-/*
-    University ERP - idempotent migration for an existing SQL Server database.
-    This script never drops a database/table and never deletes existing records.
-*/
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
@@ -20,7 +16,7 @@ GO
 USE [UniversityERP];
 GO
 
-/* Create complete tables when absent. */
+
 IF OBJECT_ID(N'dbo.Users', N'U') IS NULL
 BEGIN
     PRINT N'Creating [dbo].[Users].';
@@ -175,11 +171,7 @@ END
 ELSE PRINT N'Table [dbo].[LecturerCourses] already exists.';
 GO
 
-/*
-   Check every backend/database-contract column. Missing nullable columns and
-   columns in empty tables can be added without inventing values. A populated
-   table missing a required NOT NULL column is reported and stops safely.
-*/
+
 CREATE TABLE #ExpectedColumns
 (
     ID INT IDENTITY(1,1) PRIMARY KEY,
@@ -234,7 +226,7 @@ DROP TABLE #ExpectedColumns;
 IF @Unsafe > 0 THROW 50001, N'Manual backfill is required for missing NOT NULL columns.', 1;
 GO
 
-/* Primary keys: accept existing system-generated constraint names. */
+
 DECLARE @PK TABLE (TableName SYSNAME, ColumnName SYSNAME, ConstraintName SYSNAME);
 INSERT @PK VALUES
 (N'Users',N'UserID',N'PK_Users'),(N'Students',N'StudentID',N'PK_Students'),(N'Courses',N'CourseID',N'PK_Courses'),
@@ -257,7 +249,7 @@ END
 CLOSE pk_cursor; DEALLOCATE pk_cursor;
 GO
 
-/* Foreign keys: detect exact child/parent column relationships. */
+
 DECLARE @FK TABLE (ChildTable SYSNAME,ChildColumn SYSNAME,ParentTable SYSNAME,ParentColumn SYSNAME,ConstraintName SYSNAME);
 INSERT @FK VALUES
 (N'Enrollments',N'StudentID',N'Students',N'StudentID',N'FK_Enrollments_Students'),
@@ -295,7 +287,7 @@ END
 CLOSE fk_cursor; DEALLOCATE fk_cursor;
 GO
 
-/* Named check constraints from the project database contract. */
+
 IF OBJECT_ID(N'dbo.CK_Users_Role',N'C') IS NULL
 BEGIN
     IF EXISTS(SELECT 1 FROM dbo.Users WHERE Role NOT IN(N'Admin',N'Lecturer',N'Student')) THROW 50003,N'Invalid Users.Role values prevent CK_Users_Role.',1;
@@ -333,7 +325,7 @@ BEGIN
 END ELSE PRINT N'[CK_Results_Grade] already exists.';
 GO
 
-/* Single-column unique rules, accepting existing system-generated names. */
+
 DECLARE @UQ TABLE (TableName SYSNAME,ColumnName SYSNAME,ConstraintName SYSNAME);
 INSERT @UQ VALUES
 (N'Users',N'Username',N'UQ_Users_Username'),
@@ -368,7 +360,7 @@ END
 CLOSE uq_cursor; DEALLOCATE uq_cursor;
 GO
 
-/* Composite unique constraints required by controller duplicate checks. */
+
 IF NOT EXISTS(SELECT 1 FROM sys.indexes i WHERE i.object_id=OBJECT_ID(N'dbo.Enrollments') AND i.is_unique=1 AND INDEX_COL(N'dbo.Enrollments',i.index_id,1)=N'StudentID' AND INDEX_COL(N'dbo.Enrollments',i.index_id,2)=N'CourseID' AND INDEX_COL(N'dbo.Enrollments',i.index_id,3) IS NULL)
 BEGIN
     IF EXISTS(SELECT StudentID,CourseID FROM dbo.Enrollments GROUP BY StudentID,CourseID HAVING COUNT(*)>1) THROW 50009,N'Duplicate enrollments prevent UQ_Enrollments_StudentCourse.',1;
@@ -400,7 +392,7 @@ BEGIN
 END ELSE PRINT N'Lecturer-course unique rule already exists.';
 GO
 
-/* EnrollmentDate default, accepting any existing default constraint name. */
+
 IF NOT EXISTS(SELECT 1 FROM sys.default_constraints dc JOIN sys.columns c ON c.object_id=dc.parent_object_id AND c.column_id=dc.parent_column_id WHERE dc.parent_object_id=OBJECT_ID(N'dbo.Enrollments') AND c.name=N'EnrollmentDate')
 BEGIN
     PRINT N'Adding default for [dbo].[Enrollments].[EnrollmentDate].';
