@@ -330,15 +330,13 @@
                     <!-- Enrolled Courses -->
                     <article class="summary-card">
 
-                        <div class="summary-card-top">
+                        <div class="summary-card-icon blue">
+                            <i class="bi bi-journal-bookmark-fill" aria-hidden="true"></i>
+                        </div>
 
-                            <div class="summary-card-label">
-                                <span>Enrolled Courses</span>
+                        <div class="summary-card-content">
 
-                                <div class="summary-card-icon blue">
-                                    <i class="bi bi-journal-bookmark-fill" aria-hidden="true"></i>
-                                </div>
-                            </div>
+                            <span>Enrolled Courses</span>
 
                             <h3 id="enrolledCoursesCount">
                                 0
@@ -348,28 +346,27 @@
                                 Current semester courses
                             </p>
 
+                            <a href="student-enrollment.html" class="summary-card-link"
+                                aria-label="View student enrollments">
+                                View enrollments
+
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+
                         </div>
-
-                        <a href="student-enrollment.html" class="summary-card-link">
-                            View enrollments
-
-                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                        </a>
 
                     </article>
 
                     <!-- Attendance -->
                     <article class="summary-card">
 
-                        <div class="summary-card-top">
+                        <div class="summary-card-icon green">
+                            <i class="bi bi-calendar-check-fill" aria-hidden="true"></i>
+                        </div>
 
-                            <div class="summary-card-label">
-                                <span>Attendance</span>
+                        <div class="summary-card-content">
 
-                                <div class="summary-card-icon green">
-                                    <i class="bi bi-calendar-check-fill" aria-hidden="true"></i>
-                                </div>
-                            </div>
+                            <span>Attendance</span>
 
                             <h3 id="attendancePercentage">
                                 0%
@@ -379,28 +376,27 @@
                                 Attendance information unavailable
                             </p>
 
+                            <a href="student-attendance.html" class="summary-card-link"
+                                aria-label="View student attendance">
+                                View attendance
+
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+
                         </div>
-
-                        <a href="attendance.html" class="summary-card-link">
-                            View attendance
-
-                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                        </a>
 
                     </article>
 
                     <!-- Upcoming Examinations -->
                     <article class="summary-card">
 
-                        <div class="summary-card-top">
+                        <div class="summary-card-icon orange">
+                            <i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i>
+                        </div>
 
-                            <div class="summary-card-label">
-                                <span>Upcoming Exams</span>
+                        <div class="summary-card-content">
 
-                                <div class="summary-card-icon orange">
-                                    <i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i>
-                                </div>
-                            </div>
+                            <span>Upcoming Exams</span>
 
                             <h3 id="upcomingExamCount">
                                 0
@@ -410,28 +406,27 @@
                                 Scheduled examinations
                             </p>
 
+                            <a href="student-examinations.html" class="summary-card-link"
+                                aria-label="View student examinations">
+                                View examinations
+
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+
                         </div>
-
-                        <a href="examinations.html" class="summary-card-link">
-                            View examinations
-
-                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                        </a>
 
                     </article>
 
                     <!-- Current GPA -->
                     <article class="summary-card">
 
-                        <div class="summary-card-top">
+                        <div class="summary-card-icon purple">
+                            <i class="bi bi-award-fill" aria-hidden="true"></i>
+                        </div>
 
-                            <div class="summary-card-label">
-                                <span>Current GPA</span>
+                        <div class="summary-card-content">
 
-                                <div class="summary-card-icon purple">
-                                    <i class="bi bi-award-fill" aria-hidden="true"></i>
-                                </div>
-                            </div>
+                            <span>Current GPA</span>
 
                             <h3 id="currentGpa">
                                 0.00
@@ -441,301 +436,12 @@
                                 Overall academic performance
                             </p>
 
-                        </div>
-
-                        <a href="results.html" class="summary-card-link">
-                            View results
-
-                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                        </a>
-
-                    </article>
-
-                </section>
-
-                <!-- ========================================
-                     MAIN DASHBOARD GRID
-                ========================================= -->
-                <section class="student-dashboard-grid">
-
-                    <!-- Today's Schedule -->
-                    <article class="content-panel student-schedule-panel">
-
-                        <div class="content-panel-header">
-
-                            <div>
-                                <p class="content-panel-label">
-                                    TODAY
-                                </p>
-
-                                <h3>Today's Lecture Schedule</h3>
-
-                                <p>
-                                    Lectures scheduled for the current day
-                                </p>
-                            </div>
-
-                            <a href="courses.html" class="panel-action-link">
-                                View courses
+                            <a href="student-results.html" class="summary-card-link" aria-label="View student results">
+                                View results
 
                                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
                             </a>
 
-                        </div>
-
-                        <!-- JavaScript inserts schedule items here -->
-                        <div class="student-schedule-list" id="todayScheduleList" aria-live="polite">
-
-                            <div class="student-section-placeholder">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">
-                                        Loading schedule
-                                    </span>
-                                </div>
-
-                                <span>
-                                    Loading today's schedule...
-                                </span>
-                            </div>
-
-                        </div>
-
-                        <!-- Hidden schedule empty state -->
-                        <div class="student-empty-state d-none" id="scheduleEmptyState">
-                            <i class="bi bi-calendar2-x" aria-hidden="true"></i>
-
-                            <h4>No lectures today</h4>
-
-                            <p>
-                                You do not have any lectures scheduled
-                                for today.
-                            </p>
-                        </div>
-
-                    </article>
-
-                    <!-- Quick Actions -->
-                    <article class="content-panel student-quick-actions-panel">
-
-                        <div class="content-panel-header">
-
-                            <div>
-                                <p class="content-panel-label">
-                                    SHORTCUTS
-                                </p>
-
-                                <h3>Quick Actions</h3>
-
-                                <p>
-                                    Access frequently used student services
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div class="student-quick-actions-grid">
-
-                            <a href="courses.html" class="student-quick-action">
-                                <div class="student-quick-action-icon blue">
-                                    <i class="bi bi-book-fill" aria-hidden="true"></i>
-                                </div>
-
-                                <div>
-                                    <strong>Available Courses</strong>
-
-                                    <span>
-                                        Browse current courses
-                                    </span>
-                                </div>
-                            </a>
-
-                            <a href="enrollment.html" class="student-quick-action">
-                                <div class="student-quick-action-icon green">
-                                    <i class="bi bi-person-check-fill" aria-hidden="true"></i>
-                                </div>
-
-                                <div>
-                                    <strong>My Enrollments</strong>
-
-                                    <span>
-                                        View registered courses
-                                    </span>
-                                </div>
-                            </a>
-
-                            <a href="attendance.html" class="student-quick-action">
-                                <div class="student-quick-action-icon orange">
-                                    <i class="bi bi-calendar-check-fill" aria-hidden="true"></i>
-                                </div>
-
-                                <div>
-                                    <strong>Attendance</strong>
-
-                                    <span>
-                                        Check attendance records
-                                    </span>
-                                </div>
-                            </a>
-
-                            <a href="results.html" class="student-quick-action">
-                                <div class="student-quick-action-icon purple">
-                                    <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
-                                </div>
-
-                                <div>
-                                    <strong>Academic Results</strong>
-
-                                    <span>
-                                        Review examination results
-                                    </span>
-                                </div>
-                            </a>
-
-                        </div>
-
-                    </article>
-
-                    <!-- Upcoming Examinations -->
-                    <article class="content-panel student-examinations-panel">
-
-                        <div class="content-panel-header">
-
-                            <div>
-                                <p class="content-panel-label">
-                                    EXAMINATIONS
-                                </p>
-
-                                <h3>Upcoming Examinations</h3>
-
-                                <p>
-                                    Your next scheduled examinations
-                                </p>
-                            </div>
-
-                            <a href="examinations.html" class="panel-action-link">
-                                View all
-
-                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                            </a>
-
-                        </div>
-
-                        <!-- JavaScript inserts examination items here -->
-                        <div class="student-examination-list" id="upcomingExaminationList" aria-live="polite">
-
-                            <div class="student-section-placeholder">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">
-                                        Loading examinations
-                                    </span>
-                                </div>
-
-                                <span>
-                                    Loading examinations...
-                                </span>
-                            </div>
-
-                        </div>
-
-                        <!-- Hidden examinations empty state -->
-                        <div class="student-empty-state d-none" id="examinationEmptyState">
-                            <i class="bi bi-file-earmark-check" aria-hidden="true"></i>
-
-                            <h4>No upcoming examinations</h4>
-
-                            <p>
-                                There are no examinations currently
-                                scheduled for you.
-                            </p>
-                        </div>
-
-                    </article>
-
-                    <!-- Recent Results -->
-                    <article class="content-panel student-results-panel">
-
-                        <div class="content-panel-header">
-
-                            <div>
-                                <p class="content-panel-label">
-                                    PERFORMANCE
-                                </p>
-
-                                <h3>Recent Examination Results</h3>
-
-                                <p>
-                                    Your latest released academic results
-                                </p>
-                            </div>
-
-                            <a href="results.html" class="panel-action-link">
-                                View all
-
-                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                            </a>
-
-                        </div>
-
-                        <div class="table-responsive">
-
-                            <table class="table student-results-table">
-
-                                <caption class="visually-hidden">
-                                    Recent student examination results
-                                </caption>
-
-                                <thead>
-                                    <tr>
-                                        <th scope="col">
-                                            Course
-                                        </th>
-
-                                        <th scope="col">
-                                            Marks
-                                        </th>
-
-                                        <th scope="col">
-                                            Grade
-                                        </th>
-
-                                        <th scope="col">
-                                            Status
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <!-- JavaScript inserts result rows here -->
-                                <tbody id="recentResultsTableBody">
-
-                                    <tr id="resultsLoadingRow">
-                                        <td colspan="4" class="text-center py-4">
-                                            <div class="spinner-border spinner-border-sm text-primary me-2"
-                                                role="status">
-                                                <span class="visually-hidden">
-                                                    Loading results
-                                                </span>
-                                            </div>
-
-                                            Loading recent results...
-                                        </td>
-                                    </tr>
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                        <!-- Hidden results empty state -->
-                        <div class="student-empty-state d-none" id="resultsEmptyState">
-                            <i class="bi bi-bar-chart" aria-hidden="true"></i>
-
-                            <h4>No results available</h4>
-
-                            <p>
-                                Your released examination results will
-                                appear here.
-                            </p>
                         </div>
 
                     </article>
