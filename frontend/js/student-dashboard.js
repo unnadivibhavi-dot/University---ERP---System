@@ -11,7 +11,7 @@
    CONFIGURATION
 ===================================== */
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:5001/api";
 
 /*
  * Keep this true while the backend is not ready.

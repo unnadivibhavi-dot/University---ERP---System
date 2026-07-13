@@ -29,6 +29,7 @@ BEGIN
     CREATE TABLE dbo.Students
     (
         StudentID         INT IDENTITY(1,1) NOT NULL,
+        UserID         INT NULL,
         RegistrationNumber NVARCHAR(50) NOT NULL,
         FullName          NVARCHAR(150) NOT NULL,
         Email             NVARCHAR(150) NOT NULL,
@@ -44,6 +45,13 @@ BEGIN
 
         CONSTRAINT UQ_Students_Email
             UNIQUE (Email),
+
+        CONSTRAINT UQ_Students_UserID
+            UNIQUE (UserID),
+
+        CONSTRAINT FK_Students_Users
+            FOREIGN KEY (UserID)
+            REFERENCES dbo.Users(UserID),
 
         CONSTRAINT CK_Students_AcademicYear
             CHECK (AcademicYear BETWEEN 1 AND 4)

@@ -512,25 +512,25 @@ async function loadDashboardFromBackend() {
             enrollmentsResponse,
             attendanceResponse
         ] = await Promise.all([
-            fetch("http://localhost:5000/api/students", {
+            fetch("http://localhost:5001/api/students", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             }),
 
-            fetch("http://localhost:5000/api/courses", {
+            fetch("http://localhost:5001/api/courses", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             }),
 
-            fetch("http://localhost:5000/api/enrollments", {
+            fetch("http://localhost:5001/api/enrollments", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             }),
 
-            fetch("http://localhost:5000/api/attendance", {
+            fetch("http://localhost:5001/api/attendance", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

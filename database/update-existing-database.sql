@@ -400,6 +400,35 @@ BEGIN
 END ELSE PRINT N'EnrollmentDate default already exists.';
 GO
 
-PRINT N'[Students].[UserID] was not added because no currently inspected backend SQL query references it.';
+IF COL_LENGTH('dbo.Students', 'UserID') IS NULL
+BEGIN
+    PRINT N'Adding [dbo].[Students].[UserID].';
+    ALTER TABLE dbo.Students ADD UserID INT NULL;
+END ELSE PRINT N'[dbo].[Students].[UserID] already exists.';
+GO
+
+UPDATE dbo.Students
+SET UserID = (SELECT UserID FROM dbo.Users WHERE Username = N'student.2026001')
+WHERE RegistrationNumber = N'UNI-2026-001'
+  AND UserID IS NULL;
+
+UPDATE dbo.Students
+SET UserID = (SELECT UserID FROM dbo.Users WHERE Username = N'student.2026002')
+WHERE RegistrationNumber = N'UNI-2026-002'
+  AND UserID IS NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UQ_Students_UserID' AND object_id = OBJECT_ID(N'dbo.Students'))
+BEGIN
+    PRINT N'Adding [UQ_Students_UserID].';
+    ALTER TABLE dbo.Students ADD CONSTRAINT UQ_Students_UserID UNIQUE(UserID);
+END ELSE PRINT N'[UQ_Students_UserID] already exists.';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_Students_Users')
+BEGIN
+    PRINT N'Adding [FK_Students_Users].';
+    ALTER TABLE dbo.Students ADD CONSTRAINT FK_Students_Users FOREIGN KEY(UserID) REFERENCES dbo.Users(UserID);
+END ELSE PRINT N'[FK_Students_Users] already exists.';
 PRINT N'University ERP migration completed successfully.';
 GO
