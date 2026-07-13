@@ -1445,3 +1445,227 @@ button {
         grid-column: auto
     }
 }
+
+/* ==================================================
+   SAFE SUMMARY CARD ALIGNMENT FIX
+   Added at the bottom to avoid removing other sections
+================================================== */
+
+.student-summary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 22px !important;
+
+    width: 100%;
+    margin-top: 24px;
+}
+
+.student-summary-grid .summary-card {
+    display: grid !important;
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto auto;
+    column-gap: 18px;
+    row-gap: 5px;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 180px;
+    padding: 24px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    background: var(--card);
+    box-shadow: var(--shadow);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.student-summary-grid .summary-card:hover {
+    border-color: #bfdbfe;
+    transform: translateY(-4px);
+    box-shadow: 0 16px 34px rgba(31, 41, 55, 0.12);
+}
+
+/* Allow the existing HTML wrappers to participate in the card grid */
+.student-summary-grid .summary-card-top,
+.student-summary-grid .summary-card-label {
+    display: contents !important;
+}
+
+/* Icon */
+.student-summary-grid .summary-card-icon {
+    grid-column: 1;
+    grid-row: 1 / 5;
+
+    align-self: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+
+    border-radius: 17px;
+
+    font-size: 23px;
+}
+
+/* Card title */
+.student-summary-grid .summary-card-label>span {
+    grid-column: 2;
+    grid-row: 1;
+
+    display: block;
+
+    margin: 0 0 2px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+
+    white-space: normal;
+}
+
+/* Card number */
+.student-summary-grid .summary-card h3 {
+    grid-column: 2;
+    grid-row: 2;
+
+    display: block;
+
+    margin: 0;
+
+    color: var(--text);
+
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+
+    white-space: nowrap;
+}
+
+/* Card description */
+.student-summary-grid .summary-card-top>p {
+    grid-column: 2;
+    grid-row: 3;
+
+    display: block;
+
+    min-height: 32px;
+    margin: 3px 0 0;
+
+    color: var(--light);
+
+    font-size: 11px;
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+/* Card link */
+.student-summary-grid .summary-card-link {
+    grid-column: 2;
+    grid-row: 4;
+
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+
+    width: fit-content;
+    margin-top: 7px;
+
+    color: var(--primary);
+
+    font-size: 10px;
+    font-weight: 600;
+
+    transition:
+        gap 0.2s ease,
+        color 0.2s ease;
+}
+
+.student-summary-grid .summary-card-link:hover {
+    gap: 9px;
+    color: var(--primary-dark);
+}
+
+/* Icon colors */
+.student-summary-grid .summary-card-icon.blue {
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.student-summary-grid .summary-card-icon.green {
+    color: var(--success);
+    background: var(--success-light);
+}
+
+.student-summary-grid .summary-card-icon.orange {
+    color: var(--warning);
+    background: var(--warning-light);
+}
+
+.student-summary-grid .summary-card-icon.purple {
+    color: var(--purple);
+    background: var(--purple-light);
+}
+
+/* Tablet */
+@media screen and (max-width: 1250px) {
+    .student-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 700px) {
+    .student-summary-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    .student-summary-grid .summary-card {
+        grid-template-columns: 58px minmax(0, 1fr) !important;
+        min-height: 150px;
+        padding: 20px;
+        column-gap: 16px;
+    }
+
+    .student-summary-grid .summary-card-icon {
+        width: 58px;
+        height: 58px;
+        font-size: 21px;
+    }
+
+    .student-summary-grid .summary-card h3 {
+        font-size: 29px;
+    }
+
+    .student-summary-grid .summary-card-top>p {
+        min-height: auto;
+    }
+}
+
+/* Very small screens */
+@media screen and (max-width: 400px) {
+    .student-summary-grid .summary-card {
+        grid-template-columns: 52px minmax(0, 1fr) !important;
+        padding: 18px;
+        column-gap: 14px;
+    }
+
+    .student-summary-grid .summary-card-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 19px;
+    }
+}
