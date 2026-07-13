@@ -956,12 +956,33 @@ button {
     font-size: 17px
 }
 
+/* Quick-action icon colour variants (matching summary-card-icon pattern) */
+.quick-action-icon.blue {
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.green {
+    color: var(--success);
+    background: var(--success-light);
+}
+
+.quick-action-icon.orange {
+    color: var(--warning);
+    background: var(--warning-light);
+}
+
+.quick-action-icon.purple {
+    color: var(--purple);
+    background: var(--purple-light);
+}
+
 .quick-action strong {
     font-size: 11px;
     line-height: 1.4
 }
 
-.quick-action>span {
+.quick-action span {
     margin-top: 5px;
     color: var(--muted);
     font-size: 9px;
