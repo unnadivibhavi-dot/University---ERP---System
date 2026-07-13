@@ -128,6 +128,8 @@ const elements = {
 
     logoutButton:
         document.getElementById("logoutButton"),
+    topLogoutButton:
+        document.getElementById("topLogoutButton"),
     confirmLogoutButton:
         document.getElementById("confirmLogoutButton")
 };
@@ -824,6 +826,13 @@ function closeSidebar() {
 function initializeLogout() {
     if (elements.logoutButton) {
         elements.logoutButton.addEventListener(
+            "click",
+            openLogoutModal
+        );
+    }
+
+    if (elements.topLogoutButton) {
+        elements.topLogoutButton.addEventListener(
             "click",
             openLogoutModal
         );

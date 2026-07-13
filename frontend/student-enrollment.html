@@ -147,20 +147,63 @@
 
                 </div>
 
-                <div class="top-profile">
+                <div class="top-right">
 
-                    <div class="student-avatar" id="topAvatar">
-                        ST
-                    </div>
+                    <!-- Notification Button -->
+                    <button type="button" class="notification-button" aria-label="Open notifications">
+                        <i class="bi bi-bell"></i>
 
-                    <div>
-                        <strong id="topStudentName">
-                            Student Name
-                        </strong>
-
-                        <span id="topStudentId">
-                            STU000000
+                        <span class="notification-badge">
+                            3
                         </span>
+                    </button>
+
+                    <!-- Student Profile Dropdown -->
+                    <div class="dropdown">
+
+                        <button type="button" class="top-profile dropdown-toggle" id="enrollmentProfileDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+
+                            <div class="student-avatar" id="topAvatar">
+                                ST
+                            </div>
+
+                            <div class="top-profile-information">
+
+                                <strong id="topStudentName">
+                                    Student Name
+                                </strong>
+
+                                <span id="topStudentId">
+                                    STU000000
+                                </span>
+
+                            </div>
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="enrollmentProfileDropdown">
+
+                            <li>
+                                <a href="student-profile.html" class="dropdown-item">
+                                    <i class="bi bi-person me-2"></i>
+                                    My Profile
+                                </a>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <button type="button" class="dropdown-item text-danger" id="topLogoutButton">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Logout
+                                </button>
+                            </li>
+
+                        </ul>
+
                     </div>
 
                 </div>
