@@ -205,12 +205,12 @@ function normalizeStudent(student) {
 
 function buildStudentPayload() {
     return {
-        RegistrationNumber: registrationNumberInput.value.trim(),
-        FullName: fullNameInput.value.trim(),
-        Email: studentEmailInput.value.trim(),
-        Phone: studentPhoneInput.value.trim(),
-        Department: studentDepartmentInput.value,
-        AcademicYear: Number(academicYearInput.value)
+        registrationNumber: registrationNumberInput.value.trim(),
+        fullName: fullNameInput.value.trim(),
+        email: studentEmailInput.value.trim(),
+        phone: studentPhoneInput.value.trim(),
+        department: studentDepartmentInput.value,
+        academicYear: Number(academicYearInput.value)
     };
 }
 
