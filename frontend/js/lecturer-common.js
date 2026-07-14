@@ -27,9 +27,12 @@ function protectLecturerPage() {
         return true;
     }
 
-    const token = localStorage.getItem(
-        LECTURER_CONFIG.STORAGE_KEYS.AUTH_TOKEN
-    );
+    const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem(
+            LECTURER_CONFIG.STORAGE_KEYS.AUTH_TOKEN
+        );
 
     const currentUser = getCurrentUser();
 
@@ -327,10 +330,21 @@ function getCurrentUser() {
         return null;
     }
 
-    return getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.CURRENT_USER,
-        null
-    );
+    const possibleUserKeys = [
+        "user",
+        "loggedUser",
+        LECTURER_CONFIG.STORAGE_KEYS.CURRENT_USER
+    ];
+
+    for (const key of possibleUserKeys) {
+        const user = getLocalStorageData(key, null);
+
+        if (user) {
+            return user;
+        }
+    }
+
+    return null;
 }
 
 /* =========================================================
@@ -356,6 +370,12 @@ function handleLecturerLogout() {
         return;
     }
 
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("loggedUser");
+    localStorage.removeItem("isLoggedIn");
+
     localStorage.removeItem(
         LECTURER_CONFIG.STORAGE_KEYS.AUTH_TOKEN
     );
@@ -370,7 +390,6 @@ function handleLecturerLogout() {
 
     window.location.href = LECTURER_CONFIG.PAGES.LOGIN;
 }
-
 /* =========================================================
    Date functions
 ========================================================= */

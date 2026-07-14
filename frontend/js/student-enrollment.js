@@ -1,138 +1,194 @@
 "use strict";
 
+/*
+---------------------------------------------------
+University ERP
+Student Enrollment Page
+
+Uses existing backend endpoints:
+
+GET    /api/student-portal/profile
+GET    /api/student-portal/courses
+DELETE /api/enrollments/:enrollmentId
+---------------------------------------------------
+*/
+
+
 /* ==================================================
-   UNIVERSITY ERP - STUDENT ENROLLMENT
-   Mock-data version with localStorage support
+   PAGE STATE
 ================================================== */
-
-const USE_MOCK_DATA = true;
-const API_BASE_URL = "http://localhost:5001/api";
-
-const mockStudent = {
-    studentId: "STU2026001",
-    firstName: "Vibhavi",
-    lastName: "Kahandawaarachchi"
-};
-
-const defaultEnrollments = [
-    {
-        enrollmentId: 1,
-        courseId: 1,
-        courseCode: "SE2031",
-        courseName: "Data Structures and Algorithms",
-        description:
-            "Learn data structures, algorithms, and problem-solving techniques.",
-        semester: "Semester 02",
-        credits: 4,
-        lecturer: "Dr. N. Perera",
-        schedule: "Monday, 8:30 AM - 10:30 AM",
-        location: "Lab 03",
-        status: "Active",
-        canRemove: true
-    },
-    {
-        enrollmentId: 2,
-        courseId: 2,
-        courseCode: "SE2042",
-        courseName: "Database Management Systems",
-        description:
-            "Study SQL, relational databases, normalization, and database design.",
-        semester: "Semester 02",
-        credits: 4,
-        lecturer: "Ms. A. Silva",
-        schedule: "Tuesday, 11:00 AM - 1:00 PM",
-        location: "Hall B2",
-        status: "Active",
-        canRemove: true
-    },
-    {
-        enrollmentId: 3,
-        courseId: 7,
-        courseCode: "SE2022",
-        courseName: "Computer Networks",
-        description:
-            "Study networking models, protocols, IP addressing, and security.",
-        semester: "Semester 01",
-        credits: 3,
-        lecturer: "Mr. P. De Silva",
-        schedule: "Wednesday, 9:00 AM - 11:00 AM",
-        location: "Network Lab 01",
-        status: "Completed",
-        canRemove: false
-    }
-];
 
 let allEnrollments = [];
 let filteredEnrollments = [];
 let selectedEnrollmentId = null;
+let currentStudent = null;
+
 
 /* ==================================================
-   ELEMENTS
+   HTML ELEMENTS
 ================================================== */
 
 const elements = {
-    sidebar: document.getElementById("studentSidebar"),
-    overlay: document.getElementById("sidebarOverlay"),
-    menuButton: document.getElementById("menuButton"),
-    closeButton: document.getElementById("sidebarCloseButton"),
+    sidebar:
+        document.getElementById(
+            "studentSidebar"
+        ),
 
-    currentDate: document.getElementById("currentDate"),
+    overlay:
+        document.getElementById(
+            "sidebarOverlay"
+        ),
 
-    sidebarAvatar: document.getElementById("sidebarAvatar"),
+    menuButton:
+        document.getElementById(
+            "menuButton"
+        ),
+
+    closeButton:
+        document.getElementById(
+            "sidebarCloseButton"
+        ),
+
+    currentDate:
+        document.getElementById(
+            "currentDate"
+        ),
+
+    sidebarAvatar:
+        document.getElementById(
+            "sidebarAvatar"
+        ),
+
     sidebarStudentName:
-        document.getElementById("sidebarStudentName"),
-    sidebarStudentId:
-        document.getElementById("sidebarStudentId"),
+        document.getElementById(
+            "sidebarStudentName"
+        ),
 
-    topAvatar: document.getElementById("topAvatar"),
+    sidebarStudentId:
+        document.getElementById(
+            "sidebarStudentId"
+        ),
+
+    topAvatar:
+        document.getElementById(
+            "topAvatar"
+        ),
+
     topStudentName:
-        document.getElementById("topStudentName"),
+        document.getElementById(
+            "topStudentName"
+        ),
+
     topStudentId:
-        document.getElementById("topStudentId"),
+        document.getElementById(
+            "topStudentId"
+        ),
 
     totalEnrollments:
-        document.getElementById("totalEnrollmentsCount"),
+        document.getElementById(
+            "totalEnrollmentsCount"
+        ),
+
     activeEnrollments:
-        document.getElementById("activeEnrollmentsCount"),
+        document.getElementById(
+            "activeEnrollmentsCount"
+        ),
+
     totalCredits:
-        document.getElementById("totalCreditsCount"),
+        document.getElementById(
+            "totalCreditsCount"
+        ),
+
     visibleEnrollments:
-        document.getElementById("visibleEnrollmentCount"),
+        document.getElementById(
+            "visibleEnrollmentCount"
+        ),
 
     searchInput:
-        document.getElementById("enrollmentSearchInput"),
+        document.getElementById(
+            "enrollmentSearchInput"
+        ),
+
     semesterFilter:
-        document.getElementById("semesterFilter"),
+        document.getElementById(
+            "semesterFilter"
+        ),
+
     statusFilter:
-        document.getElementById("statusFilter"),
+        document.getElementById(
+            "statusFilter"
+        ),
+
     clearFiltersButton:
-        document.getElementById("clearFiltersButton"),
+        document.getElementById(
+            "clearFiltersButton"
+        ),
 
     enrollmentsGrid:
-        document.getElementById("enrollmentsGrid"),
+        document.getElementById(
+            "enrollmentsGrid"
+        ),
+
     emptyState:
-        document.getElementById("enrollmentsEmptyState"),
+        document.getElementById(
+            "enrollmentsEmptyState"
+        ),
 
     loadingOverlay:
-        document.getElementById("loadingOverlay"),
+        document.getElementById(
+            "loadingOverlay"
+        ),
 
     errorBox:
-        document.getElementById("pageError"),
+        document.getElementById(
+            "pageError"
+        ),
+
     errorMessage:
-        document.getElementById("pageErrorMessage"),
+        document.getElementById(
+            "pageErrorMessage"
+        ),
 
     selectedEnrollmentCourse:
-        document.getElementById("selectedEnrollmentCourse"),
+        document.getElementById(
+            "selectedEnrollmentCourse"
+        ),
+
     confirmRemoveButton:
-        document.getElementById("confirmRemoveButton"),
+        document.getElementById(
+            "confirmRemoveButton"
+        ),
 
     logoutButton:
-        document.getElementById("logoutButton"),
+        document.getElementById(
+            "logoutButton"
+        ),
+
     topLogoutButton:
-        document.getElementById("topLogoutButton"),
+        document.getElementById(
+            "topLogoutButton"
+        ),
+
     confirmLogoutButton:
-        document.getElementById("confirmLogoutButton")
+        document.getElementById(
+            "confirmLogoutButton"
+        )
 };
+
+
+/* ==================================================
+   SHARED CONFIGURATION CHECK
+================================================== */
+
+if (
+    typeof window.fetchWithAuth !==
+    "function"
+) {
+    throw new Error(
+        "config.js is missing. Load config.js before student-enrollment.js."
+    );
+}
+
 
 /* ==================================================
    INITIALIZATION
@@ -145,7 +201,6 @@ document.addEventListener(
 
 async function initializeEnrollmentPage() {
     displayCurrentDate();
-    displayStudentInformation();
     initializeFilters();
     initializeSidebar();
     initializeRemoveEnrollment();
@@ -153,31 +208,188 @@ async function initializeEnrollmentPage() {
 
     try {
         showLoading();
+        hideError();
 
-        allEnrollments = await loadEnrollments();
+        const [
+            profileResponse,
+            coursesResponse
+        ] = await Promise.all([
+            fetchWithAuth(
+                "/student-portal/profile"
+            ),
 
-        if (!Array.isArray(allEnrollments)) {
-            throw new Error(
-                "Invalid enrollment data was received."
+            fetchWithAuth(
+                "/student-portal/courses"
+            )
+        ]);
+
+        currentStudent =
+            normalizeStudent(
+                profileResponse?.data
             );
-        }
 
-        filteredEnrollments = [...allEnrollments];
+        const rawEnrollments =
+            Array.isArray(
+                coursesResponse?.data
+            )
+                ? coursesResponse.data
+                : [];
+
+        allEnrollments =
+            rawEnrollments.map(
+                normalizeEnrollment
+            );
+
+        filteredEnrollments = [
+            ...allEnrollments
+        ];
+
+        displayStudentInformation(
+            currentStudent
+        );
+
+        populateSemesterFilter(
+            allEnrollments
+        );
 
         updateSummary();
-        renderEnrollments(filteredEnrollments);
-        hideError();
+
+        renderEnrollments(
+            filteredEnrollments
+        );
+
     } catch (error) {
-        console.error("Enrollment page error:", error);
+        console.error(
+            "Enrollment page error:",
+            error
+        );
 
         showError(
             error.message ||
             "Unable to load your enrollments."
         );
+
+        renderEnrollments([]);
     } finally {
         hideLoading();
     }
 }
+
+
+/* ==================================================
+   NORMALIZE STUDENT PROFILE
+================================================== */
+
+function normalizeStudent(profile = {}) {
+    const fullName =
+        String(
+            profile.FullName ||
+            profile.fullName ||
+            "Student"
+        ).trim();
+
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const firstName =
+        nameParts.shift() ||
+        "Student";
+
+    const lastName =
+        nameParts.join(" ");
+
+    return {
+        firstName,
+
+        lastName,
+
+        registrationNumber:
+            profile.RegistrationNumber ||
+            profile.registrationNumber ||
+            "Not available"
+    };
+}
+
+
+/* ==================================================
+   NORMALIZE ENROLLMENT DATA
+================================================== */
+
+function normalizeEnrollment(item = {}) {
+    const enrollmentDate =
+        item.EnrollmentDate ||
+        item.enrollmentDate ||
+        null;
+
+    return {
+        enrollmentId:
+            item.EnrollmentID ??
+            item.enrollmentId ??
+            null,
+
+        courseId:
+            item.CourseID ??
+            item.courseId ??
+            null,
+
+        courseCode:
+            item.CourseCode ||
+            item.courseCode ||
+            "N/A",
+
+        courseName:
+            item.CourseName ||
+            item.courseName ||
+            "Unnamed Course",
+
+        description:
+            item.Description ||
+            item.description ||
+            "Course description is not available.",
+
+        semester:
+            item.Semester ||
+            item.semester ||
+            getSemesterFromDate(
+                enrollmentDate
+            ),
+
+        credits:
+            Number(
+                item.Credits ??
+                item.credits
+            ) || 0,
+
+        lecturer:
+            item.LecturerName ||
+            item.lecturer ||
+            "Not assigned",
+
+        schedule:
+            item.Schedule ||
+            item.schedule ||
+            "Schedule not available",
+
+        location:
+            item.Location ||
+            item.location ||
+            "Location not available",
+
+        status:
+            item.Status ||
+            item.status ||
+            "Active",
+
+        canRemove:
+            Boolean(
+                item.EnrollmentID ??
+                item.enrollmentId
+            ),
+
+        enrollmentDate
+    };
+}
+
 
 /* ==================================================
    DATE AND STUDENT INFORMATION
@@ -200,160 +412,153 @@ function displayCurrentDate() {
         );
 }
 
-function displayStudentInformation() {
+function displayStudentInformation(
+    student
+) {
+    const firstName =
+        student?.firstName ||
+        "Student";
+
+    const lastName =
+        student?.lastName ||
+        "";
+
     const fullName =
-        `${mockStudent.firstName} ${mockStudent.lastName}`.trim();
+        `${firstName} ${lastName}`.trim();
+
+    const registrationNumber =
+        student?.registrationNumber ||
+        "Not available";
 
     const initials =
-        `${mockStudent.firstName.charAt(0)}${mockStudent.lastName.charAt(0)}`
-            .toUpperCase();
+        createInitials(
+            firstName,
+            lastName
+        );
 
-    setText(elements.sidebarAvatar, initials);
-    setText(elements.topAvatar, initials);
+    setText(
+        elements.sidebarAvatar,
+        initials
+    );
 
-    setText(elements.sidebarStudentName, fullName);
-    setText(elements.topStudentName, fullName);
+    setText(
+        elements.topAvatar,
+        initials
+    );
+
+    setText(
+        elements.sidebarStudentName,
+        fullName
+    );
+
+    setText(
+        elements.topStudentName,
+        fullName
+    );
 
     setText(
         elements.sidebarStudentId,
-        mockStudent.studentId
+        registrationNumber
     );
 
     setText(
         elements.topStudentId,
-        mockStudent.studentId
+        registrationNumber
     );
 }
 
+
 /* ==================================================
-   LOAD ENROLLMENTS
+   SEMESTER FILTER
 ================================================== */
 
-async function loadEnrollments() {
-    if (USE_MOCK_DATA) {
-        return loadMockEnrollments();
+function populateSemesterFilter(items) {
+    if (!elements.semesterFilter) {
+        return;
     }
 
-    return fetchEnrollmentsFromBackend();
-}
+    const semesters =
+        [
+            ...new Set(
+                items
+                    .map(
+                        (item) =>
+                            item.semester
+                    )
+                    .filter(Boolean)
+            )
+        ];
 
-function loadMockEnrollments() {
-    return new Promise(function (resolve) {
-        setTimeout(function () {
-            const savedEnrollments =
-                readSavedEnrollments();
+    elements.semesterFilter.innerHTML =
+        '<option value="">All semesters</option>';
 
-            if (savedEnrollments === null) {
-                const starterData =
-                    defaultEnrollments.map(function (item) {
-                        return { ...item };
-                    });
+    semesters.forEach(
+        (semester) => {
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-                saveEnrollments(starterData);
-                resolve(starterData);
-                return;
-            }
+            option.value =
+                semester;
 
-            resolve(savedEnrollments);
-        }, 500);
-    });
-}
+            option.textContent =
+                semester;
 
-async function fetchEnrollmentsFromBackend() {
-    const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("authToken");
-
-    if (!token) {
-        throw new Error(
-            "Authentication token was not found."
-        );
-    }
-
-    const response = await fetch(
-        `${API_BASE_URL}/student/enrollments`,
-        {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            }
+            elements.semesterFilter
+                .appendChild(option);
         }
     );
-
-    if (response.status === 401 ||
-        response.status === 403) {
-        throw new Error(
-            "You are not authorized to view this page."
-        );
-    }
-
-    if (!response.ok) {
-        throw new Error(
-            "The server could not load your enrollments."
-        );
-    }
-
-    const result = await response.json();
-
-    return Array.isArray(result)
-        ? result
-        : result.enrollments;
 }
 
-/* ==================================================
-   LOCAL STORAGE
-================================================== */
-
-function readSavedEnrollments() {
-    const savedData =
-        localStorage.getItem("studentEnrollments");
-
-    if (savedData === null) {
-        return null;
+function getSemesterFromDate(
+    dateValue
+) {
+    if (!dateValue) {
+        return "Not available";
     }
 
-    try {
-        const parsedData = JSON.parse(savedData);
+    const date =
+        new Date(dateValue);
 
-        return Array.isArray(parsedData)
-            ? parsedData
-            : [];
-    } catch (error) {
-        console.error(
-            "Invalid saved enrollment data:",
-            error
-        );
-
-        return [];
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "Not available";
     }
-}
 
-function saveEnrollments(enrollments) {
-    localStorage.setItem(
-        "studentEnrollments",
-        JSON.stringify(enrollments)
-    );
-}
+    const month =
+        date.getMonth() + 1;
 
+    return month <= 6
+        ? "Semester 01"
+        : "Semester 02";
+}
 /* ==================================================
    SUMMARY
 ================================================== */
 
 function updateSummary() {
     const activeEnrollments =
-        allEnrollments.filter(function (item) {
-            return item.status === "Active";
-        });
+        allEnrollments.filter(
+            (item) =>
+                String(
+                    item.status || ""
+                ).toLowerCase() ===
+                "active"
+        );
 
     const totalCredits =
         activeEnrollments.reduce(
-            function (total, item) {
-                return (
-                    total +
-                    Number(item.credits || 0)
-                );
-            },
+            (total, item) =>
+                total +
+                (
+                    Number(
+                        item.credits
+                    ) || 0
+                ),
             0
         );
 
@@ -373,90 +578,102 @@ function updateSummary() {
     );
 }
 
+
 /* ==================================================
-   FILTERS
+   FILTER INITIALIZATION
 ================================================== */
 
 function initializeFilters() {
-    if (elements.searchInput) {
-        elements.searchInput.addEventListener(
-            "input",
-            applyFilters
-        );
-    }
+    elements.searchInput?.addEventListener(
+        "input",
+        applyFilters
+    );
 
-    if (elements.semesterFilter) {
-        elements.semesterFilter.addEventListener(
-            "change",
-            applyFilters
-        );
-    }
+    elements.semesterFilter?.addEventListener(
+        "change",
+        applyFilters
+    );
 
-    if (elements.statusFilter) {
-        elements.statusFilter.addEventListener(
-            "change",
-            applyFilters
-        );
-    }
+    elements.statusFilter?.addEventListener(
+        "change",
+        applyFilters
+    );
 
-    if (elements.clearFiltersButton) {
-        elements.clearFiltersButton.addEventListener(
-            "click",
-            clearFilters
-        );
-    }
+    elements.clearFiltersButton?.addEventListener(
+        "click",
+        clearFilters
+    );
 }
+
+
+/* ==================================================
+   APPLY FILTERS
+================================================== */
 
 function applyFilters() {
     const searchValue =
         elements.searchInput
-            ? elements.searchInput.value
-                .trim()
-                .toLowerCase()
-            : "";
+            ?.value
+            .trim()
+            .toLowerCase() || "";
 
     const semesterValue =
         elements.semesterFilter
-            ? elements.semesterFilter.value
-            : "";
+            ?.value || "";
 
     const statusValue =
         elements.statusFilter
-            ? elements.statusFilter.value
-            : "";
+            ?.value || "";
 
     filteredEnrollments =
-        allEnrollments.filter(function (item) {
-            const courseCode =
-                String(item.courseCode || "")
-                    .toLowerCase();
+        allEnrollments.filter(
+            (item) => {
+                const courseCode =
+                    String(
+                        item.courseCode || ""
+                    ).toLowerCase();
 
-            const courseName =
-                String(item.courseName || "")
-                    .toLowerCase();
+                const courseName =
+                    String(
+                        item.courseName || ""
+                    ).toLowerCase();
 
-            const matchesSearch =
-                searchValue === "" ||
-                courseCode.includes(searchValue) ||
-                courseName.includes(searchValue);
+                const matchesSearch =
+                    searchValue === "" ||
+                    courseCode.includes(
+                        searchValue
+                    ) ||
+                    courseName.includes(
+                        searchValue
+                    );
 
-            const matchesSemester =
-                semesterValue === "" ||
-                item.semester === semesterValue;
+                const matchesSemester =
+                    semesterValue === "" ||
+                    item.semester ===
+                    semesterValue;
 
-            const matchesStatus =
-                statusValue === "" ||
-                item.status === statusValue;
+                const matchesStatus =
+                    statusValue === "" ||
+                    item.status ===
+                    statusValue;
 
-            return (
-                matchesSearch &&
-                matchesSemester &&
-                matchesStatus
-            );
-        });
+                return (
+                    matchesSearch &&
+                    matchesSemester &&
+                    matchesStatus
+                );
+            }
+        );
 
-    renderEnrollments(filteredEnrollments);
+    renderEnrollments(
+        filteredEnrollments
+    );
 }
+
+
+/* ==================================================
+   CLEAR FILTERS
+================================================== */
 
 function clearFilters() {
     if (elements.searchInput) {
@@ -471,25 +688,31 @@ function clearFilters() {
         elements.statusFilter.value = "";
     }
 
-    filteredEnrollments = [...allEnrollments];
+    filteredEnrollments = [
+        ...allEnrollments
+    ];
 
-    renderEnrollments(filteredEnrollments);
+    renderEnrollments(
+        filteredEnrollments
+    );
 
-    if (elements.searchInput) {
-        elements.searchInput.focus();
-    }
+    elements.searchInput?.focus();
 }
+
 
 /* ==================================================
    RENDER ENROLLMENTS
 ================================================== */
 
-function renderEnrollments(enrollments) {
+function renderEnrollments(
+    enrollments
+) {
     if (!elements.enrollmentsGrid) {
         return;
     }
 
-    elements.enrollmentsGrid.innerHTML = "";
+    elements.enrollmentsGrid
+        .replaceChildren();
 
     setText(
         elements.visibleEnrollments,
@@ -497,45 +720,55 @@ function renderEnrollments(enrollments) {
     );
 
     if (enrollments.length === 0) {
-        if (elements.emptyState) {
-            elements.emptyState.classList.remove(
-                "d-none"
-            );
-        }
+        elements.emptyState?.classList
+            .remove("d-none");
 
         return;
     }
 
-    if (elements.emptyState) {
-        elements.emptyState.classList.add(
-            "d-none"
-        );
-    }
+    elements.emptyState?.classList
+        .add("d-none");
 
-    enrollments.forEach(function (item) {
-        const enrollmentCard =
-            createEnrollmentCard(item);
+    enrollments.forEach(
+        (item) => {
+            const enrollmentCard =
+                createEnrollmentCard(
+                    item
+                );
 
-        elements.enrollmentsGrid.appendChild(
-            enrollmentCard
-        );
-    });
+            elements.enrollmentsGrid
+                .appendChild(
+                    enrollmentCard
+                );
+        }
+    );
 }
+
+
+/* ==================================================
+   CREATE ENROLLMENT CARD
+================================================== */
 
 function createEnrollmentCard(item) {
     const card =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
 
-    card.className = "enrollment-card";
+    card.className =
+        "enrollment-card";
 
     const statusClass =
-        String(item.status || "")
-            .toLowerCase() === "completed"
+        String(
+            item.status || ""
+        ).toLowerCase() ===
+            "completed"
             ? "completed"
             : "active";
 
     card.innerHTML = `
         <div class="card-header-row">
+
             <span class="course-code">
                 ${escapeHtml(item.courseCode)}
             </span>
@@ -543,6 +776,7 @@ function createEnrollmentCard(item) {
             <span class="status-badge ${statusClass}">
                 ${escapeHtml(item.status)}
             </span>
+
         </div>
 
         <h3>
@@ -557,6 +791,7 @@ function createEnrollmentCard(item) {
 
             <div class="course-detail">
                 <i class="bi bi-person-video3"></i>
+
                 <span>
                     ${escapeHtml(item.lecturer)}
                 </span>
@@ -564,6 +799,7 @@ function createEnrollmentCard(item) {
 
             <div class="course-detail">
                 <i class="bi bi-calendar3"></i>
+
                 <span>
                     ${escapeHtml(item.schedule)}
                 </span>
@@ -571,6 +807,7 @@ function createEnrollmentCard(item) {
 
             <div class="course-detail">
                 <i class="bi bi-geo-alt-fill"></i>
+
                 <span>
                     ${escapeHtml(item.location)}
                 </span>
@@ -609,7 +846,7 @@ function createEnrollmentCard(item) {
 
                 ${item.canRemove
             ? "Remove"
-            : "Completed"
+            : "Unavailable"
         }
             </button>
 
@@ -617,22 +854,31 @@ function createEnrollmentCard(item) {
     `;
 
     const viewButton =
-        card.querySelector(".view-button");
+        card.querySelector(
+            ".view-button"
+        );
 
     const removeButton =
-        card.querySelector(".remove-button");
+        card.querySelector(
+            ".remove-button"
+        );
 
-    viewButton.addEventListener(
+    viewButton?.addEventListener(
         "click",
-        function () {
-            showEnrollmentDetails(item);
+        () => {
+            showEnrollmentDetails(
+                item
+            );
         }
     );
 
-    if (item.canRemove) {
+    if (
+        removeButton &&
+        item.canRemove
+    ) {
         removeButton.addEventListener(
             "click",
-            function () {
+            () => {
                 openRemoveModal(
                     item.enrollmentId
                 );
@@ -643,12 +889,13 @@ function createEnrollmentCard(item) {
     return card;
 }
 
+
 /* ==================================================
    VIEW DETAILS
 ================================================== */
 
 function showEnrollmentDetails(item) {
-    alert(
+    window.alert(
         `${item.courseCode} - ${item.courseName}\n\n` +
         `Lecturer: ${item.lecturer}\n` +
         `Semester: ${item.semester}\n` +
@@ -658,28 +905,24 @@ function showEnrollmentDetails(item) {
         `Status: ${item.status}`
     );
 }
-
 /* ==================================================
    REMOVE ENROLLMENT
 ================================================== */
 
 function initializeRemoveEnrollment() {
-    if (elements.confirmRemoveButton) {
-        elements.confirmRemoveButton.addEventListener(
-            "click",
-            removeSelectedEnrollment
-        );
-    }
+    elements.confirmRemoveButton?.addEventListener(
+        "click",
+        removeSelectedEnrollment
+    );
 }
 
 function openRemoveModal(enrollmentId) {
     const selectedEnrollment =
-        allEnrollments.find(function (item) {
-            return (
+        allEnrollments.find(
+            (item) =>
                 String(item.enrollmentId) ===
                 String(enrollmentId)
-            );
-        });
+        );
 
     if (!selectedEnrollment) {
         return;
@@ -698,83 +941,135 @@ function openRemoveModal(enrollmentId) {
             "removeEnrollmentModal"
         );
 
-    if (!modalElement) {
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        removeSelectedEnrollment();
         return;
     }
 
     bootstrap.Modal
-        .getOrCreateInstance(modalElement)
+        .getOrCreateInstance(
+            modalElement
+        )
         .show();
 }
 
-function removeSelectedEnrollment() {
-    allEnrollments =
-        allEnrollments.filter(function (item) {
-            return (
-                String(item.enrollmentId) !==
-                String(selectedEnrollmentId)
+async function removeSelectedEnrollment() {
+    if (!selectedEnrollmentId) {
+        return;
+    }
+
+    if (elements.confirmRemoveButton) {
+        elements.confirmRemoveButton.disabled =
+            true;
+
+        elements.confirmRemoveButton.innerHTML = `
+            <span
+                class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true"
+            ></span>
+            Removing...
+        `;
+    }
+
+    try {
+        await fetchWithAuth(
+            `/enrollments/${selectedEnrollmentId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        allEnrollments =
+            allEnrollments.filter(
+                (item) =>
+                    String(item.enrollmentId) !==
+                    String(selectedEnrollmentId)
             );
-        });
 
-    saveEnrollments(allEnrollments);
+        updateSummary();
+        applyFilters();
+        closeRemoveModal();
 
-    filteredEnrollments =
-        allEnrollments.filter(function (item) {
-            return true;
-        });
+        selectedEnrollmentId = null;
+    } catch (error) {
+        console.error(
+            "Remove enrollment error:",
+            error
+        );
 
-    updateSummary();
-    applyFilters();
+        window.alert(
+            error.message ||
+            "Unable to remove this enrollment."
+        );
+    } finally {
+        if (elements.confirmRemoveButton) {
+            elements.confirmRemoveButton.disabled =
+                false;
 
+            elements.confirmRemoveButton.textContent =
+                "Remove";
+        }
+    }
+}
+
+function closeRemoveModal() {
     const modalElement =
         document.getElementById(
             "removeEnrollmentModal"
         );
 
-    if (modalElement) {
-        const modal =
-            bootstrap.Modal.getInstance(
-                modalElement
-            );
-
-        if (modal) {
-            modal.hide();
-        }
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        return;
     }
 
-    selectedEnrollmentId = null;
+    const modal =
+        bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+    modal?.hide();
 }
+
 
 /* ==================================================
    MOBILE SIDEBAR
 ================================================== */
 
 function initializeSidebar() {
-    if (elements.menuButton) {
-        elements.menuButton.addEventListener(
-            "click",
-            openSidebar
-        );
-    }
+    elements.menuButton?.addEventListener(
+        "click",
+        openSidebar
+    );
 
-    if (elements.closeButton) {
-        elements.closeButton.addEventListener(
-            "click",
-            closeSidebar
-        );
-    }
+    elements.closeButton?.addEventListener(
+        "click",
+        closeSidebar
+    );
 
-    if (elements.overlay) {
-        elements.overlay.addEventListener(
-            "click",
-            closeSidebar
-        );
-    }
+    elements.overlay?.addEventListener(
+        "click",
+        closeSidebar
+    );
 
     document.addEventListener(
         "keydown",
-        function (event) {
+        (event) => {
             if (event.key === "Escape") {
+                closeSidebar();
+            }
+        }
+    );
+
+    window.addEventListener(
+        "resize",
+        () => {
+            if (window.innerWidth > 900) {
                 closeSidebar();
             }
         }
@@ -782,146 +1077,169 @@ function initializeSidebar() {
 }
 
 function openSidebar() {
-    if (elements.sidebar) {
-        elements.sidebar.classList.add("open");
-    }
+    elements.sidebar?.classList.add(
+        "open"
+    );
 
-    if (elements.overlay) {
-        elements.overlay.classList.add("show");
-    }
+    elements.overlay?.classList.add(
+        "show"
+    );
 
-    if (elements.menuButton) {
-        elements.menuButton.setAttribute(
-            "aria-expanded",
-            "true"
-        );
-    }
+    elements.menuButton?.setAttribute(
+        "aria-expanded",
+        "true"
+    );
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
 }
 
 function closeSidebar() {
-    if (elements.sidebar) {
-        elements.sidebar.classList.remove("open");
-    }
+    elements.sidebar?.classList.remove(
+        "open"
+    );
 
-    if (elements.overlay) {
-        elements.overlay.classList.remove("show");
-    }
+    elements.overlay?.classList.remove(
+        "show"
+    );
 
-    if (elements.menuButton) {
-        elements.menuButton.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-    }
+    elements.menuButton?.setAttribute(
+        "aria-expanded",
+        "false"
+    );
 
     document.body.style.overflow = "";
 }
+
 
 /* ==================================================
    LOGOUT
 ================================================== */
 
 function initializeLogout() {
-    if (elements.logoutButton) {
-        elements.logoutButton.addEventListener(
-            "click",
-            openLogoutModal
-        );
-    }
+    elements.logoutButton?.addEventListener(
+        "click",
+        openLogoutModal
+    );
 
-    if (elements.topLogoutButton) {
-        elements.topLogoutButton.addEventListener(
-            "click",
-            openLogoutModal
-        );
-    }
+    elements.topLogoutButton?.addEventListener(
+        "click",
+        openLogoutModal
+    );
 
-    if (elements.confirmLogoutButton) {
-        elements.confirmLogoutButton.addEventListener(
-            "click",
-            logoutStudent
-        );
-    }
+    elements.confirmLogoutButton?.addEventListener(
+        "click",
+        logoutStudent
+    );
 }
 
 function openLogoutModal() {
     const modalElement =
-        document.getElementById("logoutModal");
+        document.getElementById(
+            "logoutModal"
+        );
 
-    if (!modalElement) {
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        logoutStudent();
         return;
     }
 
     bootstrap.Modal
-        .getOrCreateInstance(modalElement)
+        .getOrCreateInstance(
+            modalElement
+        )
         .show();
 }
 
 function logoutStudent() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("loggedUser");
-    localStorage.removeItem("loggedInUser");
-    localStorage.removeItem("isLoggedIn");
+    if (
+        typeof window.clearSession ===
+        "function"
+    ) {
+        window.clearSession();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("isLoggedIn");
+    }
 
-    window.location.href = "login.html";
+    window.location.replace(
+        "login.html"
+    );
 }
+
 
 /* ==================================================
    LOADING AND ERROR STATES
 ================================================== */
 
 function showLoading() {
-    if (elements.loadingOverlay) {
-        elements.loadingOverlay
-            .classList
-            .remove("hidden");
-    }
+    elements.loadingOverlay?.classList
+        .remove("hidden");
 }
 
 function hideLoading() {
-    if (elements.loadingOverlay) {
-        elements.loadingOverlay
-            .classList
-            .add("hidden");
-    }
+    elements.loadingOverlay?.classList
+        .add("hidden");
 }
 
 function showError(message) {
-    if (elements.errorMessage) {
-        elements.errorMessage.textContent =
-            message;
-    }
+    setText(
+        elements.errorMessage,
+        message
+    );
 
-    if (elements.errorBox) {
-        elements.errorBox.classList.remove(
-            "d-none"
-        );
-    }
+    elements.errorBox?.classList
+        .remove("d-none");
 }
 
 function hideError() {
-    if (elements.errorBox) {
-        elements.errorBox.classList.add(
-            "d-none"
-        );
-    }
+    elements.errorBox?.classList
+        .add("d-none");
 }
+
 
 /* ==================================================
    HELPERS
 ================================================== */
 
 function setText(element, value) {
-    if (element) {
-        element.textContent =
-            value === null ||
-                value === undefined
-                ? ""
-                : String(value);
+    if (!element) {
+        return;
     }
+
+    element.textContent =
+        value === null ||
+            value === undefined
+            ? ""
+            : String(value);
+}
+
+function createInitials(
+    firstName,
+    lastName
+) {
+    const first =
+        firstName
+            ? firstName.charAt(0)
+            : "";
+
+    const last =
+        lastName
+            ? lastName.charAt(0)
+            : "";
+
+    return (
+        `${first}${last}`
+            .toUpperCase() ||
+        "ST"
+    );
 }
 
 function escapeHtml(value) {

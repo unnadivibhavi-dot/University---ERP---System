@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 /*
  * University ERP - Lecturer Dashboard
@@ -53,54 +53,14 @@ async function initializeLecturerDashboard() {
 /* =========================================================
    Load dashboard data
 ========================================================= */
-
 async function loadDashboardData() {
-    if (LECTURER_CONFIG.USE_MOCK_DATA === true) {
-        return loadMockDashboardData();
-    }
-
     return loadApiDashboardData();
 }
-
-/* =========================================================
-   Mock mode
-========================================================= */
-
-function loadMockDashboardData() {
-    prepareMockLecturerSession();
-
-    const lecturer = getLecturerProfile();
-
-    const courses = getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.LECTURER_COURSES,
-        []
-    );
-
-    const students = getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.COURSE_STUDENTS,
-        []
-    );
-
-    const examinations = getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.EXAMINATIONS,
-        []
-    );
-
-    return {
-        lecturer,
-        courses,
-        students,
-        examinations
-    };
-}
-
-/* =========================================================
-   Real API mode
-========================================================= */
-
 async function loadApiDashboardData() {
     if (
         typeof LecturerAPI === "undefined" ||
+        typeof LecturerAPI.getProfile !== "function" ||
+        typeof LecturerAPI.getDashboardSummary !== "function" ||
         typeof LecturerAPI.getCourses !== "function"
     ) {
         throw new Error(
@@ -108,29 +68,37 @@ async function loadApiDashboardData() {
         );
     }
 
-    const lecturer = getLecturerProfile();
+    const [
+        profileResponse,
+        summaryResponse,
+        coursesResponse
+    ] = await Promise.all([
+        LecturerAPI.getProfile(),
+        LecturerAPI.getDashboardSummary(),
+        LecturerAPI.getCourses()
+    ]);
 
-    const courses = await LecturerAPI.getCourses();
+    const lecturer =
+        profileResponse?.data ||
+        profileResponse?.lecturer ||
+        profileResponse ||
+        {};
 
-    /*
-     * The current agreed backend route returns assigned courses.
-     * Student counts may be included in each course response.
-     *
-     * The examinations route is currently POST-only in the
-     * agreed API contract. Until a GET examination endpoint is
-     * available, the dashboard uses any saved examination data.
-     */
+    const summary =
+        summaryResponse?.data ||
+        summaryResponse?.summary ||
+        summaryResponse ||
+        {};
 
-    const examinations = getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.EXAMINATIONS,
-        []
-    );
+    const courses =
+        normalizeArrayResponse(coursesResponse);
 
     return {
         lecturer,
-        courses: normalizeArrayResponse(courses),
+        summary,
+        courses,
         students: [],
-        examinations
+        examinations: []
     };
 }
 
@@ -166,18 +134,33 @@ function renderDashboard(data) {
 
     displayLecturerInformation(lecturer);
 
+    const summary = data.summary || {};
+
     const upcomingExaminations =
         getUpcomingExaminations(examinations);
 
-    const totalStudents = calculateTotalStudentCount(
-        courses,
-        students
-    );
+    const assignedCoursesCount =
+        summary.AssignedCourses ??
+        summary.assignedCourses ??
+        courses.length;
+
+    const totalStudents =
+        summary.TotalStudents ??
+        summary.totalStudents ??
+        calculateTotalStudentCount(
+            courses,
+            students
+        );
+
+    const upcomingExaminationsCount =
+        summary.UpcomingExaminations ??
+        summary.upcomingExaminations ??
+        upcomingExaminations.length;
 
     displayDashboardStatistics({
-        assignedCourses: courses.length,
+        assignedCourses: assignedCoursesCount,
         totalStudents,
-        upcomingExaminations: upcomingExaminations.length
+        upcomingExaminations: upcomingExaminationsCount
     });
 
     displayUpcomingExaminations(
@@ -353,9 +336,9 @@ function displayUpcomingExaminations(
 
                         <p>
                             ${escapeLecturerHtml(courseCode)}
-                            ·
+                            Â·
                             ${escapeLecturerHtml(courseName)}
-                            ·
+                            Â·
                             Total Marks:
                             ${escapeLecturerHtml(
                 examination.totalMarks
