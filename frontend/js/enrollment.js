@@ -4,16 +4,7 @@
 =========================================================
 UNIVERSITY ERP SYSTEM
 Course Registration and Enrollment Frontend Module
-
-Current data source:
-- localStorage
-
-Future backend endpoints:
-GET    /api/students
-GET    /api/courses
-GET    /api/enrollments
-POST   /api/enrollments
-DELETE /api/enrollments/:id
+Backend connected version
 =========================================================
 */
 
@@ -21,179 +12,88 @@ DELETE /api/enrollments/:id
    PAGE ELEMENTS
 ------------------------------------------------------ */
 
-const sidebar =
-    document.getElementById("sidebar");
+const sidebar = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
+const mobileMenuButton = document.getElementById("mobileMenuButton");
+const sidebarCloseButton = document.getElementById("sidebarCloseButton");
 
-const sidebarOverlay =
-    document.getElementById("sidebarOverlay");
+const sidebarLogoutButton = document.getElementById("sidebarLogoutButton");
+const topLogoutButton = document.getElementById("topLogoutButton");
 
-const mobileMenuButton =
-    document.getElementById("mobileMenuButton");
-
-const sidebarCloseButton =
-    document.getElementById("sidebarCloseButton");
-
-const sidebarLogoutButton =
-    document.getElementById("sidebarLogoutButton");
-
-const topLogoutButton =
-    document.getElementById("topLogoutButton");
-
-const sidebarUsername =
-    document.getElementById("sidebarUsername");
-
-const sidebarRole =
-    document.getElementById("sidebarRole");
-
-const topUsername =
-    document.getElementById("topUsername");
-
-const topRole =
-    document.getElementById("topRole");
+const sidebarUsername = document.getElementById("sidebarUsername");
+const sidebarRole = document.getElementById("sidebarRole");
+const topUsername = document.getElementById("topUsername");
+const topRole = document.getElementById("topRole");
 
 /* ------------------------------------------------------
    ENROLLMENT FORM ELEMENTS
 ------------------------------------------------------ */
 
-const enrollmentForm =
-    document.getElementById("enrollmentForm");
+const enrollmentForm = document.getElementById("enrollmentForm");
+const enrollmentStudent = document.getElementById("enrollmentStudent");
+const enrollmentCourse = document.getElementById("enrollmentCourse");
+const enrollmentDate = document.getElementById("enrollmentDate");
+const enrollmentStatus = document.getElementById("enrollmentStatus");
 
-const enrollmentStudent =
-    document.getElementById("enrollmentStudent");
+const enrollmentStudentError = document.getElementById("enrollmentStudentError");
+const enrollmentCourseError = document.getElementById("enrollmentCourseError");
+const enrollmentDateError = document.getElementById("enrollmentDateError");
+const enrollmentFormMessage = document.getElementById("enrollmentFormMessage");
 
-const enrollmentCourse =
-    document.getElementById("enrollmentCourse");
+const saveEnrollmentButton = document.getElementById("saveEnrollmentButton");
+const saveEnrollmentButtonText = document.getElementById("saveEnrollmentButtonText");
+const saveEnrollmentSpinner = document.getElementById("saveEnrollmentSpinner");
 
-const enrollmentDate =
-    document.getElementById("enrollmentDate");
-
-const enrollmentStatus =
-    document.getElementById("enrollmentStatus");
-
-const enrollmentStudentError =
-    document.getElementById("enrollmentStudentError");
-
-const enrollmentCourseError =
-    document.getElementById("enrollmentCourseError");
-
-const enrollmentDateError =
-    document.getElementById("enrollmentDateError");
-
-const enrollmentFormMessage =
-    document.getElementById("enrollmentFormMessage");
-
-const saveEnrollmentButton =
-    document.getElementById("saveEnrollmentButton");
-
-const saveEnrollmentButtonText =
-    document.getElementById("saveEnrollmentButtonText");
-
-const saveEnrollmentSpinner =
-    document.getElementById("saveEnrollmentSpinner");
-
-const selectedCoursePreview =
-    document.getElementById("selectedCoursePreview");
+const selectedCoursePreview = document.getElementById("selectedCoursePreview");
 
 /* ------------------------------------------------------
    ENROLLMENT TABLE ELEMENTS
 ------------------------------------------------------ */
 
-const enrollmentTableBody =
-    document.getElementById("enrollmentTableBody");
+const enrollmentTableBody = document.getElementById("enrollmentTableBody");
+const enrollmentSearchInput = document.getElementById("enrollmentSearchInput");
+const enrollmentStatusFilter = document.getElementById("enrollmentStatusFilter");
+const refreshEnrollmentsButton = document.getElementById("refreshEnrollmentsButton");
 
-const enrollmentSearchInput =
-    document.getElementById("enrollmentSearchInput");
-
-const enrollmentStatusFilter =
-    document.getElementById("enrollmentStatusFilter");
-
-const refreshEnrollmentsButton =
-    document.getElementById("refreshEnrollmentsButton");
-
-const enrollmentRecordCount =
-    document.getElementById("enrollmentRecordCount");
-
-const enrollmentPageMessage =
-    document.getElementById("enrollmentPageMessage");
+const enrollmentRecordCount = document.getElementById("enrollmentRecordCount");
+const enrollmentPageMessage = document.getElementById("enrollmentPageMessage");
 
 /* ------------------------------------------------------
    SUMMARY ELEMENTS
 ------------------------------------------------------ */
 
-const totalEnrollmentsValue =
-    document.getElementById("totalEnrollmentsValue");
-
-const enrolledStudentsValue =
-    document.getElementById("enrolledStudentsValue");
-
-const enrolledCoursesValue =
-    document.getElementById("enrolledCoursesValue");
-
-const activeEnrollmentsValue =
-    document.getElementById("activeEnrollmentsValue");
+const totalEnrollmentsValue = document.getElementById("totalEnrollmentsValue");
+const enrolledStudentsValue = document.getElementById("enrolledStudentsValue");
+const enrolledCoursesValue = document.getElementById("enrolledCoursesValue");
+const activeEnrollmentsValue = document.getElementById("activeEnrollmentsValue");
 
 /* ------------------------------------------------------
    DELETE MODAL ELEMENTS
 ------------------------------------------------------ */
 
-const deleteEnrollmentId =
-    document.getElementById("deleteEnrollmentId");
+const deleteEnrollmentId = document.getElementById("deleteEnrollmentId");
+const confirmDeleteEnrollmentButton = document.getElementById("confirmDeleteEnrollmentButton");
 
-const confirmDeleteEnrollmentButton =
-    document.getElementById(
-        "confirmDeleteEnrollmentButton"
-    );
-
-const deleteEnrollmentModalElement =
-    document.getElementById("deleteEnrollmentModal");
-
-const deleteEnrollmentModal =
-    new bootstrap.Modal(deleteEnrollmentModalElement);
+const deleteEnrollmentModalElement = document.getElementById("deleteEnrollmentModal");
+const deleteEnrollmentModal = new bootstrap.Modal(deleteEnrollmentModalElement);
 
 /* ------------------------------------------------------
-   SAMPLE ENROLLMENT DATA
+   STATE
 ------------------------------------------------------ */
 
-const defaultEnrollments = [
-    {
-        enrollmentId: 1,
-        studentId: 1,
-        courseId: 1,
-        enrollmentDate: "2026-07-01",
-        status: "Active"
-    },
-    {
-        enrollmentId: 2,
-        studentId: 1,
-        courseId: 2,
-        enrollmentDate: "2026-07-02",
-        status: "Active"
-    },
-    {
-        enrollmentId: 3,
-        studentId: 2,
-        courseId: 3,
-        enrollmentDate: "2026-07-03",
-        status: "Completed"
-    },
-    {
-        enrollmentId: 4,
-        studentId: 3,
-        courseId: 4,
-        enrollmentDate: "2026-07-04",
-        status: "Dropped"
-    }
-];
+let students = [];
+let courses = [];
+let enrollments = [];
 
 /* ------------------------------------------------------
    LOGIN PROTECTION
 ------------------------------------------------------ */
 
 function protectPage() {
-    const isLoggedIn =
-        localStorage.getItem("isLoggedIn");
+    const token = localStorage.getItem("token");
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-    if (isLoggedIn !== "true") {
+    if (!token && isLoggedIn !== "true") {
         window.location.replace("login.html");
     }
 }
@@ -204,72 +104,216 @@ function protectPage() {
 
 function loadUserInformation() {
     const storedUser =
+        localStorage.getItem("user") ||
         localStorage.getItem("loggedUser");
 
     let user = {
         username: "Administrator",
-        role: "System Admin"
+        role: "Admin"
     };
 
     if (storedUser) {
         try {
             user = JSON.parse(storedUser);
         } catch (error) {
-            console.error(
-                "Unable to read logged user:",
-                error
-            );
+            console.error("Unable to read logged user:", error);
         }
     }
 
     const displayName =
-        user.username === "admin"
-            ? "Administrator"
-            : user.username;
+        user.username || user.Username || "Administrator";
 
     const displayRole =
-        user.role || "System Admin";
+        user.role || user.Role || "Admin";
 
-    sidebarUsername.textContent =
-        displayName;
+    sidebarUsername.textContent = displayName;
+    sidebarRole.textContent = displayRole;
 
-    sidebarRole.textContent =
-        displayRole;
-
-    topUsername.textContent =
-        displayName;
-
-    topRole.textContent =
-        displayRole;
+    topUsername.textContent = displayName;
+    topRole.textContent = displayRole;
 }
 
 /* ------------------------------------------------------
-   LOCAL STORAGE FUNCTIONS
+   API HELPERS
 ------------------------------------------------------ */
 
-function initializeEnrollments() {
-    if (!localStorage.getItem("enrollments")) {
-        saveEnrollments(defaultEnrollments);
+function unwrapApiArray(responseData, key) {
+    if (Array.isArray(responseData)) {
+        return responseData;
     }
+
+    if (Array.isArray(responseData.data)) {
+        return responseData.data;
+    }
+
+    if (Array.isArray(responseData[key])) {
+        return responseData[key];
+    }
+
+    return [];
 }
 
-function getStudents() {
-    return getStoredArray("students");
+function normalizeStudent(student) {
+    return {
+        studentId:
+            student.StudentID ??
+            student.studentId ??
+            student.id,
+
+        registrationNumber:
+            student.RegistrationNumber ??
+            student.registrationNumber ??
+            "",
+
+        fullName:
+            student.FullName ??
+            student.fullName ??
+            "",
+
+        email:
+            student.Email ??
+            student.email ??
+            "",
+
+        department:
+            student.Department ??
+            student.department ??
+            "",
+
+        academicYear:
+            student.AcademicYear ??
+            student.academicYear ??
+            "",
+
+        status:
+            student.Status ??
+            student.status ??
+            "Active"
+    };
 }
 
-function getCourses() {
-    return getStoredArray("courses");
+function normalizeCourse(course) {
+    return {
+        courseId:
+            course.CourseID ??
+            course.courseId ??
+            course.id,
+
+        courseCode:
+            course.CourseCode ??
+            course.courseCode ??
+            "",
+
+        courseName:
+            course.CourseName ??
+            course.courseName ??
+            "",
+
+        department:
+            course.Department ??
+            course.department ??
+            "",
+
+        credits:
+            course.Credits ??
+            course.credits ??
+            0,
+
+        semester:
+            course.Semester ??
+            course.semester ??
+            "N/A",
+
+        status:
+            course.Status ??
+            course.status ??
+            "Active",
+
+        description:
+            course.Description ??
+            course.description ??
+            "No course description is available."
+    };
 }
 
-function getEnrollments() {
-    return getStoredArray("enrollments");
+function normalizeEnrollment(enrollment) {
+    return {
+        enrollmentId:
+            enrollment.EnrollmentID ??
+            enrollment.enrollmentId ??
+            enrollment.id,
+
+        studentId:
+            enrollment.StudentID ??
+            enrollment.studentId,
+
+        courseId:
+            enrollment.CourseID ??
+            enrollment.courseId,
+
+        enrollmentDate:
+            enrollment.EnrollmentDate ??
+            enrollment.enrollmentDate ??
+            "",
+
+        status:
+            enrollment.Status ??
+            enrollment.status ??
+            "Active",
+
+        student: normalizeStudent(enrollment),
+        course: normalizeCourse(enrollment)
+    };
 }
 
-function saveEnrollments(enrollments) {
-    localStorage.setItem(
-        "enrollments",
-        JSON.stringify(enrollments)
-    );
+/* ------------------------------------------------------
+   LOAD DATA FROM BACKEND
+------------------------------------------------------ */
+
+async function loadEnrollmentPageData() {
+    try {
+        enrollmentTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    Loading enrollments...
+                </td>
+            </tr>
+        `;
+
+        const [
+            studentsResponse,
+            coursesResponse,
+            enrollmentsResponse
+        ] = await Promise.all([
+            fetchWithAuth("/students"),
+            fetchWithAuth("/courses"),
+            fetchWithAuth("/enrollments")
+        ]);
+
+        students = unwrapApiArray(studentsResponse, "students").map(normalizeStudent);
+        courses = unwrapApiArray(coursesResponse, "courses").map(normalizeCourse);
+        enrollments = unwrapApiArray(enrollmentsResponse, "enrollments").map(normalizeEnrollment);
+
+        populateStudentDropdown();
+        populateCourseDropdown();
+        displayEnrollments();
+
+    } catch (error) {
+        console.error("Unable to load enrollment page data:", error);
+
+        students = [];
+        courses = [];
+        enrollments = [];
+
+        populateStudentDropdown();
+        populateCourseDropdown();
+        displayEnrollments();
+
+        showPageMessage(
+            error.message || "Unable to load enrollment records.",
+            "danger"
+        );
+    }
 }
 
 /* ------------------------------------------------------
@@ -277,31 +321,21 @@ function saveEnrollments(enrollments) {
 ------------------------------------------------------ */
 
 function populateStudentDropdown() {
-    const students = getStudents();
-
     enrollmentStudent.innerHTML = `
         <option value="">
             Choose a student
         </option>
     `;
 
-    students
-        .filter(
-            (student) =>
-                student.status !== "Inactive"
-        )
-        .forEach((student) => {
-            const option =
-                document.createElement("option");
+    students.forEach((student) => {
+        const option = document.createElement("option");
 
-            option.value =
-                student.studentId;
+        option.value = student.studentId;
+        option.textContent =
+            `${student.registrationNumber} - ${student.fullName}`;
 
-            option.textContent =
-                `${student.registrationNumber} - ${student.fullName}`;
-
-            enrollmentStudent.appendChild(option);
-        });
+        enrollmentStudent.appendChild(option);
+    });
 }
 
 /* ------------------------------------------------------
@@ -309,31 +343,21 @@ function populateStudentDropdown() {
 ------------------------------------------------------ */
 
 function populateCourseDropdown() {
-    const courses = getCourses();
-
     enrollmentCourse.innerHTML = `
         <option value="">
             Choose a course
         </option>
     `;
 
-    courses
-        .filter(
-            (course) =>
-                course.status === "Active"
-        )
-        .forEach((course) => {
-            const option =
-                document.createElement("option");
+    courses.forEach((course) => {
+        const option = document.createElement("option");
 
-            option.value =
-                course.courseId;
+        option.value = course.courseId;
+        option.textContent =
+            `${course.courseCode} - ${course.courseName}`;
 
-            option.textContent =
-                `${course.courseCode} - ${course.courseName}`;
-
-            enrollmentCourse.appendChild(option);
-        });
+        enrollmentCourse.appendChild(option);
+    });
 
     applyPreselectedCourse();
 }
@@ -344,32 +368,23 @@ function populateCourseDropdown() {
 
 function applyPreselectedCourse() {
     const selectedCourseId =
-        localStorage.getItem(
-            "selectedEnrollmentCourseId"
-        );
+        localStorage.getItem("selectedEnrollmentCourseId");
 
     if (!selectedCourseId) {
         return;
     }
 
     const optionExists =
-        Array.from(
-            enrollmentCourse.options
-        ).some(
-            (option) =>
-                option.value === selectedCourseId
+        Array.from(enrollmentCourse.options).some(
+            (option) => option.value === selectedCourseId
         );
 
     if (optionExists) {
-        enrollmentCourse.value =
-            selectedCourseId;
-
+        enrollmentCourse.value = selectedCourseId;
         updateSelectedCoursePreview();
     }
 
-    localStorage.removeItem(
-        "selectedEnrollmentCourseId"
-    );
+    localStorage.removeItem("selectedEnrollmentCourseId");
 }
 
 /* ------------------------------------------------------
@@ -377,12 +392,10 @@ function applyPreselectedCourse() {
 ------------------------------------------------------ */
 
 function updateSelectedCoursePreview() {
-    const courseId =
-        Number(enrollmentCourse.value);
+    const courseId = Number(enrollmentCourse.value);
 
     if (!courseId) {
-        selectedCoursePreview.className =
-            "selected-course-empty";
+        selectedCoursePreview.className = "selected-course-empty";
 
         selectedCoursePreview.innerHTML = `
             <div class="selected-course-empty-icon">
@@ -400,78 +413,54 @@ function updateSelectedCoursePreview() {
         return;
     }
 
-    const course = getCourses().find(
-        (item) =>
-            Number(item.courseId) === courseId
+    const course = courses.find(
+        (item) => Number(item.courseId) === courseId
     );
 
     if (!course) {
         return;
     }
 
-    selectedCoursePreview.className =
-        "selected-course-card";
+    selectedCoursePreview.className = "selected-course-card";
 
     selectedCoursePreview.innerHTML = `
         <div class="selected-course-card-header">
-
             <div class="selected-course-card-icon">
                 <i class="bi bi-journal-bookmark-fill"></i>
             </div>
 
             <div>
-                <span>
-                    ${escapeHTML(course.courseCode)}
-                </span>
-
-                <h4>
-                    ${escapeHTML(course.courseName)}
-                </h4>
+                <span>${escapeHTML(course.courseCode)}</span>
+                <h4>${escapeHTML(course.courseName)}</h4>
             </div>
-
         </div>
 
         <div class="selected-course-card-body">
-
             <p class="selected-course-description">
-                ${escapeHTML(
-        course.description ||
-        "No course description is available."
-    )}
+                ${escapeHTML(course.description)}
             </p>
 
             <div class="selected-course-detail-grid">
-
                 <div class="selected-course-detail">
                     <span>Department</span>
-                    <strong>
-                        ${escapeHTML(course.department)}
-                    </strong>
+                    <strong>${escapeHTML(course.department)}</strong>
                 </div>
 
                 <div class="selected-course-detail">
                     <span>Semester</span>
-                    <strong>
-                        ${escapeHTML(course.semester)}
-                    </strong>
+                    <strong>${escapeHTML(course.semester)}</strong>
                 </div>
 
                 <div class="selected-course-detail">
                     <span>Credits</span>
-                    <strong>
-                        ${Number(course.credits)}
-                    </strong>
+                    <strong>${Number(course.credits)}</strong>
                 </div>
 
                 <div class="selected-course-detail">
                     <span>Status</span>
-                    <strong>
-                        ${escapeHTML(course.status)}
-                    </strong>
+                    <strong>${escapeHTML(course.status)}</strong>
                 </div>
-
             </div>
-
         </div>
     `;
 }
@@ -481,85 +470,48 @@ function updateSelectedCoursePreview() {
 ------------------------------------------------------ */
 
 function displayEnrollments() {
-    const enrollments =
-        getEnrollments();
-
-    const students =
-        getStudents();
-
-    const courses =
-        getCourses();
-
     const searchValue =
-        enrollmentSearchInput.value
-            .trim()
-            .toLowerCase();
+        enrollmentSearchInput.value.trim().toLowerCase();
 
     const selectedStatus =
         enrollmentStatusFilter.value;
 
-    const detailedEnrollments =
-        enrollments.map((enrollment) => {
-            const student = students.find(
-                (item) =>
-                    Number(item.studentId) ===
-                    Number(enrollment.studentId)
-            );
+    const detailedEnrollments = enrollments.map((enrollment) => {
+        const student =
+            students.find(
+                (item) => Number(item.studentId) === Number(enrollment.studentId)
+            ) || enrollment.student;
 
-            const course = courses.find(
-                (item) =>
-                    Number(item.courseId) ===
-                    Number(enrollment.courseId)
-            );
+        const course =
+            courses.find(
+                (item) => Number(item.courseId) === Number(enrollment.courseId)
+            ) || enrollment.course;
 
-            return {
-                ...enrollment,
-                student,
-                course
-            };
-        });
+        return {
+            ...enrollment,
+            student,
+            course
+        };
+    });
 
-    const filteredEnrollments =
-        detailedEnrollments.filter(
-            (enrollment) => {
-                const studentName =
-                    enrollment.student?.fullName || "";
+    const filteredEnrollments = detailedEnrollments.filter((enrollment) => {
+        const studentName = enrollment.student?.fullName || "";
+        const registrationNumber = enrollment.student?.registrationNumber || "";
+        const courseName = enrollment.course?.courseName || "";
+        const courseCode = enrollment.course?.courseCode || "";
 
-                const registrationNumber =
-                    enrollment.student
-                        ?.registrationNumber || "";
+        const matchesSearch =
+            studentName.toLowerCase().includes(searchValue) ||
+            registrationNumber.toLowerCase().includes(searchValue) ||
+            courseName.toLowerCase().includes(searchValue) ||
+            courseCode.toLowerCase().includes(searchValue);
 
-                const courseName =
-                    enrollment.course?.courseName || "";
+        const matchesStatus =
+            selectedStatus === "" ||
+            enrollment.status === selectedStatus;
 
-                const courseCode =
-                    enrollment.course?.courseCode || "";
-
-                const matchesSearch =
-                    studentName
-                        .toLowerCase()
-                        .includes(searchValue) ||
-                    registrationNumber
-                        .toLowerCase()
-                        .includes(searchValue) ||
-                    courseName
-                        .toLowerCase()
-                        .includes(searchValue) ||
-                    courseCode
-                        .toLowerCase()
-                        .includes(searchValue);
-
-                const matchesStatus =
-                    selectedStatus === "" ||
-                    enrollment.status ===
-                    selectedStatus;
-
-                return (
-                    matchesSearch &&
-                    matchesStatus
-                );
-            }
-        );
+        return matchesSearch && matchesStatus;
+    });
 
     enrollmentTableBody.innerHTML = "";
 
@@ -568,7 +520,6 @@ function displayEnrollments() {
             <tr>
                 <td colspan="8">
                     <div class="enrollment-empty-state">
-
                         <div class="student-empty-icon">
                             <i class="bi bi-person-check"></i>
                         </div>
@@ -579,153 +530,110 @@ function displayEnrollments() {
                             Try changing the search text
                             or status filter.
                         </p>
-
                     </div>
                 </td>
             </tr>
         `;
 
-        enrollmentRecordCount.textContent =
-            "Showing 0 enrollments";
+        enrollmentRecordCount.textContent = "Showing 0 enrollments";
 
         updateEnrollmentSummary(enrollments);
 
         return;
     }
 
-    filteredEnrollments.forEach(
-        (enrollment) => {
-            const student =
-                enrollment.student;
+    filteredEnrollments.forEach((enrollment) => {
+        const student = enrollment.student;
+        const course = enrollment.course;
 
-            const course =
-                enrollment.course;
+        const statusClass =
+            getEnrollmentStatusClass(enrollment.status);
 
-            const statusClass =
-                getEnrollmentStatusClass(
-                    enrollment.status
-                );
+        const initials =
+            getInitials(student?.fullName || "Student");
 
-            const initials =
-                getInitials(
-                    student?.fullName || "Student"
-                );
+        const row = document.createElement("tr");
 
-            const row =
-                document.createElement("tr");
+        row.innerHTML = `
+            <td>
+                <span class="enrollment-id-badge">
+                    ${escapeHTML(enrollment.enrollmentId)}
+                </span>
+            </td>
 
-            row.innerHTML = `
-                <td>
-                    <span class="enrollment-id-badge">
-                        ${enrollment.enrollmentId}
-                    </span>
-                </td>
-
-                <td>
-                    <div class="enrollment-person-cell">
-
-                        <div class="enrollment-student-avatar">
-                            ${initials}
-                        </div>
-
-                        <div class="enrollment-cell-details">
-                            <strong>
-                                ${escapeHTML(
-                student?.fullName ||
-                "Unknown Student"
-            )}
-                            </strong>
-
-                            <span>
-                                ${escapeHTML(
-                student?.registrationNumber ||
-                "No registration number"
-            )}
-                            </span>
-                        </div>
-
+            <td>
+                <div class="enrollment-person-cell">
+                    <div class="enrollment-student-avatar">
+                        ${escapeHTML(initials)}
                     </div>
-                </td>
 
-                <td>
-                    <div class="enrollment-course-cell">
+                    <div class="enrollment-cell-details">
+                        <strong>
+                            ${escapeHTML(student?.fullName || "Unknown Student")}
+                        </strong>
 
-                        <div class="enrollment-course-icon">
-                            <i class="bi bi-journal-bookmark-fill"></i>
-                        </div>
-
-                        <div class="enrollment-cell-details">
-                            <strong>
-                                ${escapeHTML(
-                course?.courseName ||
-                "Unknown Course"
-            )}
-                            </strong>
-
-                            <span>
-                                ${escapeHTML(
-                course?.courseCode ||
-                "No course code"
-            )}
-                            </span>
-                        </div>
-
+                        <span>
+                            ${escapeHTML(student?.registrationNumber || "No registration number")}
+                        </span>
                     </div>
-                </td>
+                </div>
+            </td>
 
-                <td>
-                    ${escapeHTML(
-                course?.department ||
-                "Not available"
-            )}
-                </td>
+            <td>
+                <div class="enrollment-course-cell">
+                    <div class="enrollment-course-icon">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                    </div>
 
-                <td>
-                    ${Number(course?.credits) || 0}
-                </td>
+                    <div class="enrollment-cell-details">
+                        <strong>
+                            ${escapeHTML(course?.courseName || "Unknown Course")}
+                        </strong>
 
-                <td>
-                    ${formatDate(
-                enrollment.enrollmentDate
-            )}
-                </td>
+                        <span>
+                            ${escapeHTML(course?.courseCode || "No course code")}
+                        </span>
+                    </div>
+                </div>
+            </td>
 
-                <td>
-                    <span
-                        class="enrollment-status-badge ${statusClass}"
+            <td>${escapeHTML(course?.department || "Not available")}</td>
+
+            <td>${Number(course?.credits) || 0}</td>
+
+            <td>${formatDate(enrollment.enrollmentDate)}</td>
+
+            <td>
+                <span class="enrollment-status-badge ${statusClass}">
+                    ${escapeHTML(enrollment.status)}
+                </span>
+            </td>
+
+            <td>
+                <div class="enrollment-action-group">
+                    <button
+                        type="button"
+                        class="enrollment-action-button view-enrollment-button"
+                        title="View enrollment"
+                        onclick="viewEnrollment(${Number(enrollment.enrollmentId)})"
                     >
-                        ${escapeHTML(enrollment.status)}
-                    </span>
-                </td>
+                        <i class="bi bi-eye"></i>
+                    </button>
 
-                <td>
-                    <div class="enrollment-action-group">
+                    <button
+                        type="button"
+                        class="enrollment-action-button remove-enrollment-button"
+                        title="Remove enrollment"
+                        onclick="openDeleteEnrollmentModal(${Number(enrollment.enrollmentId)})"
+                    >
+                        <i class="bi bi-person-x"></i>
+                    </button>
+                </div>
+            </td>
+        `;
 
-                        <button
-                            type="button"
-                            class="enrollment-action-button view-enrollment-button"
-                            title="View enrollment"
-                            onclick="viewEnrollment(${enrollment.enrollmentId})"
-                        >
-                            <i class="bi bi-eye"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="enrollment-action-button remove-enrollment-button"
-                            title="Remove enrollment"
-                            onclick="openDeleteEnrollmentModal(${enrollment.enrollmentId})"
-                        >
-                            <i class="bi bi-person-x"></i>
-                        </button>
-
-                    </div>
-                </td>
-            `;
-
-            enrollmentTableBody.appendChild(row);
-        }
-    );
+        enrollmentTableBody.appendChild(row);
+    });
 
     enrollmentRecordCount.textContent =
         `Showing ${filteredEnrollments.length} of ${enrollments.length} enrollments`;
@@ -737,40 +645,24 @@ function displayEnrollments() {
    SUMMARY CARDS
 ------------------------------------------------------ */
 
-function updateEnrollmentSummary(
-    enrollments
-) {
-    totalEnrollmentsValue.textContent =
-        enrollments.length;
+function updateEnrollmentSummary(enrollmentList) {
+    totalEnrollmentsValue.textContent = enrollmentList.length;
 
     const studentIds = new Set(
-        enrollments.map(
-            (enrollment) =>
-                Number(enrollment.studentId)
-        )
+        enrollmentList.map((enrollment) => Number(enrollment.studentId))
     );
 
     const courseIds = new Set(
-        enrollments.map(
-            (enrollment) =>
-                Number(enrollment.courseId)
-        )
+        enrollmentList.map((enrollment) => Number(enrollment.courseId))
     );
 
-    const activeEnrollments =
-        enrollments.filter(
-            (enrollment) =>
-                enrollment.status === "Active"
-        );
-
-    enrolledStudentsValue.textContent =
-        studentIds.size;
-
-    enrolledCoursesValue.textContent =
-        courseIds.size;
+    enrolledStudentsValue.textContent = studentIds.size;
+    enrolledCoursesValue.textContent = courseIds.size;
 
     activeEnrollmentsValue.textContent =
-        activeEnrollments.length;
+        enrollmentList.filter(
+            (enrollment) => enrollment.status === "Active"
+        ).length;
 }
 
 /* ------------------------------------------------------
@@ -790,23 +682,17 @@ function validateEnrollmentForm() {
     let isValid = true;
 
     if (enrollmentStudent.value === "") {
-        enrollmentStudentError.textContent =
-            "Select a student.";
-
+        enrollmentStudentError.textContent = "Select a student.";
         isValid = false;
     }
 
     if (enrollmentCourse.value === "") {
-        enrollmentCourseError.textContent =
-            "Select a course.";
-
+        enrollmentCourseError.textContent = "Select a course.";
         isValid = false;
     }
 
     if (enrollmentDate.value === "") {
-        enrollmentDateError.textContent =
-            "Select an enrollment date.";
-
+        enrollmentDateError.textContent = "Select an enrollment date.";
         isValid = false;
     }
 
@@ -817,123 +703,80 @@ function validateEnrollmentForm() {
    CREATE ENROLLMENT
 ------------------------------------------------------ */
 
-function createEnrollment() {
-    const enrollments =
-        getEnrollments();
-
-    const studentId =
-        Number(enrollmentStudent.value);
-
-    const courseId =
-        Number(enrollmentCourse.value);
-
-    const duplicateEnrollment =
-        enrollments.some(
-            (enrollment) =>
-                Number(enrollment.studentId) ===
-                studentId &&
-                Number(enrollment.courseId) ===
-                courseId &&
-                enrollment.status !== "Dropped"
-        );
-
-    if (duplicateEnrollment) {
-        showFormMessage(
-            "This student is already enrolled in the selected course.",
-            "warning"
-        );
-
-        return false;
-    }
-
-    const newEnrollment = {
-        enrollmentId:
-            generateEnrollmentId(enrollments),
-
-        studentId,
-
-        courseId,
-
-        enrollmentDate:
-            enrollmentDate.value,
-
-        status:
-            enrollmentStatus.value
+async function createEnrollment() {
+    const payload = {
+        StudentID: Number(enrollmentStudent.value),
+        CourseID: Number(enrollmentCourse.value),
+        EnrollmentDate: enrollmentDate.value
     };
 
-    enrollments.push(newEnrollment);
-
-    saveEnrollments(enrollments);
+    await fetchWithAuth("/enrollments", {
+        method: "POST",
+        body: JSON.stringify(payload)
+    });
 
     resetEnrollmentForm();
-
-    displayEnrollments();
 
     showPageMessage(
         "Student registered for the course successfully.",
         "success"
     );
 
-    return true;
+    await loadEnrollmentPageData();
 }
 
 /* ------------------------------------------------------
    FORM SUBMISSION
 ------------------------------------------------------ */
 
-enrollmentForm.addEventListener(
-    "submit",
-    (event) => {
-        event.preventDefault();
+enrollmentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-        if (!validateEnrollmentForm()) {
-            return;
-        }
-
-        setSaveEnrollmentLoading(true);
-
-        window.setTimeout(() => {
-            const completed =
-                createEnrollment();
-
-            setSaveEnrollmentLoading(false);
-
-            if (!completed) {
-                return;
-            }
-        }, 450);
+    if (!validateEnrollmentForm()) {
+        return;
     }
-);
+
+    setSaveEnrollmentLoading(true);
+
+    try {
+        await createEnrollment();
+
+    } catch (error) {
+        console.error("Unable to create enrollment:", error);
+
+        showFormMessage(
+            error.message || "Unable to register student for course.",
+            "danger"
+        );
+
+    } finally {
+        setSaveEnrollmentLoading(false);
+    }
+});
 
 /* ------------------------------------------------------
    VIEW ENROLLMENT
 ------------------------------------------------------ */
 
 function viewEnrollment(enrollmentId) {
-    const enrollment =
-        getEnrollments().find(
-            (item) =>
-                Number(item.enrollmentId) ===
-                Number(enrollmentId)
-        );
+    const enrollment = enrollments.find(
+        (item) => Number(item.enrollmentId) === Number(enrollmentId)
+    );
 
     if (!enrollment) {
+        showPageMessage("Enrollment record was not found.", "danger");
         return;
     }
 
     const student =
-        getStudents().find(
-            (item) =>
-                Number(item.studentId) ===
-                Number(enrollment.studentId)
-        );
+        students.find(
+            (item) => Number(item.studentId) === Number(enrollment.studentId)
+        ) || enrollment.student;
 
     const course =
-        getCourses().find(
-            (item) =>
-                Number(item.courseId) ===
-                Number(enrollment.courseId)
-        );
+        courses.find(
+            (item) => Number(item.courseId) === Number(enrollment.courseId)
+        ) || enrollment.course;
 
     alert(
         `Enrollment Details\n\n` +
@@ -951,93 +794,63 @@ function viewEnrollment(enrollmentId) {
    DELETE ENROLLMENT
 ------------------------------------------------------ */
 
-function openDeleteEnrollmentModal(
-    enrollmentId
-) {
-    deleteEnrollmentId.value =
-        enrollmentId;
-
+function openDeleteEnrollmentModal(enrollmentId) {
+    deleteEnrollmentId.value = enrollmentId;
     deleteEnrollmentModal.show();
 }
 
-function removeEnrollment() {
-    const enrollmentId =
-        Number(deleteEnrollmentId.value);
+async function removeEnrollment() {
+    const enrollmentId = Number(deleteEnrollmentId.value);
 
-    const enrollments =
-        getEnrollments();
-
-    const updatedEnrollments =
-        enrollments.filter(
-            (enrollment) =>
-                Number(enrollment.enrollmentId) !==
-                enrollmentId
-        );
-
-    if (
-        updatedEnrollments.length ===
-        enrollments.length
-    ) {
-        deleteEnrollmentModal.hide();
-
-        showPageMessage(
-            "Enrollment record was not found.",
-            "danger"
-        );
-
+    if (!enrollmentId) {
+        showPageMessage("Invalid enrollment record.", "danger");
         return;
     }
 
-    saveEnrollments(updatedEnrollments);
+    try {
+        confirmDeleteEnrollmentButton.disabled = true;
 
-    deleteEnrollmentModal.hide();
+        await fetchWithAuth(`/enrollments/${enrollmentId}`, {
+            method: "DELETE"
+        });
 
-    displayEnrollments();
+        deleteEnrollmentModal.hide();
 
-    showPageMessage(
-        "Enrollment removed successfully.",
-        "success"
-    );
+        showPageMessage("Enrollment removed successfully.", "success");
+
+        await loadEnrollmentPageData();
+
+    } catch (error) {
+        console.error("Unable to remove enrollment:", error);
+
+        showPageMessage(
+            error.message || "Unable to remove enrollment.",
+            "danger"
+        );
+
+    } finally {
+        confirmDeleteEnrollmentButton.disabled = false;
+    }
 }
 
-confirmDeleteEnrollmentButton.addEventListener(
-    "click",
-    removeEnrollment
-);
+confirmDeleteEnrollmentButton.addEventListener("click", removeEnrollment);
 
 /* ------------------------------------------------------
    FORM AND FILTER EVENTS
 ------------------------------------------------------ */
 
-enrollmentCourse.addEventListener(
-    "change",
-    updateSelectedCoursePreview
-);
+enrollmentCourse.addEventListener("change", updateSelectedCoursePreview);
+enrollmentSearchInput.addEventListener("input", displayEnrollments);
+enrollmentStatusFilter.addEventListener("change", displayEnrollments);
 
-enrollmentSearchInput.addEventListener(
-    "input",
-    displayEnrollments
-);
+refreshEnrollmentsButton.addEventListener("click", async () => {
+    enrollmentSearchInput.value = "";
+    enrollmentStatusFilter.value = "";
 
-enrollmentStatusFilter.addEventListener(
-    "change",
-    displayEnrollments
-);
+    await loadEnrollmentPageData();
 
-refreshEnrollmentsButton.addEventListener(
-    "click",
-    () => {
-        enrollmentSearchInput.value = "";
-        enrollmentStatusFilter.value = "";
-
-        displayEnrollments();
-
-        showPageMessage(
-            "Enrollment records refreshed.",
-            "info"
-        );
-    }
-);
+    showPageMessage("Enrollment records refreshed.", "info");
+});
 
 /* ------------------------------------------------------
    RESET FORM
@@ -1048,8 +861,9 @@ function resetEnrollmentForm() {
 
     setTodayAsEnrollmentDate();
 
-    enrollmentStatus.value =
-        "Active";
+    if (enrollmentStatus) {
+        enrollmentStatus.value = "Active";
+    }
 
     clearEnrollmentErrors();
 
@@ -1061,24 +875,17 @@ function resetEnrollmentForm() {
 ------------------------------------------------------ */
 
 function setTodayAsEnrollmentDate() {
-    const today =
-        new Date();
+    const today = new Date();
 
-    const year =
-        today.getFullYear();
+    const year = today.getFullYear();
 
     const month =
-        String(
-            today.getMonth() + 1
-        ).padStart(2, "0");
+        String(today.getMonth() + 1).padStart(2, "0");
 
     const day =
-        String(
-            today.getDate()
-        ).padStart(2, "0");
+        String(today.getDate()).padStart(2, "0");
 
-    enrollmentDate.value =
-        `${year}-${month}-${day}`;
+    enrollmentDate.value = `${year}-${month}-${day}`;
 }
 
 /* ------------------------------------------------------
@@ -1097,114 +904,50 @@ function closeSidebar() {
     document.body.style.overflow = "";
 }
 
-mobileMenuButton.addEventListener(
-    "click",
-    openSidebar
-);
+mobileMenuButton.addEventListener("click", openSidebar);
+sidebarCloseButton.addEventListener("click", closeSidebar);
+sidebarOverlay.addEventListener("click", closeSidebar);
 
-sidebarCloseButton.addEventListener(
-    "click",
-    closeSidebar
-);
-
-sidebarOverlay.addEventListener(
-    "click",
-    closeSidebar
-);
-
-window.addEventListener(
-    "resize",
-    () => {
-        if (window.innerWidth > 900) {
-            closeSidebar();
-        }
+window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) {
+        closeSidebar();
     }
-);
+});
 
 /* ------------------------------------------------------
    LOGOUT
 ------------------------------------------------------ */
 
 function logout() {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("loggedUser");
+    if (typeof clearSession === "function") {
+        clearSession();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("loggedUser");
+    }
 
     window.location.replace("login.html");
 }
 
-sidebarLogoutButton.addEventListener(
-    "click",
-    logout
-);
-
-topLogoutButton.addEventListener(
-    "click",
-    logout
-);
+sidebarLogoutButton.addEventListener("click", logout);
+topLogoutButton.addEventListener("click", logout);
 
 /* ------------------------------------------------------
    HELPER FUNCTIONS
 ------------------------------------------------------ */
 
-function getStoredArray(key) {
-    const storedValue =
-        localStorage.getItem(key);
-
-    if (!storedValue) {
-        return [];
-    }
-
-    try {
-        const parsedValue =
-            JSON.parse(storedValue);
-
-        return Array.isArray(parsedValue)
-            ? parsedValue
-            : [];
-    } catch (error) {
-        console.error(
-            `Unable to read ${key}:`,
-            error
-        );
-
-        return [];
-    }
-}
-
-function generateEnrollmentId(
-    enrollments
-) {
-    if (enrollments.length === 0) {
-        return 1;
-    }
-
-    const highestId = Math.max(
-        ...enrollments.map(
-            (enrollment) =>
-                Number(
-                    enrollment.enrollmentId
-                ) || 0
-        )
-    );
-
-    return highestId + 1;
-}
-
 function getInitials(fullName) {
-    return fullName
+    return String(fullName || "")
         .trim()
         .split(/\s+/)
         .slice(0, 2)
-        .map(
-            (part) =>
-                part.charAt(0).toUpperCase()
-        )
+        .map((part) => part.charAt(0).toUpperCase())
         .join("");
 }
 
-function getEnrollmentStatusClass(
-    status
-) {
+function getEnrollmentStatusClass(status) {
     if (status === "Completed") {
         return "enrollment-completed-status";
     }
@@ -1221,33 +964,28 @@ function formatDate(dateValue) {
         return "Not available";
     }
 
-    const date =
-        new Date(`${dateValue}T00:00:00`);
+    const cleanDate =
+        String(dateValue).includes("T")
+            ? String(dateValue).split("T")[0]
+            : String(dateValue);
+
+    const date = new Date(`${cleanDate}T00:00:00`);
 
     if (Number.isNaN(date.getTime())) {
-        return dateValue;
+        return String(dateValue);
     }
 
-    return date.toLocaleDateString(
-        "en-GB",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        }
-    );
+    return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
 }
 
-function setSaveEnrollmentLoading(
-    isLoading
-) {
-    saveEnrollmentButton.disabled =
-        isLoading;
+function setSaveEnrollmentLoading(isLoading) {
+    saveEnrollmentButton.disabled = isLoading;
 
-    saveEnrollmentSpinner.classList.toggle(
-        "d-none",
-        !isLoading
-    );
+    saveEnrollmentSpinner.classList.toggle("d-none", !isLoading);
 
     saveEnrollmentButtonText.textContent =
         isLoading
@@ -1255,10 +993,7 @@ function setSaveEnrollmentLoading(
             : "Register Student";
 }
 
-function showFormMessage(
-    message,
-    type
-) {
+function showFormMessage(message, type) {
     enrollmentFormMessage.innerHTML = `
         <div class="alert alert-${type}">
             ${escapeHTML(message)}
@@ -1266,10 +1001,7 @@ function showFormMessage(
     `;
 }
 
-function showPageMessage(
-    message,
-    type
-) {
+function showPageMessage(message, type) {
     enrollmentPageMessage.innerHTML = `
         <div class="alert alert-${type}">
             ${escapeHTML(message)}
@@ -1291,30 +1023,13 @@ function escapeHTML(value) {
 }
 
 /* ------------------------------------------------------
-   FUTURE BACKEND CONNECTION
-
-   Replace localStorage with:
-
-   GET /api/students
-   GET /api/courses
-   GET /api/enrollments
-   POST /api/enrollments
-   DELETE /api/enrollments/:id
------------------------------------------------------- */
-
-/* ------------------------------------------------------
    INITIAL PAGE LOAD
 ------------------------------------------------------ */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        protectPage();
-        initializeEnrollments();
-        loadUserInformation();
-        populateStudentDropdown();
-        populateCourseDropdown();
-        setTodayAsEnrollmentDate();
-        displayEnrollments();
-    }
-);
+document.addEventListener("DOMContentLoaded", async () => {
+    protectPage();
+    loadUserInformation();
+    setTodayAsEnrollmentDate();
+    updateSelectedCoursePreview();
+    await loadEnrollmentPageData();
+});
