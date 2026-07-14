@@ -1,96 +1,402 @@
 "use strict";
 
-const mockStudent = {
-    studentId: "STU2026001",
-    firstName: "Vibhavi",
-    lastName: "Kahandawaarachchi"
-};
+/*
+---------------------------------------------------
+University ERP
+Student Examinations Page
 
-const examinations = [
-    {
-        examId: 1,
-        courseCode: "SE2031",
-        courseName: "Data Structures and Algorithms",
-        examType: "Midterm",
-        date: "2026-07-18",
-        time: "09:00 AM - 11:00 AM",
-        location: "Examination Hall A",
-        status: "Upcoming",
-        instructions: "Bring your student ID and arrive 30 minutes early."
-    },
-    {
-        examId: 2,
-        courseCode: "SE2042",
-        courseName: "Database Management Systems",
-        examType: "Practical",
-        date: "2026-07-22",
-        time: "01:00 PM - 03:00 PM",
-        location: "Computer Lab 02",
-        status: "Upcoming",
-        instructions: "Login credentials will be provided before the examination."
-    },
-    {
-        examId: 3,
-        courseCode: "SE2051",
-        courseName: "Human Computer Interaction",
-        examType: "Final",
-        date: "2026-07-29",
-        time: "10:00 AM - 12:00 PM",
-        location: "Examination Hall B",
-        status: "Upcoming",
-        instructions: "Electronic devices are not permitted."
-    },
-    {
-        examId: 4,
-        courseCode: "BM2013",
-        courseName: "Business Process Management",
-        examType: "Midterm",
-        date: "2026-06-25",
-        time: "09:00 AM - 10:30 AM",
-        location: "Hall C1",
-        status: "Completed",
-        instructions: "This examination has already been completed."
-    }
-];
+Uses existing backend endpoints:
 
-let filteredExams = [...examinations];
+GET /api/student-portal/profile
+GET /api/student-portal/examinations
+---------------------------------------------------
+*/
 
-const examGrid = document.getElementById("examGrid");
-const examSearch = document.getElementById("examSearch");
+
+/* ==================================================
+   PAGE STATE
+================================================== */
+
+let examinations = [];
+let filteredExams = [];
+let currentStudent = null;
+
+
+/* ==================================================
+   HTML ELEMENTS
+================================================== */
+
+const examGrid =
+    document.getElementById("examGrid");
+
+const examSearch =
+    document.getElementById("examSearch");
+
 const examStatusFilter =
     document.getElementById("examStatusFilter");
+
 const examTypeFilter =
     document.getElementById("examTypeFilter");
+
 const clearFilterButton =
     document.getElementById("clearFilterButton");
-const emptyState = document.getElementById("emptyState");
+
+const emptyState =
+    document.getElementById("emptyState");
+
 const loadingOverlay =
     document.getElementById("loadingOverlay");
 
 const studentSidebar =
     document.getElementById("studentSidebar");
+
 const sidebarOverlay =
     document.getElementById("sidebarOverlay");
 
+const menuButton =
+    document.getElementById("menuButton");
+
+const sidebarCloseButton =
+    document.getElementById("sidebarCloseButton");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const confirmLogoutButton =
+    document.getElementById("confirmLogoutButton");
+
+const currentDateElement =
+    document.getElementById("currentDate");
+
+const sidebarAvatar =
+    document.getElementById("sidebarAvatar");
+
+const topAvatar =
+    document.getElementById("topAvatar");
+
+const sidebarStudentName =
+    document.getElementById("sidebarStudentName");
+
+const topStudentName =
+    document.getElementById("topStudentName");
+
+const sidebarStudentId =
+    document.getElementById("sidebarStudentId");
+
+const topStudentId =
+    document.getElementById("topStudentId");
+
+const totalExamCount =
+    document.getElementById("totalExamCount");
+
+const upcomingExamCount =
+    document.getElementById("upcomingExamCount");
+
+const completedExamCount =
+    document.getElementById("completedExamCount");
+
+const modalExamTitle =
+    document.getElementById("modalExamTitle");
+
+const modalExamBody =
+    document.getElementById("modalExamBody");
+
+
+/* ==================================================
+   SHARED CONFIGURATION CHECK
+================================================== */
+
+if (typeof window.fetchWithAuth !== "function") {
+    throw new Error(
+        "config.js is missing. Load config.js before student-examinations.js."
+    );
+}
+
+
+/* ==================================================
+   PAGE INITIALIZATION
+================================================== */
+
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
-        displayDate();
-        displayStudent();
-        initializeFilters();
-        initializeSidebar();
-        initializeLogout();
-
-        setTimeout(function () {
-            updateSummary();
-            renderExams(filteredExams);
-            loadingOverlay.classList.add("hidden");
-        }, 500);
-    }
+    initializeExaminationsPage
 );
 
+async function initializeExaminationsPage() {
+    displayDate();
+    initializeFilters();
+    initializeSidebar();
+    initializeLogout();
+
+    try {
+        showLoading();
+
+        const [
+            profileResponse,
+            examinationsResponse
+        ] = await Promise.all([
+            fetchWithAuth(
+                "/student-portal/profile"
+            ),
+
+            fetchWithAuth(
+                "/student-portal/examinations"
+            )
+        ]);
+
+        currentStudent =
+            normalizeStudent(
+                profileResponse?.data
+            );
+
+        const rawExaminations =
+            Array.isArray(examinationsResponse?.data)
+                ? examinationsResponse.data
+                : [];
+
+        examinations =
+            rawExaminations
+                .map(normalizeExamination)
+                .sort(
+                    (firstExam, secondExam) =>
+                        new Date(firstExam.date) -
+                        new Date(secondExam.date)
+                );
+
+        filteredExams = [
+            ...examinations
+        ];
+
+        displayStudent(
+            currentStudent
+        );
+
+        populateExamTypeFilter(
+            examinations
+        );
+
+        updateSummary();
+
+        renderExams(
+            filteredExams
+        );
+
+    } catch (error) {
+        console.error(
+            "Student examinations error:",
+            error
+        );
+
+        renderExams([]);
+
+        window.alert(
+            error.message ||
+            "Unable to load examinations."
+        );
+    } finally {
+        hideLoading();
+    }
+}
+
+
+/* ==================================================
+   NORMALIZE STUDENT PROFILE
+================================================== */
+
+function normalizeStudent(profile = {}) {
+    const fullName =
+        String(
+            profile.FullName ||
+            profile.fullName ||
+            "Student"
+        ).trim();
+
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const firstName =
+        nameParts.shift() ||
+        "Student";
+
+    const lastName =
+        nameParts.join(" ");
+
+    return {
+        firstName,
+
+        lastName,
+
+        registrationNumber:
+            profile.RegistrationNumber ||
+            profile.registrationNumber ||
+            "Not available"
+    };
+}
+
+
+/* ==================================================
+   NORMALIZE EXAMINATION DATA
+================================================== */
+
+function normalizeExamination(examination = {}) {
+    const dateValue =
+        examination.ExaminationDate ||
+        examination.examinationDate ||
+        null;
+
+    const examinationName =
+        examination.ExaminationName ||
+        examination.examinationName ||
+        "Examination";
+
+    return {
+        examId:
+            examination.ExaminationID ??
+            examination.examinationId ??
+            null,
+
+        courseCode:
+            examination.CourseCode ||
+            examination.courseCode ||
+            "N/A",
+
+        courseName:
+            examination.CourseName ||
+            examination.courseName ||
+            "Unnamed Course",
+
+        examType:
+            examinationName,
+
+        date:
+            dateValue,
+
+        status:
+            getExamStatus(
+                dateValue
+            ),
+
+        time:
+            examination.ExaminationTime ||
+            examination.examinationTime ||
+            "Time not available",
+
+        location:
+            examination.Location ||
+            examination.location ||
+            "Location not available",
+
+        instructions:
+            examination.Instructions ||
+            examination.instructions ||
+            "No additional instructions are available."
+    };
+}
+
+
+/* ==================================================
+   EXAMINATION STATUS
+================================================== */
+
+function getExamStatus(dateValue) {
+    if (!dateValue) {
+        return "Upcoming";
+    }
+
+    const examDate =
+        new Date(dateValue);
+
+    const today =
+        new Date();
+
+    today.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+    examDate.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+    return examDate >= today
+        ? "Upcoming"
+        : "Completed";
+}
+
+
+/* ==================================================
+   STUDENT INFORMATION
+================================================== */
+
+function displayStudent(student) {
+    const firstName =
+        student?.firstName ||
+        "Student";
+
+    const lastName =
+        student?.lastName ||
+        "";
+
+    const fullName =
+        `${firstName} ${lastName}`.trim();
+
+    const registrationNumber =
+        student?.registrationNumber ||
+        "Not available";
+
+    const initials =
+        createInitials(
+            firstName,
+            lastName
+        );
+
+    setText(
+        sidebarAvatar,
+        initials
+    );
+
+    setText(
+        topAvatar,
+        initials
+    );
+
+    setText(
+        sidebarStudentName,
+        fullName
+    );
+
+    setText(
+        topStudentName,
+        fullName
+    );
+
+    setText(
+        sidebarStudentId,
+        registrationNumber
+    );
+
+    setText(
+        topStudentId,
+        registrationNumber
+    );
+}
+
+
+/* ==================================================
+   CURRENT DATE
+================================================== */
+
 function displayDate() {
-    document.getElementById("currentDate").textContent =
+    if (!currentDateElement) {
+        return;
+    }
+
+    currentDateElement.textContent =
         new Date().toLocaleDateString(
             "en-US",
             {
@@ -102,251 +408,431 @@ function displayDate() {
         );
 }
 
-function displayStudent() {
-    const fullName =
-        `${mockStudent.firstName} ${mockStudent.lastName}`;
 
-    const initials =
-        `${mockStudent.firstName[0]}${mockStudent.lastName[0]}`
-            .toUpperCase();
+/* ==================================================
+   DYNAMIC EXAM TYPE FILTER
+================================================== */
 
-    document.getElementById("sidebarAvatar").textContent =
-        initials;
-
-    document.getElementById("topAvatar").textContent =
-        initials;
-
-    document.getElementById("sidebarStudentName").textContent =
-        fullName;
-
-    document.getElementById("topStudentName").textContent =
-        fullName;
-
-    document.getElementById("sidebarStudentId").textContent =
-        mockStudent.studentId;
-
-    document.getElementById("topStudentId").textContent =
-        mockStudent.studentId;
-}
-
-function updateSummary() {
-    document.getElementById("totalExamCount").textContent =
-        examinations.length;
-
-    document.getElementById("upcomingExamCount").textContent =
-        examinations.filter(
-            exam => exam.status === "Upcoming"
-        ).length;
-
-    document.getElementById("completedExamCount").textContent =
-        examinations.filter(
-            exam => exam.status === "Completed"
-        ).length;
-}
-
-function initializeFilters() {
-    examSearch.addEventListener("input", filterExams);
-    examStatusFilter.addEventListener("change", filterExams);
-    examTypeFilter.addEventListener("change", filterExams);
-
-    clearFilterButton.addEventListener(
-        "click",
-        function () {
-            examSearch.value = "";
-            examStatusFilter.value = "";
-            examTypeFilter.value = "";
-
-            filteredExams = [...examinations];
-            renderExams(filteredExams);
-        }
-    );
-}
-
-function filterExams() {
-    const search =
-        examSearch.value.trim().toLowerCase();
-
-    const status =
-        examStatusFilter.value;
-
-    const type =
-        examTypeFilter.value;
-
-    filteredExams = examinations.filter(
-        function (exam) {
-            const matchesSearch =
-                exam.courseCode
-                    .toLowerCase()
-                    .includes(search) ||
-                exam.courseName
-                    .toLowerCase()
-                    .includes(search);
-
-            const matchesStatus =
-                status === "" ||
-                exam.status === status;
-
-            const matchesType =
-                type === "" ||
-                exam.examType === type;
-
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesType
-            );
-        }
-    );
-
-    renderExams(filteredExams);
-}
-
-function renderExams(exams) {
-    examGrid.innerHTML = "";
-
-    if (exams.length === 0) {
-        emptyState.classList.remove("d-none");
+function populateExamTypeFilter(items) {
+    if (!examTypeFilter) {
         return;
     }
 
-    emptyState.classList.add("d-none");
+    const examTypes =
+        [
+            ...new Set(
+                items
+                    .map(
+                        (item) =>
+                            item.examType
+                    )
+                    .filter(Boolean)
+            )
+        ];
 
-    exams.forEach(function (exam) {
-        const card = document.createElement("article");
+    examTypeFilter.innerHTML =
+        '<option value="">All exam types</option>';
 
-        card.className = "exam-card";
+    examTypes.forEach(
+        (examType) => {
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-        const statusClass =
-            exam.status.toLowerCase();
+            option.value =
+                examType;
 
-        card.innerHTML = `
-            <div class="exam-card-header">
-                <span class="course-code">
-                    ${escapeHtml(exam.courseCode)}
-                </span>
+            option.textContent =
+                examType;
 
-                <span class="exam-status ${statusClass}">
-                    ${escapeHtml(exam.status)}
-                </span>
-            </div>
+            examTypeFilter.appendChild(
+                option
+            );
+        }
+    );
+}
+/* ==================================================
+   SUMMARY
+================================================== */
 
-            <h3>${escapeHtml(exam.courseName)}</h3>
+function updateSummary() {
+    const total =
+        examinations.length;
 
-            <span class="exam-type">
-                ${escapeHtml(exam.examType)} Examination
-            </span>
+    const upcoming =
+        examinations.filter(
+            (exam) =>
+                exam.status === "Upcoming"
+        ).length;
 
-            <div class="exam-details">
+    const completed =
+        examinations.filter(
+            (exam) =>
+                exam.status === "Completed"
+        ).length;
 
-                <div class="exam-detail">
-                    <i class="bi bi-calendar-event"></i>
-                    <span>${formatDate(exam.date)}</span>
-                </div>
+    setText(
+        totalExamCount,
+        total
+    );
 
-                <div class="exam-detail">
-                    <i class="bi bi-clock-fill"></i>
-                    <span>${escapeHtml(exam.time)}</span>
-                </div>
+    setText(
+        upcomingExamCount,
+        upcoming
+    );
 
-                <div class="exam-detail">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <span>${escapeHtml(exam.location)}</span>
-                </div>
+    setText(
+        completedExamCount,
+        completed
+    );
+}
 
-            </div>
 
-            <button
-                type="button"
-                data-exam-id="${exam.examId}"
-            >
-                <i class="bi bi-eye-fill"></i>
-                View Details
-            </button>
-        `;
+/* ==================================================
+   FILTER INITIALIZATION
+================================================== */
 
-        card.querySelector("button").addEventListener(
-            "click",
-            function () {
-                showExamDetails(exam.examId);
+function initializeFilters() {
+    examSearch?.addEventListener(
+        "input",
+        filterExams
+    );
+
+    examStatusFilter?.addEventListener(
+        "change",
+        filterExams
+    );
+
+    examTypeFilter?.addEventListener(
+        "change",
+        filterExams
+    );
+
+    clearFilterButton?.addEventListener(
+        "click",
+        clearExamFilters
+    );
+}
+
+
+/* ==================================================
+   FILTER EXAMINATIONS
+================================================== */
+
+function filterExams() {
+    const search =
+        examSearch
+            ?.value
+            .trim()
+            .toLowerCase() || "";
+
+    const status =
+        examStatusFilter?.value || "";
+
+    const type =
+        examTypeFilter?.value || "";
+
+    filteredExams =
+        examinations.filter(
+            (exam) => {
+                const matchesSearch =
+                    search === "" ||
+                    exam.courseCode
+                        .toLowerCase()
+                        .includes(search) ||
+                    exam.courseName
+                        .toLowerCase()
+                        .includes(search);
+
+                const matchesStatus =
+                    status === "" ||
+                    exam.status ===
+                    status;
+
+                const matchesType =
+                    type === "" ||
+                    exam.examType ===
+                    type;
+
+                return (
+                    matchesSearch &&
+                    matchesStatus &&
+                    matchesType
+                );
             }
         );
 
-        examGrid.appendChild(card);
-    });
+    renderExams(
+        filteredExams
+    );
 }
 
-function showExamDetails(examId) {
-    const exam = examinations.find(
-        item => item.examId === examId
+
+/* ==================================================
+   CLEAR FILTERS
+================================================== */
+
+function clearExamFilters() {
+    if (examSearch) {
+        examSearch.value = "";
+    }
+
+    if (examStatusFilter) {
+        examStatusFilter.value = "";
+    }
+
+    if (examTypeFilter) {
+        examTypeFilter.value = "";
+    }
+
+    filteredExams = [
+        ...examinations
+    ];
+
+    renderExams(
+        filteredExams
     );
+
+    examSearch?.focus();
+}
+
+
+/* ==================================================
+   RENDER EXAMINATION CARDS
+================================================== */
+
+function renderExams(exams) {
+    if (!examGrid) {
+        return;
+    }
+
+    examGrid.replaceChildren();
+
+    if (exams.length === 0) {
+        emptyState?.classList.remove(
+            "d-none"
+        );
+
+        return;
+    }
+
+    emptyState?.classList.add(
+        "d-none"
+    );
+
+    exams.forEach(
+        (exam) => {
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+            card.className =
+                "exam-card";
+
+            const statusClass =
+                exam.status.toLowerCase();
+
+            card.innerHTML = `
+                <div class="exam-card-header">
+
+                    <span class="course-code">
+                        ${escapeHtml(exam.courseCode)}
+                    </span>
+
+                    <span class="exam-status ${statusClass}">
+                        ${escapeHtml(exam.status)}
+                    </span>
+
+                </div>
+
+                <h3>
+                    ${escapeHtml(exam.courseName)}
+                </h3>
+
+                <span class="exam-type">
+                    ${escapeHtml(exam.examType)}
+                </span>
+
+                <div class="exam-details">
+
+                    <div class="exam-detail">
+                        <i class="bi bi-calendar-event"></i>
+
+                        <span>
+                            ${escapeHtml(formatDate(exam.date))}
+                        </span>
+                    </div>
+
+                    <div class="exam-detail">
+                        <i class="bi bi-clock-fill"></i>
+
+                        <span>
+                            ${escapeHtml(exam.time)}
+                        </span>
+                    </div>
+
+                    <div class="exam-detail">
+                        <i class="bi bi-geo-alt-fill"></i>
+
+                        <span>
+                            ${escapeHtml(exam.location)}
+                        </span>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    data-exam-id="${escapeHtml(exam.examId)}"
+                >
+                    <i class="bi bi-eye-fill"></i>
+                    View Details
+                </button>
+            `;
+
+            const detailsButton =
+                card.querySelector(
+                    "button"
+                );
+
+            detailsButton?.addEventListener(
+                "click",
+                () => {
+                    showExamDetails(
+                        exam.examId
+                    );
+                }
+            );
+
+            examGrid.appendChild(
+                card
+            );
+        }
+    );
+}
+
+
+/* ==================================================
+   EXAMINATION DETAILS MODAL
+================================================== */
+
+function showExamDetails(examId) {
+    const exam =
+        examinations.find(
+            (item) =>
+                String(item.examId) ===
+                String(examId)
+        );
 
     if (!exam) {
         return;
     }
 
-    document.getElementById("modalExamTitle").textContent =
-        `${exam.courseCode} - ${exam.courseName}`;
+    setText(
+        modalExamTitle,
+        `${exam.courseCode} - ${exam.courseName}`
+    );
 
-    document.getElementById("modalExamBody").innerHTML = `
-        <div class="exam-modal-detail">
-            <i class="bi bi-file-earmark-text-fill"></i>
-            <span>
-                <strong>Type:</strong>
-                ${escapeHtml(exam.examType)}
-            </span>
-        </div>
+    if (modalExamBody) {
+        modalExamBody.innerHTML = `
+            <div class="exam-modal-detail">
+                <i class="bi bi-file-earmark-text-fill"></i>
 
-        <div class="exam-modal-detail">
-            <i class="bi bi-calendar-event"></i>
-            <span>
-                <strong>Date:</strong>
-                ${formatDate(exam.date)}
-            </span>
-        </div>
+                <span>
+                    <strong>Type:</strong>
+                    ${escapeHtml(exam.examType)}
+                </span>
+            </div>
 
-        <div class="exam-modal-detail">
-            <i class="bi bi-clock-fill"></i>
-            <span>
-                <strong>Time:</strong>
-                ${escapeHtml(exam.time)}
-            </span>
-        </div>
+            <div class="exam-modal-detail">
+                <i class="bi bi-calendar-event"></i>
 
-        <div class="exam-modal-detail">
-            <i class="bi bi-geo-alt-fill"></i>
-            <span>
-                <strong>Location:</strong>
-                ${escapeHtml(exam.location)}
-            </span>
-        </div>
+                <span>
+                    <strong>Date:</strong>
+                    ${escapeHtml(formatDate(exam.date))}
+                </span>
+            </div>
 
-        <div class="exam-modal-detail">
-            <i class="bi bi-info-circle-fill"></i>
-            <span>
-                <strong>Status:</strong>
-                ${escapeHtml(exam.status)}
-            </span>
-        </div>
+            <div class="exam-modal-detail">
+                <i class="bi bi-clock-fill"></i>
 
-        <div class="exam-instructions">
-            <strong>Important Instructions</strong>
-            <p class="mb-0 mt-2">
-                ${escapeHtml(exam.instructions)}
-            </p>
-        </div>
-    `;
+                <span>
+                    <strong>Time:</strong>
+                    ${escapeHtml(exam.time)}
+                </span>
+            </div>
 
-    bootstrap.Modal
-        .getOrCreateInstance(
-            document.getElementById("examDetailsModal")
-        )
-        .show();
+            <div class="exam-modal-detail">
+                <i class="bi bi-geo-alt-fill"></i>
+
+                <span>
+                    <strong>Location:</strong>
+                    ${escapeHtml(exam.location)}
+                </span>
+            </div>
+
+            <div class="exam-modal-detail">
+                <i class="bi bi-info-circle-fill"></i>
+
+                <span>
+                    <strong>Status:</strong>
+                    ${escapeHtml(exam.status)}
+                </span>
+            </div>
+
+            <div class="exam-instructions">
+                <strong>
+                    Important Instructions
+                </strong>
+
+                <p class="mb-0 mt-2">
+                    ${escapeHtml(exam.instructions)}
+                </p>
+            </div>
+        `;
+    }
+
+    const modalElement =
+        document.getElementById(
+            "examDetailsModal"
+        );
+
+    if (
+        modalElement &&
+        typeof bootstrap !== "undefined"
+    ) {
+        bootstrap.Modal
+            .getOrCreateInstance(
+                modalElement
+            )
+            .show();
+    }
 }
 
+
+/* ==================================================
+   DATE FORMATTER
+================================================== */
+
 function formatDate(dateValue) {
-    return new Date(
-        `${dateValue}T00:00:00`
-    ).toLocaleDateString(
+    if (!dateValue) {
+        return "Date not available";
+    }
+
+    const date =
+        new Date(dateValue);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "Date not available";
+    }
+
+    return date.toLocaleDateString(
         "en-US",
         {
             year: "numeric",
@@ -355,61 +841,169 @@ function formatDate(dateValue) {
         }
     );
 }
+/* ==================================================
+   MOBILE SIDEBAR
+================================================== */
 
 function initializeSidebar() {
-    document
-        .getElementById("menuButton")
-        .addEventListener(
-            "click",
-            function () {
-                studentSidebar.classList.add("open");
-                sidebarOverlay.classList.add("show");
-            }
-        );
+    menuButton?.addEventListener(
+        "click",
+        openSidebar
+    );
 
-    document
-        .getElementById("sidebarCloseButton")
-        .addEventListener(
-            "click",
-            closeSidebar
-        );
-
-    sidebarOverlay.addEventListener(
+    sidebarCloseButton?.addEventListener(
         "click",
         closeSidebar
     );
+
+    sidebarOverlay?.addEventListener(
+        "click",
+        closeSidebar
+    );
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+            if (event.key === "Escape") {
+                closeSidebar();
+            }
+        }
+    );
+
+    window.addEventListener(
+        "resize",
+        () => {
+            if (window.innerWidth > 900) {
+                closeSidebar();
+            }
+        }
+    );
+}
+
+function openSidebar() {
+    studentSidebar?.classList.add("open");
+    sidebarOverlay?.classList.add("show");
+    document.body.style.overflow = "hidden";
 }
 
 function closeSidebar() {
-    studentSidebar.classList.remove("open");
-    sidebarOverlay.classList.remove("show");
+    studentSidebar?.classList.remove("open");
+    sidebarOverlay?.classList.remove("show");
+    document.body.style.overflow = "";
 }
 
+
+/* ==================================================
+   LOGOUT
+================================================== */
+
 function initializeLogout() {
-    document
-        .getElementById("logoutButton")
-        .addEventListener(
-            "click",
-            function () {
-                bootstrap.Modal
-                    .getOrCreateInstance(
-                        document.getElementById(
-                            "logoutModal"
-                        )
-                    )
-                    .show();
-            }
+    logoutButton?.addEventListener(
+        "click",
+        openLogoutModal
+    );
+
+    confirmLogoutButton?.addEventListener(
+        "click",
+        logoutStudent
+    );
+}
+
+function openLogoutModal() {
+    const modalElement =
+        document.getElementById(
+            "logoutModal"
         );
 
-    document
-        .getElementById("confirmLogoutButton")
-        .addEventListener(
-            "click",
-            function () {
-                localStorage.clear();
-                window.location.href = "login.html";
-            }
-        );
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        logoutStudent();
+        return;
+    }
+
+    bootstrap.Modal
+        .getOrCreateInstance(
+            modalElement
+        )
+        .show();
+}
+
+function logoutStudent() {
+    if (
+        typeof window.clearSession ===
+        "function"
+    ) {
+        window.clearSession();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("loggedInStudent");
+        localStorage.removeItem("isLoggedIn");
+    }
+
+    window.location.replace(
+        "login.html"
+    );
+}
+
+
+/* ==================================================
+   LOADING
+================================================== */
+
+function showLoading() {
+    loadingOverlay?.classList.remove(
+        "hidden"
+    );
+}
+
+function hideLoading() {
+    loadingOverlay?.classList.add(
+        "hidden"
+    );
+}
+
+
+/* ==================================================
+   HELPERS
+================================================== */
+
+function setText(element, value) {
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        value === null ||
+            value === undefined
+            ? ""
+            : String(value);
+}
+
+function createInitials(
+    firstName,
+    lastName
+) {
+    const first =
+        firstName
+            ? firstName.charAt(0)
+            : "";
+
+    const last =
+        lastName
+            ? lastName.charAt(0)
+            : "";
+
+    return (
+        `${first}${last}`
+            .toUpperCase() ||
+        "ST"
+    );
 }
 
 function escapeHtml(value) {

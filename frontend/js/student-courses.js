@@ -1,171 +1,19 @@
 "use strict";
 
 /*
- * University ERP - Available Courses
- *
- * This page currently uses mock data.
- * Later, set USE_MOCK_DATA to false to connect the backend API.
- */
+---------------------------------------------------
+University ERP
+Student Available Courses
 
-/* ==================================================
-   CONFIGURATION
-================================================== */
+Uses existing backend endpoints:
 
-const API_BASE_URL = "http://localhost:5000/api";
-const USE_MOCK_DATA = true;
+GET  /api/courses
+GET  /api/student-portal/profile
+GET  /api/student-portal/courses
+POST /api/enrollments
+---------------------------------------------------
+*/
 
-/* ==================================================
-   MOCK STUDENT DATA
-================================================== */
-
-const mockStudent = {
-    studentId: "STU2026001",
-    firstName: "Vibhavi",
-    lastName: "Kahandawaarachchi"
-};
-
-/* ==================================================
-   MOCK COURSE DATA
-================================================== */
-
-const mockCourses = [
-    {
-        courseId: 1,
-        courseCode: "SE2031",
-        courseName: "Data Structures and Algorithms",
-        description:
-            "Learn data structures, algorithm design, complexity analysis and problem-solving techniques.",
-        faculty: "Computing",
-        semester: "Semester 02",
-        credits: 4,
-        lecturer: "Dr. N. Perera",
-        schedule: "Monday, 8:30 AM - 10:30 AM",
-        location: "Lab 03",
-        capacity: 50,
-        enrolledStudents: 38,
-        enrollmentStatus: "Open",
-        isEnrolled: false
-    },
-    {
-        courseId: 2,
-        courseCode: "SE2042",
-        courseName: "Database Management Systems",
-        description:
-            "Study relational databases, SQL, normalization, transactions and database design.",
-        faculty: "Computing",
-        semester: "Semester 02",
-        credits: 4,
-        lecturer: "Ms. A. Silva",
-        schedule: "Tuesday, 11:00 AM - 1:00 PM",
-        location: "Hall B2",
-        capacity: 45,
-        enrolledStudents: 41,
-        enrollmentStatus: "Open",
-        isEnrolled: true
-    },
-    {
-        courseId: 3,
-        courseCode: "SE2051",
-        courseName: "Human Computer Interaction",
-        description:
-            "Explore user-centered design, usability principles, prototyping and accessibility.",
-        faculty: "Computing",
-        semester: "Semester 02",
-        credits: 3,
-        lecturer: "Mr. K. Fernando",
-        schedule: "Wednesday, 2:00 PM - 4:00 PM",
-        location: "Lab 05",
-        capacity: 40,
-        enrolledStudents: 34,
-        enrollmentStatus: "Open",
-        isEnrolled: false
-    },
-    {
-        courseId: 4,
-        courseCode: "SE2062",
-        courseName: "Operating Systems",
-        description:
-            "Understand processes, memory management, scheduling, file systems and operating-system security.",
-        faculty: "Computing",
-        semester: "Semester 02",
-        credits: 4,
-        lecturer: "Dr. S. Jayasinghe",
-        schedule: "Thursday, 9:00 AM - 11:00 AM",
-        location: "Hall C1",
-        capacity: 45,
-        enrolledStudents: 45,
-        enrollmentStatus: "Closed",
-        isEnrolled: false
-    },
-    {
-        courseId: 5,
-        courseCode: "BM2013",
-        courseName: "Business Process Management",
-        description:
-            "Learn process modelling, process analysis, improvement and ERP integration.",
-        faculty: "Business",
-        semester: "Semester 02",
-        credits: 3,
-        lecturer: "Ms. D. Fernando",
-        schedule: "Friday, 10:00 AM - 12:00 PM",
-        location: "Hall A3",
-        capacity: 60,
-        enrolledStudents: 47,
-        enrollmentStatus: "Open",
-        isEnrolled: false
-    },
-    {
-        courseId: 6,
-        courseCode: "EN2011",
-        courseName: "Engineering Mathematics",
-        description:
-            "Develop mathematical knowledge in calculus, matrices and engineering applications.",
-        faculty: "Engineering",
-        semester: "Semester 01",
-        credits: 4,
-        lecturer: "Dr. R. Wijesinghe",
-        schedule: "Monday, 1:00 PM - 3:00 PM",
-        location: "Engineering Hall 02",
-        capacity: 55,
-        enrolledStudents: 26,
-        enrollmentStatus: "Open",
-        isEnrolled: false
-    },
-    {
-        courseId: 7,
-        courseCode: "SE2022",
-        courseName: "Computer Networks",
-        description:
-            "Study networking models, protocols, IP addressing, routing and network security.",
-        faculty: "Computing",
-        semester: "Semester 01",
-        credits: 3,
-        lecturer: "Mr. P. De Silva",
-        schedule: "Wednesday, 9:00 AM - 11:00 AM",
-        location: "Network Lab 01",
-        capacity: 40,
-        enrolledStudents: 40,
-        enrollmentStatus: "Closed",
-        isEnrolled: true
-    },
-    {
-        courseId: 8,
-        courseCode: "BM2041",
-        courseName: "Principles of Management",
-        description:
-            "Understand planning, organizing, leadership, decision-making and management control.",
-        faculty: "Business",
-        semester: "Semester 01",
-        credits: 2,
-        lecturer: "Ms. H. Perera",
-        schedule: "Thursday, 2:00 PM - 4:00 PM",
-        location: "Business Hall 01",
-        capacity: 70,
-        enrolledStudents: 39,
-        enrollmentStatus: "Open",
-        isEnrolled: false
-    }
-];
 
 /* ==================================================
    PAGE STATE
@@ -173,7 +21,11 @@ const mockCourses = [
 
 let allCourses = [];
 let filteredCourses = [];
+let enrolledCourseIds = new Set();
+
+let currentStudent = null;
 let selectedCourseId = null;
+
 
 /* ==================================================
    HTML ELEMENTS
@@ -269,8 +121,20 @@ const topLogoutButton =
 const confirmLogoutButton =
     document.getElementById("confirmLogoutButton");
 
+
 /* ==================================================
-   INITIALIZE PAGE
+   SHARED CONFIGURATION CHECK
+================================================== */
+
+if (typeof window.fetchWithAuth !== "function") {
+    throw new Error(
+        "config.js is missing. Load config.js before student-courses.js."
+    );
+}
+
+
+/* ==================================================
+   PAGE INITIALIZATION
 ================================================== */
 
 document.addEventListener(
@@ -280,7 +144,6 @@ document.addEventListener(
 
 async function initializeCoursesPage() {
     displayCurrentDate();
-    renderStudentInformation(mockStudent);
     initializeSidebar();
     initializeFilters();
     initializeEnrollment();
@@ -288,20 +151,74 @@ async function initializeCoursesPage() {
 
     try {
         showLoading();
+        hideError();
 
-        allCourses = await loadCourses();
+        const [
+            profileResponse,
+            courseResponse,
+            enrollmentResponse
+        ] = await Promise.all([
+            fetchWithAuth(
+                "/student-portal/profile"
+            ),
 
-        if (!Array.isArray(allCourses)) {
-            throw new Error(
-                "Invalid course information was received."
+            fetchWithAuth(
+                "/courses"
+            ),
+
+            fetchWithAuth(
+                "/student-portal/courses"
+            )
+        ]);
+
+        currentStudent =
+            normalizeStudent(
+                profileResponse?.data
             );
-        }
 
-        filteredCourses = [...allCourses];
+        const availableCourses =
+            Array.isArray(courseResponse?.data)
+                ? courseResponse.data
+                : [];
+
+        const enrolledCourses =
+            Array.isArray(enrollmentResponse?.data)
+                ? enrollmentResponse.data
+                : [];
+
+        enrolledCourseIds =
+            new Set(
+                enrolledCourses.map(
+                    (course) =>
+                        Number(
+                            course.CourseID ??
+                            course.courseId
+                        )
+                )
+            );
+
+        allCourses =
+            availableCourses.map(
+                normalizeCourse
+            );
+
+        filteredCourses = [
+            ...allCourses
+        ];
+
+        renderStudentInformation(
+            currentStudent
+        );
+
+        populateDepartmentFilter(
+            allCourses
+        );
 
         updateSummaryCards();
-        renderCourses(filteredCourses);
-        hideError();
+        renderCourses(
+            filteredCourses
+        );
+
     } catch (error) {
         console.error(
             "Available Courses error:",
@@ -312,76 +229,138 @@ async function initializeCoursesPage() {
             error.message ||
             "Unable to load available courses."
         );
+
+        renderCourses([]);
     } finally {
         hideLoading();
     }
 }
 
+
 /* ==================================================
-   LOAD COURSES
+   NORMALIZE BACKEND DATA
 ================================================== */
 
-async function loadCourses() {
-    if (USE_MOCK_DATA) {
-        return loadMockCourses();
-    }
+function normalizeStudent(profile = {}) {
+    const fullName =
+        String(
+            profile.FullName ||
+            profile.fullName ||
+            "Student"
+        ).trim();
 
-    return fetchCoursesFromBackend();
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const firstName =
+        nameParts.shift() ||
+        "Student";
+
+    const lastName =
+        nameParts.join(" ");
+
+    return {
+        studentId:
+            profile.StudentID ??
+            profile.studentId ??
+            null,
+
+        registrationNumber:
+            profile.RegistrationNumber ||
+            profile.registrationNumber ||
+            "Not available",
+
+        firstName,
+
+        lastName
+    };
 }
 
-function loadMockCourses() {
-    return new Promise(function (resolve) {
-        setTimeout(function () {
-            resolve(
-                mockCourses.map(function (course) {
-                    return { ...course };
-                })
-            );
-        }, 700);
-    });
+
+function normalizeCourse(course = {}) {
+    const courseId =
+        Number(
+            course.CourseID ??
+            course.courseId
+        );
+
+    const isEnrolled =
+        enrolledCourseIds.has(
+            courseId
+        );
+
+    return {
+        courseId,
+
+        courseCode:
+            course.CourseCode ||
+            course.courseCode ||
+            "N/A",
+
+        courseName:
+            course.CourseName ||
+            course.courseName ||
+            "Unnamed Course",
+
+        description:
+            course.Description ||
+            course.description ||
+            "Course description is not available.",
+
+        faculty:
+            course.Department ||
+            course.department ||
+            "Not available",
+
+        semester:
+            course.Semester ||
+            course.semester ||
+            "Not available",
+
+        credits:
+            Number(
+                course.Credits ??
+                course.credits
+            ) || 0,
+
+        lecturer:
+            course.LecturerName ||
+            course.lecturer ||
+            "Not assigned",
+
+        schedule:
+            course.Schedule ||
+            course.schedule ||
+            "Schedule not available",
+
+        location:
+            course.Location ||
+            course.location ||
+            "Location not available",
+
+        capacity:
+            Number(
+                course.Capacity ??
+                course.capacity
+            ) || 0,
+
+        enrolledStudents:
+            Number(
+                course.EnrolledStudents ??
+                course.enrolledStudents
+            ) || 0,
+
+        enrollmentStatus:
+            String(
+                course.EnrollmentStatus ||
+                course.enrollmentStatus ||
+                "Open"
+            ),
+
+        isEnrolled
+    };
 }
 
-async function fetchCoursesFromBackend() {
-    const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("authToken");
-
-    if (!token) {
-        throw new Error(
-            "Authentication token was not found. Please login again."
-        );
-    }
-
-    const response = await fetch(
-        `${API_BASE_URL}/student/courses`,
-        {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            }
-        }
-    );
-
-    if (response.status === 401 ||
-        response.status === 403) {
-        throw new Error(
-            "You are not authorized to view available courses."
-        );
-    }
-
-    if (!response.ok) {
-        throw new Error(
-            "The server could not load available courses."
-        );
-    }
-
-    const result = await response.json();
-
-    return Array.isArray(result)
-        ? result
-        : result.courses;
-}
 
 /* ==================================================
    STUDENT INFORMATION
@@ -389,54 +368,69 @@ async function fetchCoursesFromBackend() {
 
 function renderStudentInformation(student) {
     const firstName =
-        student.firstName || "Student";
+        student?.firstName ||
+        "Student";
 
     const lastName =
-        student.lastName || "";
+        student?.lastName ||
+        "";
 
     const fullName =
         `${firstName} ${lastName}`.trim();
 
-    const studentId =
-        student.studentId || "Not available";
+    const registrationNumber =
+        student?.registrationNumber ||
+        "Not available";
 
     const initials =
-        createInitials(firstName, lastName);
+        createInitials(
+            firstName,
+            lastName
+        );
 
-    sidebarStudentAvatar.textContent = initials;
-    topStudentAvatar.textContent = initials;
+    setText(
+        sidebarStudentAvatar,
+        initials
+    );
 
-    sidebarStudentName.textContent = fullName;
-    topStudentName.textContent = fullName;
+    setText(
+        topStudentAvatar,
+        initials
+    );
 
-    sidebarStudentId.textContent = studentId;
-    topStudentId.textContent = studentId;
+    setText(
+        sidebarStudentName,
+        fullName
+    );
+
+    setText(
+        topStudentName,
+        fullName
+    );
+
+    setText(
+        sidebarStudentId,
+        registrationNumber
+    );
+
+    setText(
+        topStudentId,
+        registrationNumber
+    );
 }
 
-function createInitials(firstName, lastName) {
-    const firstInitial =
-        firstName
-            ? firstName.charAt(0)
-            : "";
-
-    const lastInitial =
-        lastName
-            ? lastName.charAt(0)
-            : "";
-
-    return `${firstInitial}${lastInitial}`
-        .toUpperCase() || "ST";
-}
 
 /* ==================================================
    CURRENT DATE
 ================================================== */
 
 function displayCurrentDate() {
-    const currentDate = new Date();
+    if (!currentDateElement) {
+        return;
+    }
 
     currentDateElement.textContent =
-        currentDate.toLocaleDateString(
+        new Date().toLocaleDateString(
             "en-US",
             {
                 weekday: "long",
@@ -447,6 +441,67 @@ function displayCurrentDate() {
         );
 }
 
+
+/* ==================================================
+   DYNAMIC DEPARTMENT FILTER
+================================================== */
+
+function populateDepartmentFilter(courses) {
+    if (!facultyFilter) {
+        return;
+    }
+
+    const currentValue =
+        facultyFilter.value;
+
+    const departments =
+        [
+            ...new Set(
+                courses
+                    .map(
+                        (course) =>
+                            course.faculty
+                    )
+                    .filter(
+                        (department) =>
+                            department &&
+                            department !==
+                            "Not available"
+                    )
+            )
+        ].sort();
+
+    facultyFilter.innerHTML =
+        '<option value="">All departments</option>';
+
+    departments.forEach(
+        (department) => {
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                department;
+
+            option.textContent =
+                department;
+
+            facultyFilter.appendChild(
+                option
+            );
+        }
+    );
+
+    if (
+        departments.includes(
+            currentValue
+        )
+    ) {
+        facultyFilter.value =
+            currentValue;
+    }
+}
 /* ==================================================
    SUMMARY CARDS
 ================================================== */
@@ -456,163 +511,237 @@ function updateSummaryCards() {
         allCourses.length;
 
     const openCourses =
-        allCourses.filter(function (course) {
-            return (
-                course.enrollmentStatus === "Open" &&
-                course.isEnrolled === false
-            );
-        }).length;
+        allCourses.filter(
+            (course) =>
+                course.enrollmentStatus
+                    .toLowerCase() ===
+                "open" &&
+                !course.isEnrolled
+        ).length;
 
     const enrolledCourses =
-        allCourses.filter(function (course) {
-            return course.isEnrolled === true;
-        }).length;
+        allCourses.filter(
+            (course) =>
+                course.isEnrolled
+        ).length;
 
-    totalCoursesCount.textContent =
-        totalCourses;
+    setText(
+        totalCoursesCount,
+        totalCourses
+    );
 
-    openCoursesCount.textContent =
-        openCourses;
+    setText(
+        openCoursesCount,
+        openCourses
+    );
 
-    enrolledCoursesCount.textContent =
-        enrolledCourses;
+    setText(
+        enrolledCoursesCount,
+        enrolledCourses
+    );
 }
 
+
 /* ==================================================
-   COURSE FILTERS
+   FILTER INITIALIZATION
 ================================================== */
 
 function initializeFilters() {
-    courseSearchInput.addEventListener(
+    courseSearchInput?.addEventListener(
         "input",
         filterCourses
     );
 
-    facultyFilter.addEventListener(
+    facultyFilter?.addEventListener(
         "change",
         filterCourses
     );
 
-    semesterFilter.addEventListener(
+    semesterFilter?.addEventListener(
         "change",
         filterCourses
     );
 
-    creditFilter.addEventListener(
+    creditFilter?.addEventListener(
         "change",
         filterCourses
     );
 
-    clearFiltersButton.addEventListener(
+    clearFiltersButton?.addEventListener(
         "click",
         clearFilters
     );
 }
 
-function filterCourses() {
-    const searchValue =
-        courseSearchInput.value
-            .trim()
-            .toLowerCase();
-
-    const facultyValue =
-        facultyFilter.value;
-
-    const semesterValue =
-        semesterFilter.value;
-
-    const creditValue =
-        creditFilter.value;
-
-    filteredCourses =
-        allCourses.filter(function (course) {
-            const matchesSearch =
-                searchValue === "" ||
-                course.courseCode
-                    .toLowerCase()
-                    .includes(searchValue) ||
-                course.courseName
-                    .toLowerCase()
-                    .includes(searchValue);
-
-            const matchesFaculty =
-                facultyValue === "" ||
-                course.faculty === facultyValue;
-
-            const matchesSemester =
-                semesterValue === "" ||
-                course.semester === semesterValue;
-
-            const matchesCredits =
-                creditValue === "" ||
-                String(course.credits) === creditValue;
-
-            return (
-                matchesSearch &&
-                matchesFaculty &&
-                matchesSemester &&
-                matchesCredits
-            );
-        });
-
-    renderCourses(filteredCourses);
-}
-
-function clearFilters() {
-    courseSearchInput.value = "";
-    facultyFilter.value = "";
-    semesterFilter.value = "";
-    creditFilter.value = "";
-
-    filteredCourses = [...allCourses];
-
-    renderCourses(filteredCourses);
-
-    courseSearchInput.focus();
-}
 
 /* ==================================================
-   RENDER COURSE CARDS
+   FILTER COURSES
+================================================== */
+
+function filterCourses() {
+    const searchValue =
+        courseSearchInput
+            ?.value
+            .trim()
+            .toLowerCase() || "";
+
+    const facultyValue =
+        facultyFilter?.value || "";
+
+    const semesterValue =
+        semesterFilter?.value || "";
+
+    const creditValue =
+        creditFilter?.value || "";
+
+    filteredCourses =
+        allCourses.filter(
+            (course) => {
+                const courseCode =
+                    String(
+                        course.courseCode || ""
+                    ).toLowerCase();
+
+                const courseName =
+                    String(
+                        course.courseName || ""
+                    ).toLowerCase();
+
+                const matchesSearch =
+                    searchValue === "" ||
+                    courseCode.includes(
+                        searchValue
+                    ) ||
+                    courseName.includes(
+                        searchValue
+                    );
+
+                const matchesFaculty =
+                    facultyValue === "" ||
+                    course.faculty ===
+                    facultyValue;
+
+                const matchesSemester =
+                    semesterValue === "" ||
+                    course.semester ===
+                    semesterValue;
+
+                const matchesCredits =
+                    creditValue === "" ||
+                    String(
+                        course.credits
+                    ) === creditValue;
+
+                return (
+                    matchesSearch &&
+                    matchesFaculty &&
+                    matchesSemester &&
+                    matchesCredits
+                );
+            }
+        );
+
+    renderCourses(
+        filteredCourses
+    );
+}
+
+
+/* ==================================================
+   CLEAR FILTERS
+================================================== */
+
+function clearFilters() {
+    if (courseSearchInput) {
+        courseSearchInput.value = "";
+    }
+
+    if (facultyFilter) {
+        facultyFilter.value = "";
+    }
+
+    if (semesterFilter) {
+        semesterFilter.value = "";
+    }
+
+    if (creditFilter) {
+        creditFilter.value = "";
+    }
+
+    filteredCourses = [
+        ...allCourses
+    ];
+
+    renderCourses(
+        filteredCourses
+    );
+
+    courseSearchInput?.focus();
+}
+
+
+/* ==================================================
+   RENDER COURSE LIST
 ================================================== */
 
 function renderCourses(courses) {
-    coursesGrid.innerHTML = "";
+    if (!coursesGrid) {
+        return;
+    }
 
-    visibleCourseCount.textContent =
-        courses.length;
+    coursesGrid.replaceChildren();
+
+    setText(
+        visibleCourseCount,
+        courses.length
+    );
 
     if (courses.length === 0) {
-        coursesEmptyState
-            .classList
+        coursesEmptyState?.classList
             .remove("d-none");
 
         return;
     }
 
-    coursesEmptyState
-        .classList
+    coursesEmptyState?.classList
         .add("d-none");
 
-    courses.forEach(function (course) {
-        const card =
-            createCourseCard(course);
+    courses.forEach(
+        (course) => {
+            const card =
+                createCourseCard(
+                    course
+                );
 
-        coursesGrid.appendChild(card);
-    });
+            coursesGrid.appendChild(
+                card
+            );
+        }
+    );
 }
+
+
+/* ==================================================
+   CREATE COURSE CARD
+================================================== */
 
 function createCourseCard(course) {
     const courseCard =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
 
-    courseCard.className = "course-card";
+    courseCard.className =
+        "course-card";
 
     const availableSeats =
-        Math.max(
-            Number(course.capacity) -
-            Number(course.enrolledStudents),
-            0
-        );
+        course.capacity > 0
+            ? Math.max(
+                course.capacity -
+                course.enrolledStudents,
+                0
+            )
+            : null;
 
     const usedPercentage =
         course.capacity > 0
@@ -628,13 +757,39 @@ function createCourseCard(course) {
             : 0;
 
     const displayStatus =
-        getCourseDisplayStatus(course);
+        getCourseDisplayStatus(
+            course
+        );
 
     const statusClass =
-        getCourseStatusClass(course);
+        getCourseStatusClass(
+            course
+        );
 
     const buttonInformation =
-        getEnrollmentButtonInformation(course);
+        getEnrollmentButtonInformation(
+            course
+        );
+
+    const seatText =
+        course.capacity > 0
+            ? `${availableSeats} / ${course.capacity}`
+            : "Not available";
+
+    const seatProgress =
+        course.capacity > 0
+            ? `
+                <div
+                    class="seat-progress"
+                    aria-label="${usedPercentage}% of seats occupied"
+                >
+                    <div
+                        class="seat-progress-bar"
+                        style="width: ${usedPercentage}%"
+                    ></div>
+                </div>
+            `
+            : "";
 
     courseCard.innerHTML = `
         <div class="course-card-header">
@@ -712,20 +867,12 @@ function createCourseCard(course) {
                 </span>
 
                 <strong>
-                    ${availableSeats} / ${escapeHtml(course.capacity)}
+                    ${escapeHtml(seatText)}
                 </strong>
 
             </div>
 
-            <div
-                class="seat-progress"
-                aria-label="${usedPercentage}% of seats occupied"
-            >
-                <div
-                    class="seat-progress-bar"
-                    style="width: ${usedPercentage}%"
-                ></div>
-            </div>
+            ${seatProgress}
 
         </div>
 
@@ -763,17 +910,22 @@ function createCourseCard(course) {
             ".course-enroll-button"
         );
 
-    detailsButton.addEventListener(
+    detailsButton?.addEventListener(
         "click",
-        function () {
-            showCourseDetails(course.courseId);
+        () => {
+            showCourseDetails(
+                course.courseId
+            );
         }
     );
 
-    if (!buttonInformation.disabled) {
+    if (
+        enrollButton &&
+        !buttonInformation.disabled
+    ) {
         enrollButton.addEventListener(
             "click",
-            function () {
+            () => {
                 openEnrollmentModal(
                     course.courseId
                 );
@@ -784,12 +936,20 @@ function createCourseCard(course) {
     return courseCard;
 }
 
+
+/* ==================================================
+   COURSE STATUS
+================================================== */
+
 function getCourseDisplayStatus(course) {
     if (course.isEnrolled) {
         return "Enrolled";
     }
 
-    return course.enrollmentStatus;
+    return (
+        course.enrollmentStatus ||
+        "Open"
+    );
 }
 
 function getCourseStatusClass(course) {
@@ -797,21 +957,30 @@ function getCourseStatusClass(course) {
         return "enrolled";
     }
 
-    return course.enrollmentStatus === "Open"
-        ? "open"
-        : "closed";
+    return (
+        course.enrollmentStatus
+            .toLowerCase() === "open"
+            ? "open"
+            : "closed"
+    );
 }
 
-function getEnrollmentButtonInformation(course) {
+function getEnrollmentButtonInformation(
+    course
+) {
     if (course.isEnrolled) {
         return {
             text: "Already Enrolled",
-            icon: "bi bi-check-circle-fill",
+            icon:
+                "bi bi-check-circle-fill",
             disabled: true
         };
     }
 
-    if (course.enrollmentStatus !== "Open") {
+    if (
+        course.enrollmentStatus
+            .toLowerCase() !== "open"
+    ) {
         return {
             text: "Enrollment Closed",
             icon: "bi bi-lock-fill",
@@ -820,8 +989,9 @@ function getEnrollmentButtonInformation(course) {
     }
 
     if (
-        Number(course.enrolledStudents) >=
-        Number(course.capacity)
+        course.capacity > 0 &&
+        course.enrolledStudents >=
+        course.capacity
     ) {
         return {
             text: "Course Full",
@@ -836,31 +1006,34 @@ function getEnrollmentButtonInformation(course) {
         disabled: false
     };
 }
-
 /* ==================================================
    COURSE DETAILS
 ================================================== */
 
 function showCourseDetails(courseId) {
     const course =
-        allCourses.find(function (item) {
-            return item.courseId === courseId;
-        });
+        allCourses.find(
+            (item) =>
+                Number(item.courseId) ===
+                Number(courseId)
+        );
 
     if (!course) {
         return;
     }
 
     const availableSeats =
-        Math.max(
-            course.capacity -
-            course.enrolledStudents,
-            0
-        );
+        course.capacity > 0
+            ? Math.max(
+                course.capacity -
+                course.enrolledStudents,
+                0
+            )
+            : "Not available";
 
-    alert(
+    window.alert(
         `${course.courseCode} - ${course.courseName}\n\n` +
-        `Faculty: ${course.faculty}\n` +
+        `Department: ${course.faculty}\n` +
         `Semester: ${course.semester}\n` +
         `Credits: ${course.credits}\n` +
         `Lecturer: ${course.lecturer}\n` +
@@ -871,36 +1044,55 @@ function showCourseDetails(courseId) {
     );
 }
 
+
 /* ==================================================
-   COURSE ENROLLMENT
+   ENROLLMENT INITIALIZATION
 ================================================== */
 
 function initializeEnrollment() {
-    confirmEnrollmentButton.addEventListener(
+    confirmEnrollmentButton?.addEventListener(
         "click",
         confirmCourseEnrollment
     );
 }
 
+
+/* ==================================================
+   OPEN ENROLLMENT MODAL
+================================================== */
+
 function openEnrollmentModal(courseId) {
     const course =
-        allCourses.find(function (item) {
-            return item.courseId === courseId;
-        });
+        allCourses.find(
+            (item) =>
+                Number(item.courseId) ===
+                Number(courseId)
+        );
 
     if (!course) {
         return;
     }
 
-    selectedCourseId = courseId;
+    selectedCourseId =
+        Number(courseId);
 
-    selectedCourseName.textContent =
-        `${course.courseCode} - ${course.courseName}`;
+    setText(
+        selectedCourseName,
+        `${course.courseCode} - ${course.courseName}`
+    );
 
     const modalElement =
         document.getElementById(
             "enrollmentConfirmationModal"
         );
+
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        confirmCourseEnrollment();
+        return;
+    }
 
     const enrollmentModal =
         bootstrap.Modal.getOrCreateInstance(
@@ -910,74 +1102,194 @@ function openEnrollmentModal(courseId) {
     enrollmentModal.show();
 }
 
-function confirmCourseEnrollment() {
+
+/* ==================================================
+   CONFIRM REAL COURSE ENROLLMENT
+================================================== */
+
+async function confirmCourseEnrollment() {
     const course =
-        allCourses.find(function (item) {
-            return item.courseId === selectedCourseId;
-        });
+        allCourses.find(
+            (item) =>
+                Number(item.courseId) ===
+                Number(selectedCourseId)
+        );
 
     if (!course) {
         return;
     }
 
-    if (
-        course.isEnrolled ||
-        course.enrollmentStatus !== "Open" ||
-        course.enrolledStudents >= course.capacity
-    ) {
+    if (!currentStudent?.studentId) {
+        window.alert(
+            "Student information is unavailable. Please sign in again."
+        );
+
         return;
     }
 
-    course.isEnrolled = true;
-    course.enrolledStudents += 1;
+    if (course.isEnrolled) {
+        window.alert(
+            "You are already enrolled in this course."
+        );
 
-    updateSummaryCards();
-    filterCourses();
+        return;
+    }
 
+    if (
+        course.enrollmentStatus
+            .toLowerCase() !== "open"
+    ) {
+        window.alert(
+            "Enrollment is closed for this course."
+        );
+
+        return;
+    }
+
+    if (
+        course.capacity > 0 &&
+        course.enrolledStudents >=
+        course.capacity
+    ) {
+        window.alert(
+            "This course is currently full."
+        );
+
+        return;
+    }
+
+    setEnrollmentButtonLoading(true);
+
+    try {
+        await fetchWithAuth(
+            "/enrollments",
+            {
+                method: "POST",
+
+                body: JSON.stringify({
+                    studentId:
+                        Number(
+                            currentStudent.studentId
+                        ),
+
+                    courseId:
+                        Number(
+                            course.courseId
+                        )
+                })
+            }
+        );
+
+        course.isEnrolled = true;
+
+        enrolledCourseIds.add(
+            Number(course.courseId)
+        );
+
+        if (course.capacity > 0) {
+            course.enrolledStudents += 1;
+        }
+
+        updateSummaryCards();
+        filterCourses();
+
+        closeEnrollmentModal();
+
+        selectedCourseId = null;
+
+        window.alert(
+            `You have successfully enrolled in ${course.courseCode} - ${course.courseName}.`
+        );
+    } catch (error) {
+        console.error(
+            "Course enrollment error:",
+            error
+        );
+
+        window.alert(
+            error.message ||
+            "Unable to complete course enrollment."
+        );
+    } finally {
+        setEnrollmentButtonLoading(false);
+    }
+}
+
+
+/* ==================================================
+   ENROLLMENT BUTTON LOADING
+================================================== */
+
+function setEnrollmentButtonLoading(
+    loading
+) {
+    if (!confirmEnrollmentButton) {
+        return;
+    }
+
+    confirmEnrollmentButton.disabled =
+        loading;
+
+    confirmEnrollmentButton.innerHTML =
+        loading
+            ? `
+                <span
+                    class="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true"
+                ></span>
+                Enrolling...
+            `
+            : "Enroll Now";
+}
+
+
+/* ==================================================
+   CLOSE ENROLLMENT MODAL
+================================================== */
+
+function closeEnrollmentModal() {
     const modalElement =
         document.getElementById(
             "enrollmentConfirmationModal"
         );
+
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        return;
+    }
 
     const enrollmentModal =
         bootstrap.Modal.getInstance(
             modalElement
         );
 
-    if (enrollmentModal) {
-        enrollmentModal.hide();
-    }
-
-    selectedCourseId = null;
-
-    alert(
-        `You have successfully enrolled in ${course.courseCode} - ${course.courseName}.`
-    );
+    enrollmentModal?.hide();
 }
-
 /* ==================================================
    MOBILE SIDEBAR
 ================================================== */
 
 function initializeSidebar() {
-    mobileMenuButton.addEventListener(
+    mobileMenuButton?.addEventListener(
         "click",
         openSidebar
     );
 
-    sidebarCloseButton.addEventListener(
+    sidebarCloseButton?.addEventListener(
         "click",
         closeSidebar
     );
 
-    sidebarOverlay.addEventListener(
+    sidebarOverlay?.addEventListener(
         "click",
         closeSidebar
     );
 
     document.addEventListener(
         "keydown",
-        function (event) {
+        (event) => {
             if (event.key === "Escape") {
                 closeSidebar();
             }
@@ -986,7 +1298,7 @@ function initializeSidebar() {
 
     window.addEventListener(
         "resize",
-        function () {
+        () => {
             if (window.innerWidth > 900) {
                 closeSidebar();
             }
@@ -995,22 +1307,33 @@ function initializeSidebar() {
 }
 
 function openSidebar() {
-    studentSidebar.classList.add("open");
-    sidebarOverlay.classList.add("show");
+    studentSidebar?.classList.add(
+        "open"
+    );
 
-    mobileMenuButton.setAttribute(
+    sidebarOverlay?.classList.add(
+        "show"
+    );
+
+    mobileMenuButton?.setAttribute(
         "aria-expanded",
         "true"
     );
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
 }
 
 function closeSidebar() {
-    studentSidebar.classList.remove("open");
-    sidebarOverlay.classList.remove("show");
+    studentSidebar?.classList.remove(
+        "open"
+    );
 
-    mobileMenuButton.setAttribute(
+    sidebarOverlay?.classList.remove(
+        "show"
+    );
+
+    mobileMenuButton?.setAttribute(
         "aria-expanded",
         "false"
     );
@@ -1018,22 +1341,23 @@ function closeSidebar() {
     document.body.style.overflow = "";
 }
 
+
 /* ==================================================
    LOGOUT
 ================================================== */
 
 function initializeLogout() {
-    sidebarLogoutButton.addEventListener(
+    sidebarLogoutButton?.addEventListener(
         "click",
         openLogoutModal
     );
 
-    topLogoutButton.addEventListener(
+    topLogoutButton?.addEventListener(
         "click",
         openLogoutModal
     );
 
-    confirmLogoutButton.addEventListener(
+    confirmLogoutButton?.addEventListener(
         "click",
         logoutStudent
     );
@@ -1041,7 +1365,17 @@ function initializeLogout() {
 
 function openLogoutModal() {
     const modalElement =
-        document.getElementById("logoutModal");
+        document.getElementById(
+            "logoutModal"
+        );
+
+    if (
+        !modalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        logoutStudent();
+        return;
+    }
 
     const logoutModal =
         bootstrap.Modal.getOrCreateInstance(
@@ -1052,50 +1386,93 @@ function openLogoutModal() {
 }
 
 function logoutStudent() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("loggedUser");
-    localStorage.removeItem("loggedInUser");
-    localStorage.removeItem("loggedInStudent");
-    localStorage.removeItem("isLoggedIn");
+    if (
+        typeof window.clearSession ===
+        "function"
+    ) {
+        window.clearSession();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("loggedInStudent");
+        localStorage.removeItem("isLoggedIn");
+    }
 
-    window.location.href = "login.html";
+    window.location.replace(
+        "login.html"
+    );
 }
+
 
 /* ==================================================
    LOADING AND ERROR STATES
 ================================================== */
 
 function showLoading() {
-    coursesLoadingOverlay
-        .classList
+    coursesLoadingOverlay?.classList
         .remove("hidden");
 }
 
 function hideLoading() {
-    coursesLoadingOverlay
-        .classList
+    coursesLoadingOverlay?.classList
         .add("hidden");
 }
 
 function showError(message) {
-    coursesErrorMessage.textContent =
-        message;
+    setText(
+        coursesErrorMessage,
+        message
+    );
 
-    coursesError
-        .classList
+    coursesError?.classList
         .remove("d-none");
 }
 
 function hideError() {
-    coursesError
-        .classList
+    coursesError?.classList
         .add("d-none");
 }
 
+
 /* ==================================================
-   SECURITY HELPER
+   HELPERS
 ================================================== */
+
+function setText(element, value) {
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        value === null ||
+            value === undefined
+            ? ""
+            : String(value);
+}
+
+function createInitials(
+    firstName,
+    lastName
+) {
+    const firstInitial =
+        firstName
+            ? firstName.charAt(0)
+            : "";
+
+    const lastInitial =
+        lastName
+            ? lastName.charAt(0)
+            : "";
+
+    return (
+        `${firstInitial}${lastInitial}`
+            .toUpperCase() ||
+        "ST"
+    );
+}
 
 function escapeHtml(value) {
     const temporaryElement =

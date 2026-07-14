@@ -1,130 +1,20 @@
 "use strict";
 
 /*
- * University ERP Student Dashboard
- *
- * This version uses sample frontend data.
- * The sample data can later be replaced with backend API data.
- */
+---------------------------------------------------
+University ERP
+Student Dashboard Frontend
 
-/* =====================================
-   CONFIGURATION
-===================================== */
+Uses these existing backend endpoints:
 
-const API_BASE_URL = "http://localhost:5000/api";
+GET /api/student-portal/dashboard
+GET /api/student-portal/profile
+GET /api/student-portal/attendance
+GET /api/student-portal/examinations
+GET /api/student-portal/results
+---------------------------------------------------
+*/
 
-/*
- * Keep this true while the backend is not ready.
- *
- * Change it to false when the backend API is ready.
- */
-const USE_MOCK_DATA = true;
-
-/* =====================================
-   SAMPLE DASHBOARD DATA
-===================================== */
-
-const mockDashboardData = {
-    student: {
-        studentId: "STU2026001",
-        firstName: "Vibhavi",
-        lastName: "Kahandawaarachchi",
-        programme: "BSc (Hons) in Software Engineering",
-        semester: "Semester 02"
-    },
-
-    summary: {
-        enrolledCourses: 5,
-        attendancePercentage: 87,
-        upcomingExams: 3,
-        currentGpa: 3.62
-    },
-
-    todaySchedule: [
-        {
-            courseCode: "SE2031",
-            courseName: "Data Structures and Algorithms",
-            startTime: "08:30 AM",
-            endTime: "10:30 AM",
-            lecturer: "Dr. N. Perera",
-            location: "Lab 03"
-        },
-        {
-            courseCode: "SE2042",
-            courseName: "Database Management Systems",
-            startTime: "11:00 AM",
-            endTime: "01:00 PM",
-            lecturer: "Ms. A. Silva",
-            location: "Hall B2"
-        },
-        {
-            courseCode: "SE2051",
-            courseName: "Human Computer Interaction",
-            startTime: "02:00 PM",
-            endTime: "04:00 PM",
-            lecturer: "Mr. K. Fernando",
-            location: "Lab 05"
-        }
-    ],
-
-    upcomingExaminations: [
-        {
-            courseCode: "SE2031",
-            courseName: "Data Structures and Algorithms",
-            examType: "Midterm",
-            date: "2026-07-18",
-            time: "09:00 AM",
-            location: "Examination Hall A"
-        },
-        {
-            courseCode: "SE2042",
-            courseName: "Database Management Systems",
-            examType: "Practical",
-            date: "2026-07-22",
-            time: "01:00 PM",
-            location: "Computer Lab 02"
-        },
-        {
-            courseCode: "SE2051",
-            courseName: "Human Computer Interaction",
-            examType: "Final",
-            date: "2026-07-29",
-            time: "10:00 AM",
-            location: "Examination Hall B"
-        }
-    ],
-
-    recentResults: [
-        {
-            courseCode: "SE2011",
-            courseName: "Object Oriented Programming",
-            marks: 82,
-            grade: "A",
-            status: "Pass"
-        },
-        {
-            courseCode: "SE2022",
-            courseName: "Computer Networks",
-            marks: 75,
-            grade: "A-",
-            status: "Pass"
-        },
-        {
-            courseCode: "BM2013",
-            courseName: "Business Process Management",
-            marks: 68,
-            grade: "B+",
-            status: "Pass"
-        },
-        {
-            courseCode: "SE2062",
-            courseName: "Operating Systems",
-            marks: 61,
-            grade: "B",
-            status: "Pass"
-        }
-    ]
-};
 
 /* =====================================
    HTML ELEMENTS
@@ -235,6 +125,24 @@ const topLogoutButton =
 const confirmLogoutButton =
     document.getElementById("confirmLogoutButton");
 
+const viewProfileButton =
+    document.getElementById("viewProfileButton");
+
+const profileNavigationLink =
+    document.getElementById("profileNavigationLink");
+
+
+/* =====================================
+   CONFIGURATION CHECK
+===================================== */
+
+if (typeof window.fetchWithAuth !== "function") {
+    throw new Error(
+        "config.js is missing. Load config.js before student-dashboard.js."
+    );
+}
+
+
 /* =====================================
    PAGE INITIALIZATION
 ===================================== */
@@ -248,17 +156,16 @@ async function initializeDashboard() {
     displayCurrentDate();
     initializeSidebar();
     initializeLogout();
+    initializeProfileNavigation();
 
     try {
         showLoading();
+        hideError();
 
         const dashboardData =
-            await getDashboardData();
+            await fetchStudentDashboardData();
 
-        validateDashboardData(dashboardData);
         renderDashboard(dashboardData);
-
-        hideError();
     } catch (error) {
         console.error(
             "Student Dashboard error:",
@@ -269,130 +176,391 @@ async function initializeDashboard() {
             error.message ||
             "Unable to load Student Dashboard."
         );
+
+        renderEmptyDashboard();
     } finally {
         hideLoading();
     }
 }
 
+
 /* =====================================
-   LOAD DASHBOARD DATA
+   LOAD REAL BACKEND DATA
 ===================================== */
 
-async function getDashboardData() {
-    if (USE_MOCK_DATA) {
-        return loadMockDashboardData();
-    }
+async function fetchStudentDashboardData() {
+    const [
+        dashboardResponse,
+        profileResponse,
+        attendanceResponse,
+        examinationsResponse,
+        resultsResponse
+    ] = await Promise.all([
+        fetchWithAuth(
+            "/student-portal/dashboard"
+        ),
 
-    return fetchDashboardFromBackend();
+        fetchWithAuth(
+            "/student-portal/profile"
+        ),
+
+        fetchWithAuth(
+            "/student-portal/attendance"
+        ),
+
+        fetchWithAuth(
+            "/student-portal/examinations"
+        ),
+
+        fetchWithAuth(
+            "/student-portal/results"
+        )
+    ]);
+
+    const dashboard =
+        dashboardResponse?.data || {};
+
+    const profile =
+        profileResponse?.data || {};
+
+    const attendance =
+        Array.isArray(attendanceResponse?.data)
+            ? attendanceResponse.data
+            : [];
+
+    const examinations =
+        Array.isArray(examinationsResponse?.data)
+            ? examinationsResponse.data
+            : [];
+
+    const results =
+        Array.isArray(resultsResponse?.data)
+            ? resultsResponse.data
+            : [];
+
+    return {
+        student: normalizeStudent(profile),
+
+        summary: {
+            enrolledCourses:
+                Number(dashboard.totalCourses) || 0,
+
+            attendancePercentage:
+                calculateAttendancePercentage(
+                    attendance
+                ),
+
+            upcomingExams:
+                Number(
+                    dashboard.upcomingExaminations
+                ) || 0,
+
+            currentGpa:
+                calculateGpa(results)
+        },
+
+        /*
+        The existing backend does not currently provide
+        lecture times, lecturers or classroom locations.
+        Therefore, the dashboard correctly shows the
+        empty schedule state instead of fake data.
+        */
+
+        todaySchedule: [],
+
+        upcomingExaminations:
+            normalizeExaminations(examinations),
+
+        recentResults:
+            normalizeResults(results)
+    };
 }
 
-function loadMockDashboardData() {
-    return new Promise(function (resolve) {
-        setTimeout(function () {
-            resolve(mockDashboardData);
-        }, 600);
-    });
+
+/* =====================================
+   NORMALIZE BACKEND DATA
+===================================== */
+
+function normalizeStudent(profile) {
+    const fullName =
+        String(
+            profile.FullName ||
+            profile.fullName ||
+            "Student"
+        ).trim();
+
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const firstName =
+        nameParts.shift() || "Student";
+
+    const lastName =
+        nameParts.join(" ");
+
+    const academicYear =
+        profile.AcademicYear ??
+        profile.academicYear;
+
+    return {
+        studentId:
+            profile.RegistrationNumber ||
+            profile.registrationNumber ||
+            "Not available",
+
+        firstName,
+
+        lastName,
+
+        programme:
+            profile.Department ||
+            profile.department ||
+            "Not available",
+
+        semester:
+            academicYear
+                ? `Academic Year ${academicYear}`
+                : "Not available"
+    };
 }
 
-async function fetchDashboardFromBackend() {
-    const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("authToken");
+function normalizeExaminations(examinations) {
+    const currentDate =
+        new Date();
 
-    if (!token) {
-        throw new Error(
-            "Authentication token was not found. Please login again."
-        );
-    }
-
-    const response = await fetch(
-        `${API_BASE_URL}/student/dashboard`,
-        {
-            method: "GET",
-
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            }
-        }
+    currentDate.setHours(
+        0,
+        0,
+        0,
+        0
     );
 
-    if (response.status === 401 ||
-        response.status === 403) {
-        throw new Error(
-            "You are not authorized to access this page."
-        );
-    }
+    return examinations
+        .filter((examination) => {
+            const date =
+                new Date(
+                    examination.ExaminationDate ||
+                    examination.examinationDate
+                );
 
-    if (!response.ok) {
-        throw new Error(
-            "The server could not load your dashboard information."
-        );
-    }
+            return (
+                !Number.isNaN(date.getTime()) &&
+                date >= currentDate
+            );
+        })
+        .map((examination) => ({
+            courseCode:
+                examination.CourseCode ||
+                examination.courseCode ||
+                "",
 
-    return response.json();
+            courseName:
+                examination.CourseName ||
+                examination.courseName ||
+                "Course",
+
+            examType:
+                examination.ExaminationName ||
+                examination.examinationName ||
+                "Examination",
+
+            date:
+                examination.ExaminationDate ||
+                examination.examinationDate,
+
+            /*
+            These fields are not currently stored by
+            the existing backend.
+            */
+
+            time: "Time not available",
+            location: "Location not available"
+        }))
+        .sort((first, second) => {
+            return (
+                new Date(first.date) -
+                new Date(second.date)
+            );
+        });
 }
+
+function normalizeResults(results) {
+    return results
+        .map((result) => {
+            const marks =
+                Number(
+                    result.Marks ??
+                    result.marks
+                ) || 0;
+
+            return {
+                courseCode:
+                    result.CourseCode ||
+                    result.courseCode ||
+                    "",
+
+                courseName:
+                    result.CourseName ||
+                    result.courseName ||
+                    "Course",
+
+                marks,
+
+                grade:
+                    result.Grade ||
+                    result.grade ||
+                    "N/A",
+
+                status:
+                    marks >= 40
+                        ? "Pass"
+                        : "Fail",
+
+                examinationDate:
+                    result.ExaminationDate ||
+                    result.examinationDate
+            };
+        })
+        .sort((first, second) => {
+            return (
+                new Date(
+                    second.examinationDate || 0
+                ) -
+                new Date(
+                    first.examinationDate || 0
+                )
+            );
+        })
+        .slice(0, 4);
+}
+
 
 /* =====================================
-   VALIDATE DATA
+   CALCULATE SUMMARY VALUES
 ===================================== */
 
-function validateDashboardData(data) {
-    if (!data || typeof data !== "object") {
-        throw new Error(
-            "Invalid dashboard information was received."
-        );
+function calculateAttendancePercentage(records) {
+    if (records.length === 0) {
+        return 0;
     }
 
-    if (!data.student) {
-        throw new Error(
-            "Student profile information is missing."
-        );
-    }
+    const attendedRecords =
+        records.filter((record) => {
+            const status =
+                String(
+                    record.Status ||
+                    record.status ||
+                    ""
+                ).toLowerCase();
 
-    if (!data.summary) {
-        throw new Error(
-            "Student summary information is missing."
-        );
-    }
+            return (
+                status === "present" ||
+                status === "late"
+            );
+        }).length;
+
+    return Math.round(
+        (
+            attendedRecords /
+            records.length
+        ) * 100
+    );
 }
+
+function calculateGpa(results) {
+    if (results.length === 0) {
+        return 0;
+    }
+
+    const gradePoints = {
+        "A+": 4.0,
+        "A": 4.0,
+        "A-": 3.7,
+        "B+": 3.3,
+        "B": 3.0,
+        "B-": 2.7,
+        "C+": 2.3,
+        "C": 2.0,
+        "C-": 1.7,
+        "D+": 1.3,
+        "D": 1.0,
+        "F": 0
+    };
+
+    const points =
+        results
+            .map((result) => {
+                const grade =
+                    String(
+                        result.Grade ||
+                        result.grade ||
+                        ""
+                    ).toUpperCase();
+
+                return gradePoints[grade];
+            })
+            .filter((point) => {
+                return Number.isFinite(point);
+            });
+
+    if (points.length === 0) {
+        return 0;
+    }
+
+    const total =
+        points.reduce(
+            (sum, point) => sum + point,
+            0
+        );
+
+    return total / points.length;
+}
+
 
 /* =====================================
    RENDER COMPLETE DASHBOARD
 ===================================== */
 
 function renderDashboard(data) {
-    renderStudentInformation(data.student);
-    renderSummary(data.summary);
+    renderStudentInformation(
+        data.student
+    );
+
+    renderSummary(
+        data.summary
+    );
 
     renderSchedule(
-        Array.isArray(data.todaySchedule)
-            ? data.todaySchedule
-            : []
+        data.todaySchedule
     );
 
     renderExaminations(
-        Array.isArray(data.upcomingExaminations)
-            ? data.upcomingExaminations
-            : []
+        data.upcomingExaminations
     );
 
     renderResults(
-        Array.isArray(data.recentResults)
-            ? data.recentResults
-            : []
+        data.recentResults
     );
 }
+
+function renderEmptyDashboard() {
+    renderSchedule([]);
+    renderExaminations([]);
+    renderResults([]);
+}
+
 
 /* =====================================
    CURRENT DATE
 ===================================== */
 
 function displayCurrentDate() {
-    const currentDate = new Date();
+    if (!currentDateElement) {
+        return;
+    }
 
     currentDateElement.textContent =
-        currentDate.toLocaleDateString(
+        new Date().toLocaleDateString(
             "en-US",
             {
                 weekday: "long",
@@ -403,51 +571,107 @@ function displayCurrentDate() {
         );
 }
 
+
 /* =====================================
    STUDENT INFORMATION
 ===================================== */
 
 function renderStudentInformation(student) {
     const firstName =
-        student.firstName || "Student";
+        student.firstName ||
+        "Student";
 
     const lastName =
-        student.lastName || "";
+        student.lastName ||
+        "";
 
     const fullName =
         `${firstName} ${lastName}`.trim();
 
     const studentId =
-        student.studentId || "Not available";
+        student.studentId ||
+        "Not available";
 
     const programme =
-        student.programme || "Not available";
+        student.programme ||
+        "Not available";
 
     const semester =
-        student.semester || "Not available";
+        student.semester ||
+        "Not available";
 
     const initials =
-        createInitials(firstName, lastName);
+        createInitials(
+            firstName,
+            lastName
+        );
 
-    sidebarStudentAvatar.textContent = initials;
-    topStudentAvatar.textContent = initials;
+    setText(
+        sidebarStudentAvatar,
+        initials
+    );
 
-    sidebarStudentName.textContent = fullName;
-    topStudentName.textContent = fullName;
+    setText(
+        topStudentAvatar,
+        initials
+    );
 
-    sidebarStudentId.textContent = studentId;
-    topStudentId.textContent = studentId;
+    setText(
+        sidebarStudentName,
+        fullName
+    );
 
-    welcomeStudentName.textContent = firstName;
+    setText(
+        topStudentName,
+        fullName
+    );
 
-    studentProgramme.textContent = programme;
-    studentSemester.textContent = semester;
+    setText(
+        sidebarStudentId,
+        studentId
+    );
 
-    profileStudentId.textContent = studentId;
-    profileStudentName.textContent = fullName;
-    profileProgramme.textContent = programme;
-    profileSemester.textContent = semester;
+    setText(
+        topStudentId,
+        studentId
+    );
+
+    setText(
+        welcomeStudentName,
+        firstName
+    );
+
+    setText(
+        studentProgramme,
+        programme
+    );
+
+    setText(
+        studentSemester,
+        semester
+    );
+
+    setText(
+        profileStudentId,
+        studentId
+    );
+
+    setText(
+        profileStudentName,
+        fullName
+    );
+
+    setText(
+        profileProgramme,
+        programme
+    );
+
+    setText(
+        profileSemester,
+        semester
+    );
 }
+
 
 /* =====================================
    SUMMARY CARDS
@@ -455,33 +679,61 @@ function renderStudentInformation(student) {
 
 function renderSummary(summary) {
     const enrolledCourses =
-        Number(summary.enrolledCourses) || 0;
+        Number(
+            summary.enrolledCourses
+        ) || 0;
 
     const attendance =
-        Number(summary.attendancePercentage) || 0;
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Number(
+                    summary.attendancePercentage
+                ) || 0
+            )
+        );
 
     const upcomingExams =
-        Number(summary.upcomingExams) || 0;
+        Number(
+            summary.upcomingExams
+        ) || 0;
 
     const gpa =
-        Number(summary.currentGpa) || 0;
+        Number(
+            summary.currentGpa
+        ) || 0;
 
-    enrolledCoursesCount.textContent =
-        enrolledCourses;
+    setText(
+        enrolledCoursesCount,
+        enrolledCourses
+    );
 
-    attendancePercentage.textContent =
-        `${attendance}%`;
+    setText(
+        attendancePercentage,
+        `${attendance}%`
+    );
 
-    upcomingExamCount.textContent =
-        upcomingExams;
+    setText(
+        upcomingExamCount,
+        upcomingExams
+    );
 
-    currentGpa.textContent =
-        gpa.toFixed(2);
+    setText(
+        currentGpa,
+        gpa.toFixed(2)
+    );
 
-    updateAttendanceStatus(attendance);
+    updateAttendanceStatus(
+        attendance
+    );
 }
 
 function updateAttendanceStatus(percentage) {
+    if (!attendanceStatus) {
+        return;
+    }
+
     if (percentage >= 80) {
         attendanceStatus.textContent =
             "Good attendance record";
@@ -503,27 +755,39 @@ function updateAttendanceStatus(percentage) {
     }
 
     attendanceStatus.textContent =
-        "Low attendance warning";
+        percentage === 0
+            ? "No attendance records available"
+            : "Low attendance warning";
 
     attendanceStatus.style.color =
-        "#dc2626";
+        percentage === 0
+            ? ""
+            : "#dc2626";
 }
+
 
 /* =====================================
    TODAY'S SCHEDULE
 ===================================== */
 
 function renderSchedule(scheduleItems) {
-    scheduleList.innerHTML = "";
-
-    if (scheduleItems.length === 0) {
-        scheduleEmptyState.classList.remove("d-none");
+    if (!scheduleList) {
         return;
     }
 
-    scheduleEmptyState.classList.add("d-none");
+    scheduleList.replaceChildren();
 
-    scheduleItems.forEach(function (schedule) {
+    if (scheduleItems.length === 0) {
+        scheduleEmptyState?.classList
+            .remove("d-none");
+
+        return;
+    }
+
+    scheduleEmptyState?.classList
+        .add("d-none");
+
+    scheduleItems.forEach((schedule) => {
         const scheduleItem =
             document.createElement("div");
 
@@ -559,32 +823,37 @@ function renderSchedule(scheduleItems) {
             </span>
         `;
 
-        scheduleList.appendChild(scheduleItem);
+        scheduleList.appendChild(
+            scheduleItem
+        );
     });
 }
+
 
 /* =====================================
    UPCOMING EXAMINATIONS
 ===================================== */
 
 function renderExaminations(examinations) {
-    examinationList.innerHTML = "";
+    if (!examinationList) {
+        return;
+    }
+
+    examinationList.replaceChildren();
 
     if (examinations.length === 0) {
-        examinationEmptyState
-            .classList
+        examinationEmptyState?.classList
             .remove("d-none");
 
         return;
     }
 
-    examinationEmptyState
-        .classList
+    examinationEmptyState?.classList
         .add("d-none");
 
     examinations
         .slice(0, 3)
-        .forEach(function (examination) {
+        .forEach((examination) => {
             const dateInformation =
                 formatExaminationDate(
                     examination.date
@@ -632,11 +901,13 @@ function renderExaminations(examinations) {
 
 function formatExaminationDate(dateValue) {
     const examinationDate =
-        new Date(`${dateValue}T00:00:00`);
+        new Date(dateValue);
 
-    if (Number.isNaN(
-        examinationDate.getTime()
-    )) {
+    if (
+        Number.isNaN(
+            examinationDate.getTime()
+        )
+    ) {
         return {
             day: "--",
             month: "---"
@@ -658,31 +929,37 @@ function formatExaminationDate(dateValue) {
     };
 }
 
+
 /* =====================================
    RECENT RESULTS
 ===================================== */
 
 function renderResults(results) {
-    resultsTableBody.innerHTML = "";
+    if (!resultsTableBody) {
+        return;
+    }
+
+    resultsTableBody.replaceChildren();
 
     if (results.length === 0) {
-        resultsEmptyState
-            .classList
+        resultsEmptyState?.classList
             .remove("d-none");
 
         return;
     }
 
-    resultsEmptyState
-        .classList
+    resultsEmptyState?.classList
         .add("d-none");
 
-    results.forEach(function (result) {
+    results.forEach((result) => {
         const tableRow =
             document.createElement("tr");
 
         const status =
-            String(result.status || "");
+            String(
+                result.status ||
+                ""
+            );
 
         const statusClass =
             status.toLowerCase() === "pass"
@@ -711,34 +988,67 @@ function renderResults(results) {
             </td>
 
             <td>
-                <span
-                    class="status-badge ${statusClass}"
-                >
+                <span class="status-badge ${statusClass}">
                     ${escapeHtml(status)}
                 </span>
             </td>
         `;
 
-        resultsTableBody.appendChild(tableRow);
+        resultsTableBody.appendChild(
+            tableRow
+        );
     });
 }
+
+
+/* =====================================
+   PROFILE NAVIGATION
+===================================== */
+
+function initializeProfileNavigation() {
+    const openProfile =
+        function () {
+            const profileSection =
+                document.getElementById(
+                    "studentProfile"
+                );
+
+            profileSection?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+            closeSidebar();
+        };
+
+    profileNavigationLink?.addEventListener(
+        "click",
+        openProfile
+    );
+
+    viewProfileButton?.addEventListener(
+        "click",
+        openProfile
+    );
+}
+
 
 /* =====================================
    MOBILE SIDEBAR
 ===================================== */
 
 function initializeSidebar() {
-    mobileMenuButton.addEventListener(
+    mobileMenuButton?.addEventListener(
         "click",
         openSidebar
     );
 
-    sidebarCloseButton.addEventListener(
+    sidebarCloseButton?.addEventListener(
         "click",
         closeSidebar
     );
 
-    sidebarOverlay.addEventListener(
+    sidebarOverlay?.addEventListener(
         "click",
         closeSidebar
     );
@@ -763,22 +1073,33 @@ function initializeSidebar() {
 }
 
 function openSidebar() {
-    studentSidebar.classList.add("open");
-    sidebarOverlay.classList.add("show");
+    studentSidebar?.classList.add(
+        "open"
+    );
 
-    mobileMenuButton.setAttribute(
+    sidebarOverlay?.classList.add(
+        "show"
+    );
+
+    mobileMenuButton?.setAttribute(
         "aria-expanded",
         "true"
     );
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
 }
 
 function closeSidebar() {
-    studentSidebar.classList.remove("open");
-    sidebarOverlay.classList.remove("show");
+    studentSidebar?.classList.remove(
+        "open"
+    );
 
-    mobileMenuButton.setAttribute(
+    sidebarOverlay?.classList.remove(
+        "show"
+    );
+
+    mobileMenuButton?.setAttribute(
         "aria-expanded",
         "false"
     );
@@ -786,22 +1107,23 @@ function closeSidebar() {
     document.body.style.overflow = "";
 }
 
+
 /* =====================================
    LOGOUT
 ===================================== */
 
 function initializeLogout() {
-    sidebarLogoutButton.addEventListener(
+    sidebarLogoutButton?.addEventListener(
         "click",
         openLogoutModal
     );
 
-    topLogoutButton.addEventListener(
+    topLogoutButton?.addEventListener(
         "click",
         openLogoutModal
     );
 
-    confirmLogoutButton.addEventListener(
+    confirmLogoutButton?.addEventListener(
         "click",
         logoutStudent
     );
@@ -809,7 +1131,17 @@ function initializeLogout() {
 
 function openLogoutModal() {
     const logoutModalElement =
-        document.getElementById("logoutModal");
+        document.getElementById(
+            "logoutModal"
+        );
+
+    if (
+        !logoutModalElement ||
+        typeof bootstrap === "undefined"
+    ) {
+        logoutStudent();
+        return;
+    }
 
     const logoutModal =
         bootstrap.Modal.getOrCreateInstance(
@@ -820,48 +1152,79 @@ function openLogoutModal() {
 }
 
 function logoutStudent() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("loggedUser");
-    localStorage.removeItem("loggedInUser");
-    localStorage.removeItem("loggedInStudent");
-    localStorage.removeItem("isLoggedIn");
+    if (
+        typeof window.clearSession ===
+        "function"
+    ) {
+        window.clearSession();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("loggedInStudent");
+        localStorage.removeItem("isLoggedIn");
+    }
 
-    /*
-     * Change login.html below if your login page
-     * uses a different filename.
-     */
-    window.location.href = "login.html";
+    window.location.replace(
+        "login.html"
+    );
 }
+
 
 /* =====================================
    LOADING AND ERROR STATES
 ===================================== */
 
 function showLoading() {
-    loadingOverlay.classList.remove("hidden");
+    loadingOverlay?.classList.remove(
+        "hidden"
+    );
 }
 
 function hideLoading() {
-    loadingOverlay.classList.add("hidden");
+    loadingOverlay?.classList.add(
+        "hidden"
+    );
 }
 
 function showError(message) {
-    dashboardErrorMessage.textContent =
-        message;
+    setText(
+        dashboardErrorMessage,
+        message
+    );
 
-    dashboardError.classList.remove("d-none");
+    dashboardError?.classList.remove(
+        "d-none"
+    );
 }
 
 function hideError() {
-    dashboardError.classList.add("d-none");
+    dashboardError?.classList.add(
+        "d-none"
+    );
 }
+
 
 /* =====================================
    HELPER FUNCTIONS
 ===================================== */
 
-function createInitials(firstName, lastName) {
+function setText(element, value) {
+    if (element) {
+        element.textContent =
+            value === null ||
+                value === undefined
+                ? ""
+                : String(value);
+    }
+}
+
+function createInitials(
+    firstName,
+    lastName
+) {
     const firstInitial =
         firstName
             ? firstName.charAt(0)
@@ -872,8 +1235,11 @@ function createInitials(firstName, lastName) {
             ? lastName.charAt(0)
             : "";
 
-    return `${firstInitial}${lastInitial}`
-        .toUpperCase() || "ST";
+    return (
+        `${firstInitial}${lastInitial}`
+            .toUpperCase() ||
+        "ST"
+    );
 }
 
 function escapeHtml(value) {
