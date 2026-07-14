@@ -1,50 +1,30 @@
 "use strict";
 
-const mockStudent = {
-    studentId: "STU2026001",
-    firstName: "Vibhavi",
-    lastName: "Kahandawaarachchi"
-};
+/*
+---------------------------------------------------
+University ERP
+Student Attendance Page
 
-const attendanceRecords = [
-    {
-        courseCode: "SE2031",
-        courseName: "Data Structures and Algorithms",
-        totalClasses: 20,
-        present: 18,
-        absent: 2
-    },
-    {
-        courseCode: "SE2042",
-        courseName: "Database Management Systems",
-        totalClasses: 18,
-        present: 15,
-        absent: 3
-    },
-    {
-        courseCode: "SE2051",
-        courseName: "Human Computer Interaction",
-        totalClasses: 16,
-        present: 11,
-        absent: 5
-    },
-    {
-        courseCode: "BM2013",
-        courseName: "Business Process Management",
-        totalClasses: 15,
-        present: 13,
-        absent: 2
-    },
-    {
-        courseCode: "SE2062",
-        courseName: "Operating Systems",
-        totalClasses: 19,
-        present: 14,
-        absent: 5
-    }
-];
+Uses existing backend endpoints:
 
-let filteredRecords = [...attendanceRecords];
+GET /api/student-portal/profile
+GET /api/student-portal/attendance
+---------------------------------------------------
+*/
+
+
+/* ==================================================
+   PAGE STATE
+================================================== */
+
+let attendanceRecords = [];
+let filteredRecords = [];
+let currentStudent = null;
+
+
+/* ==================================================
+   HTML ELEMENTS
+================================================== */
 
 const attendanceGrid =
     document.getElementById("attendanceGrid");
@@ -85,25 +65,323 @@ const studentSidebar =
 const sidebarOverlay =
     document.getElementById("sidebarOverlay");
 
+const menuButton =
+    document.getElementById("menuButton");
+
+const sidebarCloseButton =
+    document.getElementById("sidebarCloseButton");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const confirmLogoutButton =
+    document.getElementById("confirmLogoutButton");
+
+const currentDateElement =
+    document.getElementById("currentDate");
+
+const sidebarAvatar =
+    document.getElementById("sidebarAvatar");
+
+const topAvatar =
+    document.getElementById("topAvatar");
+
+const sidebarStudentName =
+    document.getElementById("sidebarStudentName");
+
+const topStudentName =
+    document.getElementById("topStudentName");
+
+const sidebarStudentId =
+    document.getElementById("sidebarStudentId");
+
+const topStudentId =
+    document.getElementById("topStudentId");
+
+
+/* ==================================================
+   SHARED CONFIGURATION CHECK
+================================================== */
+
+if (typeof window.fetchWithAuth !== "function") {
+    throw new Error(
+        "config.js is missing. Load config.js before student-attendance.js."
+    );
+}
+
+
+/* ==================================================
+   PAGE INITIALIZATION
+================================================== */
+
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
-        displayDate();
-        displayStudent();
-        initializeSidebar();
-        initializeFilters();
-        initializeLogout();
-
-        setTimeout(function () {
-            updateSummary();
-            renderAttendance(filteredRecords);
-            loadingOverlay.classList.add("hidden");
-        }, 500);
-    }
+    initializeAttendancePage
 );
 
+async function initializeAttendancePage() {
+    displayDate();
+    initializeSidebar();
+    initializeFilters();
+    initializeLogout();
+
+    try {
+        showLoading();
+
+        const [
+            profileResponse,
+            attendanceResponse
+        ] = await Promise.all([
+            fetchWithAuth(
+                "/student-portal/profile"
+            ),
+
+            fetchWithAuth(
+                "/student-portal/attendance"
+            )
+        ]);
+
+        currentStudent =
+            normalizeStudent(
+                profileResponse?.data
+            );
+
+        const rawAttendanceRecords =
+            Array.isArray(attendanceResponse?.data)
+                ? attendanceResponse.data
+                : [];
+
+        attendanceRecords =
+            aggregateAttendanceByCourse(
+                rawAttendanceRecords
+            );
+
+        filteredRecords = [
+            ...attendanceRecords
+        ];
+
+        displayStudent(
+            currentStudent
+        );
+
+        updateSummary();
+
+        renderAttendance(
+            filteredRecords
+        );
+
+    } catch (error) {
+        console.error(
+            "Student attendance error:",
+            error
+        );
+
+        renderAttendance([]);
+
+        window.alert(
+            error.message ||
+            "Unable to load attendance records."
+        );
+    } finally {
+        hideLoading();
+    }
+}
+
+
+/* ==================================================
+   NORMALIZE STUDENT PROFILE
+================================================== */
+
+function normalizeStudent(profile = {}) {
+    const fullName =
+        String(
+            profile.FullName ||
+            profile.fullName ||
+            "Student"
+        ).trim();
+
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const firstName =
+        nameParts.shift() ||
+        "Student";
+
+    const lastName =
+        nameParts.join(" ");
+
+    return {
+        studentId:
+            profile.StudentID ??
+            profile.studentId ??
+            null,
+
+        registrationNumber:
+            profile.RegistrationNumber ||
+            profile.registrationNumber ||
+            "Not available",
+
+        firstName,
+
+        lastName
+    };
+}
+
+
+/* ==================================================
+   GROUP ATTENDANCE BY COURSE
+================================================== */
+
+function aggregateAttendanceByCourse(
+    records
+) {
+    const groupedCourses =
+        new Map();
+
+    records.forEach((record) => {
+        const courseId =
+            Number(
+                record.CourseID ??
+                record.courseId
+            );
+
+        const courseCode =
+            record.CourseCode ||
+            record.courseCode ||
+            "N/A";
+
+        const courseName =
+            record.CourseName ||
+            record.courseName ||
+            "Unnamed Course";
+
+        const key =
+            Number.isFinite(courseId)
+                ? String(courseId)
+                : courseCode;
+
+        if (!groupedCourses.has(key)) {
+            groupedCourses.set(
+                key,
+                {
+                    courseId,
+                    courseCode,
+                    courseName,
+                    totalClasses: 0,
+                    present: 0,
+                    absent: 0,
+                    late: 0
+                }
+            );
+        }
+
+        const courseRecord =
+            groupedCourses.get(key);
+
+        const status =
+            String(
+                record.Status ||
+                record.status ||
+                ""
+            )
+                .trim()
+                .toLowerCase();
+
+        courseRecord.totalClasses += 1;
+
+        if (status === "present") {
+            courseRecord.present += 1;
+        } else if (status === "late") {
+            /*
+            A late student attended the class,
+            so it counts as present for percentage.
+            */
+
+            courseRecord.present += 1;
+            courseRecord.late += 1;
+        } else {
+            courseRecord.absent += 1;
+        }
+    });
+
+    return Array.from(
+        groupedCourses.values()
+    ).sort((firstCourse, secondCourse) => {
+        return firstCourse.courseCode.localeCompare(
+            secondCourse.courseCode
+        );
+    });
+}
+
+
+/* ==================================================
+   DISPLAY STUDENT INFORMATION
+================================================== */
+
+function displayStudent(student) {
+    const firstName =
+        student?.firstName ||
+        "Student";
+
+    const lastName =
+        student?.lastName ||
+        "";
+
+    const fullName =
+        `${firstName} ${lastName}`.trim();
+
+    const registrationNumber =
+        student?.registrationNumber ||
+        "Not available";
+
+    const initials =
+        createInitials(
+            firstName,
+            lastName
+        );
+
+    setText(
+        sidebarAvatar,
+        initials
+    );
+
+    setText(
+        topAvatar,
+        initials
+    );
+
+    setText(
+        sidebarStudentName,
+        fullName
+    );
+
+    setText(
+        topStudentName,
+        fullName
+    );
+
+    setText(
+        sidebarStudentId,
+        registrationNumber
+    );
+
+    setText(
+        topStudentId,
+        registrationNumber
+    );
+}
+
+
+/* ==================================================
+   CURRENT DATE
+================================================== */
+
 function displayDate() {
-    document.getElementById("currentDate").textContent =
+    if (!currentDateElement) {
+        return;
+    }
+
+    currentDateElement.textContent =
         new Date().toLocaleDateString(
             "en-US",
             {
@@ -113,308 +391,4 @@ function displayDate() {
                 day: "numeric"
             }
         );
-}
-
-function displayStudent() {
-    const fullName =
-        `${mockStudent.firstName} ${mockStudent.lastName}`;
-
-    const initials =
-        `${mockStudent.firstName[0]}${mockStudent.lastName[0]}`
-            .toUpperCase();
-
-    document.getElementById("sidebarAvatar").textContent =
-        initials;
-
-    document.getElementById("topAvatar").textContent =
-        initials;
-
-    document.getElementById("sidebarStudentName").textContent =
-        fullName;
-
-    document.getElementById("topStudentName").textContent =
-        fullName;
-
-    document.getElementById("sidebarStudentId").textContent =
-        mockStudent.studentId;
-
-    document.getElementById("topStudentId").textContent =
-        mockStudent.studentId;
-}
-
-function updateSummary() {
-    const totals =
-        attendanceRecords.reduce(
-            function (result, record) {
-                result.total += record.totalClasses;
-                result.present += record.present;
-                result.absent += record.absent;
-                return result;
-            },
-            {
-                total: 0,
-                present: 0,
-                absent: 0
-            }
-        );
-
-    const percentage =
-        totals.total > 0
-            ? Math.round(
-                totals.present / totals.total * 100
-            )
-            : 0;
-
-    overallAttendance.textContent =
-        `${percentage}%`;
-
-    presentCount.textContent =
-        totals.present;
-
-    absentCount.textContent =
-        totals.absent;
-
-    totalClasses.textContent =
-        totals.total;
-
-    const hasLowAttendance =
-        attendanceRecords.some(function (record) {
-            return calculatePercentage(record) < 80;
-        });
-
-    attendanceWarning.classList.toggle(
-        "d-none",
-        !hasLowAttendance
-    );
-}
-
-function calculatePercentage(record) {
-    if (record.totalClasses === 0) {
-        return 0;
-    }
-
-    return Math.round(
-        record.present /
-        record.totalClasses *
-        100
-    );
-}
-
-function initializeFilters() {
-    attendanceSearch.addEventListener(
-        "input",
-        filterAttendance
-    );
-
-    attendanceFilter.addEventListener(
-        "change",
-        filterAttendance
-    );
-
-    clearFilterButton.addEventListener(
-        "click",
-        function () {
-            attendanceSearch.value = "";
-            attendanceFilter.value = "";
-            filteredRecords = [...attendanceRecords];
-            renderAttendance(filteredRecords);
-        }
-    );
-}
-
-function filterAttendance() {
-    const search =
-        attendanceSearch.value
-            .trim()
-            .toLowerCase();
-
-    const level =
-        attendanceFilter.value;
-
-    filteredRecords =
-        attendanceRecords.filter(
-            function (record) {
-                const percentage =
-                    calculatePercentage(record);
-
-                const matchesSearch =
-                    record.courseCode
-                        .toLowerCase()
-                        .includes(search) ||
-                    record.courseName
-                        .toLowerCase()
-                        .includes(search);
-
-                const matchesLevel =
-                    level === "" ||
-                    (
-                        level === "good" &&
-                        percentage >= 80
-                    ) ||
-                    (
-                        level === "low" &&
-                        percentage < 80
-                    );
-
-                return (
-                    matchesSearch &&
-                    matchesLevel
-                );
-            }
-        );
-
-    renderAttendance(filteredRecords);
-}
-
-function renderAttendance(records) {
-    attendanceGrid.innerHTML = "";
-
-    if (records.length === 0) {
-        emptyState.classList.remove("d-none");
-        return;
-    }
-
-    emptyState.classList.add("d-none");
-
-    records.forEach(function (record) {
-        const percentage =
-            calculatePercentage(record);
-
-        const levelClass =
-            percentage >= 80
-                ? "good"
-                : "low";
-
-        const levelText =
-            percentage >= 80
-                ? "Good"
-                : "Low";
-
-        const card =
-            document.createElement("article");
-
-        card.className = "attendance-card";
-
-        card.innerHTML = `
-            <div class="attendance-card-header">
-                <span class="course-code">
-                    ${escapeHtml(record.courseCode)}
-                </span>
-
-                <span class="attendance-level ${levelClass}">
-                    ${levelText}
-                </span>
-            </div>
-
-            <h3>
-                ${escapeHtml(record.courseName)}
-            </h3>
-
-            <div class="attendance-numbers">
-
-                <div class="attendance-number">
-                    <span>Total</span>
-                    <strong>${record.totalClasses}</strong>
-                </div>
-
-                <div class="attendance-number">
-                    <span>Present</span>
-                    <strong>${record.present}</strong>
-                </div>
-
-                <div class="attendance-number">
-                    <span>Absent</span>
-                    <strong>${record.absent}</strong>
-                </div>
-
-            </div>
-
-            <div class="progress-area">
-
-                <div class="progress-top">
-                    <span>Attendance progress</span>
-                    <strong>${percentage}%</strong>
-                </div>
-
-                <div class="progress-track">
-                    <div
-                        class="progress-bar-custom"
-                        style="width:${percentage}%"
-                    ></div>
-                </div>
-
-            </div>
-        `;
-
-        attendanceGrid.appendChild(card);
-    });
-}
-
-function initializeSidebar() {
-    document
-        .getElementById("menuButton")
-        .addEventListener(
-            "click",
-            function () {
-                studentSidebar.classList.add("open");
-                sidebarOverlay.classList.add("show");
-            }
-        );
-
-    document
-        .getElementById("sidebarCloseButton")
-        .addEventListener(
-            "click",
-            closeSidebar
-        );
-
-    sidebarOverlay.addEventListener(
-        "click",
-        closeSidebar
-    );
-}
-
-function closeSidebar() {
-    studentSidebar.classList.remove("open");
-    sidebarOverlay.classList.remove("show");
-}
-
-function initializeLogout() {
-    document
-        .getElementById("logoutButton")
-        .addEventListener(
-            "click",
-            function () {
-                bootstrap.Modal
-                    .getOrCreateInstance(
-                        document.getElementById(
-                            "logoutModal"
-                        )
-                    )
-                    .show();
-            }
-        );
-
-    document
-        .getElementById("confirmLogoutButton")
-        .addEventListener(
-            "click",
-            function () {
-                localStorage.clear();
-                window.location.href = "login.html";
-            }
-        );
-}
-
-function escapeHtml(value) {
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        value === undefined ||
-            value === null
-            ? ""
-            : String(value);
-
-    return div.innerHTML;
 }
