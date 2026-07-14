@@ -418,10 +418,29 @@ WHERE RegistrationNumber = N'UNI-2026-002'
   AND UserID IS NULL;
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UQ_Students_UserID' AND object_id = OBJECT_ID(N'dbo.Students'))
+IF EXISTS (
+    SELECT 1
+    FROM sys.key_constraints
+    WHERE name = N'UQ_Students_UserID'
+      AND parent_object_id = OBJECT_ID(N'dbo.Students')
+)
 BEGIN
-    PRINT N'Adding [UQ_Students_UserID].';
-    ALTER TABLE dbo.Students ADD CONSTRAINT UQ_Students_UserID UNIQUE(UserID);
+    PRINT N'Dropping old [UQ_Students_UserID] constraint.';
+    ALTER TABLE dbo.Students DROP CONSTRAINT UQ_Students_UserID;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'UQ_Students_UserID'
+      AND object_id = OBJECT_ID(N'dbo.Students')
+)
+BEGIN
+    PRINT N'Adding filtered [UQ_Students_UserID] index.';
+    CREATE UNIQUE INDEX UQ_Students_UserID
+    ON dbo.Students(UserID)
+    WHERE UserID IS NOT NULL;
 END ELSE PRINT N'[UQ_Students_UserID] already exists.';
 GO
 
