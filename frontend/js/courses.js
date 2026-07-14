@@ -202,10 +202,10 @@ function normalizeCourse(course) {
 
 function buildCoursePayload() {
     return {
-        CourseCode: courseCodeInput.value.trim().toUpperCase(),
-        CourseName: courseNameInput.value.trim(),
-        Department: courseDepartmentInput.value,
-        Credits: Number(courseCreditsInput.value)
+        courseCode: courseCodeInput.value.trim().toUpperCase(),
+        courseName: courseNameInput.value.trim(),
+        department: courseDepartmentInput.value,
+        credits: Number(courseCreditsInput.value)
     };
 }
 
