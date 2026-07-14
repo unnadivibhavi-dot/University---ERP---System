@@ -29,6 +29,7 @@ BEGIN
     CREATE TABLE dbo.Students
     (
         StudentID         INT IDENTITY(1,1) NOT NULL,
+        UserID         INT NULL,
         RegistrationNumber NVARCHAR(50) NOT NULL,
         FullName          NVARCHAR(150) NOT NULL,
         Email             NVARCHAR(150) NOT NULL,
@@ -45,9 +46,26 @@ BEGIN
         CONSTRAINT UQ_Students_Email
             UNIQUE (Email),
 
+        CONSTRAINT FK_Students_Users
+            FOREIGN KEY (UserID)
+            REFERENCES dbo.Users(UserID),
+
         CONSTRAINT CK_Students_AcademicYear
             CHECK (AcademicYear BETWEEN 1 AND 4)
     );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'UQ_Students_UserID'
+      AND object_id = OBJECT_ID(N'dbo.Students')
+)
+BEGIN
+    CREATE UNIQUE INDEX UQ_Students_UserID
+    ON dbo.Students(UserID)
+    WHERE UserID IS NOT NULL;
 END;
 GO
 

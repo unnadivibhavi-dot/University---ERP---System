@@ -262,9 +262,8 @@
                                 <i class="bi bi-people-fill"></i>
                             </div>
 
-                            <span class="summary-change positive-change">
-                                <i class="bi bi-arrow-up"></i>
-                                8.4%
+                            <span class="summary-change neutral-change">
+                                Live
                             </span>
 
                         </div>
@@ -285,9 +284,8 @@
                                 <i class="bi bi-journal-bookmark-fill"></i>
                             </div>
 
-                            <span class="summary-change positive-change">
-                                <i class="bi bi-arrow-up"></i>
-                                3.2%
+                            <span class="summary-change neutral-change">
+                                Live
                             </span>
 
                         </div>
@@ -308,9 +306,8 @@
                                 <i class="bi bi-person-check-fill"></i>
                             </div>
 
-                            <span class="summary-change positive-change">
-                                <i class="bi bi-arrow-up"></i>
-                                6.7%
+                            <span class="summary-change neutral-change">
+                                Live
                             </span>
 
                         </div>
@@ -373,66 +370,12 @@
                             <div class="activity-item">
 
                                 <div class="activity-icon student-activity">
-                                    <i class="bi bi-person-plus-fill"></i>
+                                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
                                 </div>
 
                                 <div class="activity-details">
-                                    <strong>New student registered</strong>
-                                    <p>
-                                        Nimal Perera joined the Computing
-                                        department.
-                                    </p>
-                                    <span>10 minutes ago</span>
-                                </div>
-
-                            </div>
-
-                            <div class="activity-item">
-
-                                <div class="activity-icon course-activity">
-                                    <i class="bi bi-journal-plus"></i>
-                                </div>
-
-                                <div class="activity-details">
-                                    <strong>Course enrollment completed</strong>
-                                    <p>
-                                        A student enrolled in Database
-                                        Management Systems.
-                                    </p>
-                                    <span>35 minutes ago</span>
-                                </div>
-
-                            </div>
-
-                            <div class="activity-item">
-
-                                <div class="activity-icon attendance-activity">
-                                    <i class="bi bi-calendar-check"></i>
-                                </div>
-
-                                <div class="activity-details">
-                                    <strong>Attendance recorded</strong>
-                                    <p>
-                                        Attendance was updated for CS101.
-                                    </p>
-                                    <span>1 hour ago</span>
-                                </div>
-
-                            </div>
-
-                            <div class="activity-item">
-
-                                <div class="activity-icon result-activity">
-                                    <i class="bi bi-bar-chart-fill"></i>
-                                </div>
-
-                                <div class="activity-details">
-                                    <strong>Results published</strong>
-                                    <p>
-                                        Final examination results were
-                                        published.
-                                    </p>
-                                    <span>2 hours ago</span>
+                                    <strong>Loading recent activity...</strong>
+                                    <p>Please wait while dashboard data is loaded.</p>
                                 </div>
 
                             </div>
@@ -541,13 +484,9 @@
                             </p>
                         </div>
 
-                        <select class="form-select overview-select" aria-label="Select academic year">
+                        <select class="form-select overview-select" aria-label="Academic information source" disabled>
                             <option selected>
-                                Academic Year 2026
-                            </option>
-
-                            <option>
-                                Academic Year 2025
+                                Live Academic Data
                             </option>
                         </select>
 
@@ -571,78 +510,12 @@
                             <tbody id="academicOverviewBody">
 
                                 <tr>
-                                    <td>
-                                        <span class="course-code">
-                                            CS101
-                                        </span>
-                                    </td>
+                                    <td colspan="6" class="text-center py-4">
 
-                                    <td>Programming Fundamentals</td>
-                                    <td>Computing</td>
-                                    <td>48</td>
-                                    <td>91%</td>
+                                        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
 
-                                    <td>
-                                        <span class="status-badge active-status">
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
+                                        Loading academic information...
 
-                                <tr>
-                                    <td>
-                                        <span class="course-code">
-                                            CS102
-                                        </span>
-                                    </td>
-
-                                    <td>Database Management Systems</td>
-                                    <td>Computing</td>
-                                    <td>42</td>
-                                    <td>87%</td>
-
-                                    <td>
-                                        <span class="status-badge active-status">
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="course-code">
-                                            BM101
-                                        </span>
-                                    </td>
-
-                                    <td>Business Management</td>
-                                    <td>Business</td>
-                                    <td>55</td>
-                                    <td>84%</td>
-
-                                    <td>
-                                        <span class="status-badge active-status">
-                                            Active
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="course-code">
-                                            SE201
-                                        </span>
-                                    </td>
-
-                                    <td>Software Engineering</td>
-                                    <td>Computing</td>
-                                    <td>39</td>
-                                    <td>89%</td>
-
-                                    <td>
-                                        <span class="status-badge pending-status">
-                                            Upcoming
-                                        </span>
                                     </td>
                                 </tr>
 
@@ -672,6 +545,9 @@
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared API configuration -->
+    <script src="js/config.js"></script>
 
     <!-- Dashboard JavaScript -->
     <script src="js/dashboard.js"></script>

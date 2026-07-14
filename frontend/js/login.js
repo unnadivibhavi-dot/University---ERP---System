@@ -2,19 +2,13 @@
 
 /*
 ---------------------------------------------------
-University ERP System
-Frontend Login Module
-(Currently uses localStorage)
-
-Later this file will connect to:
-
-POST /api/auth/login
-
-without changing much code.
+EDUPortal
+Backend Authentication Login Module
 ---------------------------------------------------
 */
 
-const loginForm = document.getElementById("loginForm");
+const loginForm =
+    document.getElementById("loginForm");
 
 const usernameInput =
     document.getElementById("username");
@@ -49,246 +43,395 @@ const passwordToggleIcon =
 const rememberMe =
     document.getElementById("rememberMe");
 
-/*
----------------------------------------------------
-Demo Account
-(Will be removed later)
+const forgotPasswordButton =
+    document.getElementById("forgotPasswordButton");
 
-Username : admin
+const contactSupportButton =
+    document.getElementById("contactSupportButton");
 
-Password : admin123
----------------------------------------------------
-*/
+const registerButton =
+    document.getElementById("registerButton");
 
-const demoUser = {
 
-    username: "admin",
+if (
+    !window.ERP_CONFIG ||
+    typeof window.ERP_CONFIG.buildApiUrl !== "function"
+) {
+    throw new Error(
+        "config.js must be loaded before login.js."
+    );
+}
 
-    password: "admin123",
 
-    role: "Administrator"
+function showLoginMessage(type, message) {
+    loginMessage.replaceChildren();
 
-};
+    const alertElement =
+        document.createElement("div");
 
-/*
----------------------------------------------------
-Load remembered username
----------------------------------------------------
-*/
+    alertElement.className =
+        `alert alert-${type}`;
 
-window.addEventListener("DOMContentLoaded", () => {
+    alertElement.textContent = message;
 
-    const savedUsername =
-        localStorage.getItem("rememberedUsername");
+    loginMessage.appendChild(alertElement);
+}
 
-    if (savedUsername) {
 
-        usernameInput.value = savedUsername;
+function clearLoginMessage() {
+    loginMessage.replaceChildren();
+}
 
-        rememberMe.checked = true;
 
-    }
+function setLoginButtonLoading(loading) {
+    loginButton.disabled = loading;
 
-});
+    loginButtonText.textContent =
+        loading
+            ? "Signing In..."
+            : "Sign In";
 
-/*
----------------------------------------------------
-Show Hide Password
----------------------------------------------------
-*/
+    loginSpinner.classList.toggle(
+        "d-none",
+        !loading
+    );
+}
 
-togglePassword.addEventListener("click", () => {
-
-    if (passwordInput.type === "password") {
-
-        passwordInput.type = "text";
-
-        passwordToggleIcon.classList.remove("bi-eye");
-
-        passwordToggleIcon.classList.add("bi-eye-slash");
-
-    } else {
-
-        passwordInput.type = "password";
-
-        passwordToggleIcon.classList.remove("bi-eye-slash");
-
-        passwordToggleIcon.classList.add("bi-eye");
-
-    }
-
-});
-
-/*
----------------------------------------------------
-Form Validation
----------------------------------------------------
-*/
 
 function validateForm() {
-
     let valid = true;
 
     usernameError.textContent = "";
-
     passwordError.textContent = "";
-
-    loginMessage.innerHTML = "";
+    clearLoginMessage();
 
     if (usernameInput.value.trim() === "") {
-
         usernameError.textContent =
             "Username is required.";
 
         valid = false;
-
     }
 
-    if (passwordInput.value.trim() === "") {
-
+    if (passwordInput.value === "") {
         passwordError.textContent =
             "Password is required.";
 
         valid = false;
-
     }
 
     return valid;
-
 }
 
-/*
----------------------------------------------------
-Login
----------------------------------------------------
-*/
 
-loginForm.addEventListener("submit", (event) => {
+function saveRememberedUsername(username) {
+    if (rememberMe.checked) {
+        localStorage.setItem(
+            "rememberedUsername",
+            username
+        );
+    } else {
+        localStorage.removeItem(
+            "rememberedUsername"
+        );
+    }
+}
 
-    event.preventDefault();
 
-    if (!validateForm()) return;
+function normalizeUser(responseData, username) {
+    const backendUser =
+        responseData.user || {};
 
-    loginButton.disabled = true;
+    return {
+        id:
+            backendUser.id ??
+            backendUser.userId ??
+            backendUser.UserID ??
+            responseData.userId ??
+            null,
 
-    loginButtonText.textContent = "Signing In...";
+        username:
+            backendUser.username ??
+            backendUser.Username ??
+            responseData.username ??
+            username,
 
-    loginSpinner.classList.remove("d-none");
+        role:
+            String(
+                backendUser.role ??
+                backendUser.Role ??
+                responseData.role ??
+                responseData.Role ??
+                ""
+            ).trim()
+    };
+}
 
-    setTimeout(() => {
+
+function getDashboardForRole(role) {
+    switch (
+    String(role)
+        .trim()
+        .toLowerCase()
+    ) {
+        case "admin":
+        case "administrator":
+        case "system admin":
+            return "dashboard.html";
+
+        case "lecturer":
+            return "lecturer-dashboard.html";
+
+        case "student":
+            return "student-dashboard.html";
+
+        default:
+            return null;
+    }
+}
+
+
+async function readLoginResponse(response) {
+    const responseText =
+        await response.text();
+
+    if (!responseText) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(responseText);
+    } catch (error) {
+        return {
+            message: responseText
+        };
+    }
+}
+
+
+window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        const savedUsername =
+            localStorage.getItem(
+                "rememberedUsername"
+            );
+
+        if (savedUsername) {
+            usernameInput.value =
+                savedUsername;
+
+            rememberMe.checked = true;
+        }
+    }
+);
+
+
+usernameInput.addEventListener(
+    "input",
+    () => {
+        usernameError.textContent = "";
+        clearLoginMessage();
+    }
+);
+
+
+passwordInput.addEventListener(
+    "input",
+    () => {
+        passwordError.textContent = "";
+        clearLoginMessage();
+    }
+);
+
+
+togglePassword.addEventListener(
+    "click",
+    () => {
+        const passwordIsHidden =
+            passwordInput.type === "password";
+
+        passwordInput.type =
+            passwordIsHidden
+                ? "text"
+                : "password";
+
+        passwordToggleIcon.classList.toggle(
+            "bi-eye",
+            !passwordIsHidden
+        );
+
+        passwordToggleIcon.classList.toggle(
+            "bi-eye-slash",
+            passwordIsHidden
+        );
+
+        togglePassword.setAttribute(
+            "aria-label",
+            passwordIsHidden
+                ? "Hide password"
+                : "Show password"
+        );
+    }
+);
+
+
+loginForm.addEventListener(
+    "submit",
+    async (event) => {
+        event.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
 
         const username =
             usernameInput.value.trim();
 
         const password =
-            passwordInput.value.trim();
+            passwordInput.value;
 
-        if (
+        setLoginButtonLoading(true);
 
-            username === demoUser.username &&
+        try {
+            clearSession();
 
-            password === demoUser.password
+            const response = await fetch(
+                window.ERP_CONFIG.buildApiUrl(
+                    "/auth/login"
+                ),
+                {
+                    method: "POST",
 
-        ) {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            if (rememberMe.checked) {
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                }
+            );
 
-                localStorage.setItem(
+            const responseData =
+                await readLoginResponse(response);
 
-                    "rememberedUsername",
-
-                    username
-
+            if (!response.ok) {
+                throw new Error(
+                    responseData.message ||
+                    "Invalid username or password."
                 );
-
-            } else {
-
-                localStorage.removeItem(
-
-                    "rememberedUsername"
-
-                );
-
             }
 
-            /*
-            Logged User
+            const token =
+                responseData.token ??
+                responseData.accessToken;
 
-            Later
+            if (!token) {
+                throw new Error(
+                    "The backend did not return an authentication token."
+                );
+            }
 
-            JWT Token
+            const authenticatedUser =
+                normalizeUser(
+                    responseData,
+                    username
+                );
 
-            Role
+            if (!authenticatedUser.role) {
+                throw new Error(
+                    "The backend did not return the user role."
+                );
+            }
 
-            User Details
+            const dashboardPage =
+                getDashboardForRole(
+                    authenticatedUser.role
+                );
 
-            will come from Backend
-            */
+            if (!dashboardPage) {
+                throw new Error(
+                    `Unsupported role: ${authenticatedUser.role}`
+                );
+            }
 
-            localStorage.setItem(
+            saveRememberedUsername(username);
 
-                "isLoggedIn",
-
-                "true"
-
+            storeSession(
+                token,
+                authenticatedUser
             );
 
-            localStorage.setItem(
-
-                "loggedUser",
-
-                JSON.stringify({
-
-                    username,
-
-                    role: demoUser.role
-
-                })
-
+            showLoginMessage(
+                "success",
+                "Login successful. Redirecting..."
             );
 
-            loginMessage.innerHTML = `
+            window.setTimeout(
+                () => {
+                    window.location.replace(
+                        dashboardPage
+                    );
+                },
+                600
+            );
 
-                <div class="alert alert-success">
+        } catch (error) {
+            console.error(
+                "Login failed:",
+                error
+            );
 
-                    Login Successful.
+            let message =
+                error.message ||
+                "Unable to sign in.";
 
-                    Redirecting...
+            if (error instanceof TypeError) {
+                message =
+                    "Unable to connect to the backend. Make sure the backend is running on port 5001.";
+            }
 
-                </div>
+            showLoginMessage(
+                "danger",
+                message
+            );
 
-            `;
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "dashboard.html";
-
-            }, 1000);
-
+            setLoginButtonLoading(false);
         }
+    }
+);
 
-        else {
 
-            loginMessage.innerHTML = `
+forgotPasswordButton?.addEventListener(
+    "click",
+    () => {
+        showLoginMessage(
+            "info",
+            "Please contact the system administrator to reset your password."
+        );
+    }
+);
 
-                <div class="alert alert-danger">
 
-                    Invalid username or password.
+contactSupportButton?.addEventListener(
+    "click",
+    () => {
+        showLoginMessage(
+            "info",
+            "Please contact your university support team."
+        );
+    }
+);
 
-                </div>
 
-            `;
-
-            loginButton.disabled = false;
-
-            loginButtonText.textContent =
-                "Sign In";
-
-            loginSpinner.classList.add("d-none");
-
-        }
-
-    }, 1000);
-
-});
+registerButton?.addEventListener(
+    "click",
+    () => {
+        showLoginMessage(
+            "info",
+            "New accounts are created by the administrator."
+        );
+    }
+);
