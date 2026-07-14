@@ -4,15 +4,7 @@
 =========================================================
 UNIVERSITY ERP SYSTEM
 Student Management Frontend Module
-
-Current data source:
-- localStorage
-
-Future backend endpoints:
-GET    /api/students
-POST   /api/students
-PUT    /api/students/:id
-DELETE /api/students/:id
+Backend connected version
 =========================================================
 */
 
@@ -23,226 +15,91 @@ DELETE /api/students/:id
 const sidebar = document.getElementById("sidebar");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 const mobileMenuButton = document.getElementById("mobileMenuButton");
-const sidebarCloseButton = document.getElementById(
-    "sidebarCloseButton"
-);
+const sidebarCloseButton = document.getElementById("sidebarCloseButton");
 
-const sidebarLogoutButton = document.getElementById(
-    "sidebarLogoutButton"
-);
+const sidebarLogoutButton = document.getElementById("sidebarLogoutButton");
+const topLogoutButton = document.getElementById("topLogoutButton");
 
-const topLogoutButton = document.getElementById(
-    "topLogoutButton"
-);
-
-const sidebarUsername = document.getElementById(
-    "sidebarUsername"
-);
-
+const sidebarUsername = document.getElementById("sidebarUsername");
 const sidebarRole = document.getElementById("sidebarRole");
-
 const topUsername = document.getElementById("topUsername");
 const topRole = document.getElementById("topRole");
 
-const studentTableBody = document.getElementById(
-    "studentTableBody"
-);
+const studentTableBody = document.getElementById("studentTableBody");
+const studentSearchInput = document.getElementById("studentSearchInput");
+const departmentFilter = document.getElementById("departmentFilter");
+const refreshStudentsButton = document.getElementById("refreshStudentsButton");
 
-const studentSearchInput = document.getElementById(
-    "studentSearchInput"
-);
-
-const departmentFilter = document.getElementById(
-    "departmentFilter"
-);
-
-const refreshStudentsButton = document.getElementById(
-    "refreshStudentsButton"
-);
-
-const studentRecordCount = document.getElementById(
-    "studentRecordCount"
-);
-
-const totalStudentsValue = document.getElementById(
-    "totalStudentsValue"
-);
-
-const departmentCountValue = document.getElementById(
-    "departmentCountValue"
-);
-
-const firstYearCountValue = document.getElementById(
-    "firstYearCountValue"
-);
-
-const finalYearCountValue = document.getElementById(
-    "finalYearCountValue"
-);
-
-const studentPageMessage = document.getElementById(
-    "studentPageMessage"
-);
+const studentRecordCount = document.getElementById("studentRecordCount");
+const totalStudentsValue = document.getElementById("totalStudentsValue");
+const departmentCountValue = document.getElementById("departmentCountValue");
+const firstYearCountValue = document.getElementById("firstYearCountValue");
+const finalYearCountValue = document.getElementById("finalYearCountValue");
+const studentPageMessage = document.getElementById("studentPageMessage");
 
 /* ------------------------------------------------------
    STUDENT FORM ELEMENTS
 ------------------------------------------------------ */
 
 const studentForm = document.getElementById("studentForm");
-
 const studentIdInput = document.getElementById("studentId");
 
-const registrationNumberInput = document.getElementById(
-    "registrationNumber"
-);
-
+const registrationNumberInput = document.getElementById("registrationNumber");
 const fullNameInput = document.getElementById("fullName");
+const studentEmailInput = document.getElementById("studentEmail");
+const studentPhoneInput = document.getElementById("studentPhone");
+const studentDepartmentInput = document.getElementById("studentDepartment");
+const academicYearInput = document.getElementById("academicYear");
+const studentStatusInput = document.getElementById("studentStatus");
 
-const studentEmailInput = document.getElementById(
-    "studentEmail"
-);
+const registrationNumberError = document.getElementById("registrationNumberError");
+const fullNameError = document.getElementById("fullNameError");
+const studentEmailError = document.getElementById("studentEmailError");
+const studentPhoneError = document.getElementById("studentPhoneError");
+const studentDepartmentError = document.getElementById("studentDepartmentError");
+const academicYearError = document.getElementById("academicYearError");
 
-const studentPhoneInput = document.getElementById(
-    "studentPhone"
-);
+const studentFormMessage = document.getElementById("studentFormMessage");
+const studentModalTitle = document.getElementById("studentModalTitle");
 
-const studentDepartmentInput = document.getElementById(
-    "studentDepartment"
-);
+const saveStudentButton = document.getElementById("saveStudentButton");
+const saveStudentButtonText = document.getElementById("saveStudentButtonText");
+const saveStudentSpinner = document.getElementById("saveStudentSpinner");
 
-const academicYearInput = document.getElementById(
-    "academicYear"
-);
-
-const studentStatusInput = document.getElementById(
-    "studentStatus"
-);
-
-const registrationNumberError = document.getElementById(
-    "registrationNumberError"
-);
-
-const fullNameError = document.getElementById(
-    "fullNameError"
-);
-
-const studentEmailError = document.getElementById(
-    "studentEmailError"
-);
-
-const studentPhoneError = document.getElementById(
-    "studentPhoneError"
-);
-
-const studentDepartmentError = document.getElementById(
-    "studentDepartmentError"
-);
-
-const academicYearError = document.getElementById(
-    "academicYearError"
-);
-
-const studentFormMessage = document.getElementById(
-    "studentFormMessage"
-);
-
-const studentModalTitle = document.getElementById(
-    "studentModalTitle"
-);
-
-const saveStudentButton = document.getElementById(
-    "saveStudentButton"
-);
-
-const saveStudentButtonText = document.getElementById(
-    "saveStudentButtonText"
-);
-
-const saveStudentSpinner = document.getElementById(
-    "saveStudentSpinner"
-);
-
-const openAddStudentButton = document.getElementById(
-    "openAddStudentButton"
-);
+const openAddStudentButton = document.getElementById("openAddStudentButton");
 
 /* ------------------------------------------------------
    DELETE MODAL ELEMENTS
 ------------------------------------------------------ */
 
-const deleteStudentIdInput = document.getElementById(
-    "deleteStudentId"
-);
-
-const confirmDeleteStudentButton = document.getElementById(
-    "confirmDeleteStudentButton"
-);
+const deleteStudentIdInput = document.getElementById("deleteStudentId");
+const confirmDeleteStudentButton = document.getElementById("confirmDeleteStudentButton");
 
 /* ------------------------------------------------------
    BOOTSTRAP MODALS
 ------------------------------------------------------ */
 
-const studentModalElement = document.getElementById(
-    "studentModal"
-);
+const studentModalElement = document.getElementById("studentModal");
+const deleteStudentModalElement = document.getElementById("deleteStudentModal");
 
-const deleteStudentModalElement = document.getElementById(
-    "deleteStudentModal"
-);
-
-const studentModal = new bootstrap.Modal(
-    studentModalElement
-);
-
-const deleteStudentModal = new bootstrap.Modal(
-    deleteStudentModalElement
-);
+const studentModal = new bootstrap.Modal(studentModalElement);
+const deleteStudentModal = new bootstrap.Modal(deleteStudentModalElement);
 
 /* ------------------------------------------------------
-   SAMPLE DATA
+   STATE
 ------------------------------------------------------ */
 
-const defaultStudents = [
-    {
-        studentId: 1,
-        registrationNumber: "UGC001",
-        fullName: "Nimal Perera",
-        email: "nimal@example.com",
-        phone: "0771234567",
-        department: "Computing",
-        academicYear: 1,
-        status: "Active"
-    },
-    {
-        studentId: 2,
-        registrationNumber: "UGC002",
-        fullName: "Kamal Silva",
-        email: "kamal@example.com",
-        phone: "0712345678",
-        department: "Business",
-        academicYear: 2,
-        status: "Active"
-    },
-    {
-        studentId: 3,
-        registrationNumber: "UGC003",
-        fullName: "Saman Fernando",
-        email: "saman@example.com",
-        phone: "0759876543",
-        department: "Engineering",
-        academicYear: 4,
-        status: "Inactive"
-    }
-];
+let students = [];
 
 /* ------------------------------------------------------
    LOGIN PROTECTION
 ------------------------------------------------------ */
 
 function protectPage() {
+    const token = localStorage.getItem("token");
     const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-    if (isLoggedIn !== "true") {
+    if (!token && isLoggedIn !== "true") {
         window.location.replace("login.html");
     }
 }
@@ -252,31 +109,28 @@ function protectPage() {
 ------------------------------------------------------ */
 
 function loadUserInformation() {
-    const storedUser = localStorage.getItem("loggedUser");
+    const storedUser =
+        localStorage.getItem("user") ||
+        localStorage.getItem("loggedUser");
 
     let user = {
         username: "Administrator",
-        role: "System Admin"
+        role: "Admin"
     };
 
     if (storedUser) {
         try {
             user = JSON.parse(storedUser);
         } catch (error) {
-            console.error(
-                "Unable to read logged user:",
-                error
-            );
+            console.error("Unable to read logged user:", error);
         }
     }
 
     const displayName =
-        user.username === "admin"
-            ? "Administrator"
-            : user.username;
+        user.username || user.Username || "Administrator";
 
     const displayRole =
-        user.role || "System Admin";
+        user.role || user.Role || "Admin";
 
     sidebarUsername.textContent = displayName;
     sidebarRole.textContent = displayRole;
@@ -286,43 +140,112 @@ function loadUserInformation() {
 }
 
 /* ------------------------------------------------------
-   LOCAL STORAGE
+   API HELPERS
 ------------------------------------------------------ */
 
-function initializeStudents() {
-    if (!localStorage.getItem("students")) {
-        saveStudents(defaultStudents);
+function unwrapApiArray(responseData) {
+    if (Array.isArray(responseData)) {
+        return responseData;
     }
+
+    if (Array.isArray(responseData.data)) {
+        return responseData.data;
+    }
+
+    if (Array.isArray(responseData.students)) {
+        return responseData.students;
+    }
+
+    return [];
 }
 
-function getStudents() {
-    const storedStudents = localStorage.getItem("students");
+function normalizeStudent(student) {
+    return {
+        studentId:
+            student.StudentID ??
+            student.studentId ??
+            student.id,
 
-    if (!storedStudents) {
-        return [];
-    }
+        registrationNumber:
+            student.RegistrationNumber ??
+            student.registrationNumber ??
+            "",
 
+        fullName:
+            student.FullName ??
+            student.fullName ??
+            "",
+
+        email:
+            student.Email ??
+            student.email ??
+            "",
+
+        phone:
+            student.Phone ??
+            student.phone ??
+            "",
+
+        department:
+            student.Department ??
+            student.department ??
+            "",
+
+        academicYear:
+            student.AcademicYear ??
+            student.academicYear ??
+            "",
+
+        status:
+            student.Status ??
+            student.status ??
+            "Active"
+    };
+}
+
+function buildStudentPayload() {
+    return {
+        RegistrationNumber: registrationNumberInput.value.trim(),
+        FullName: fullNameInput.value.trim(),
+        Email: studentEmailInput.value.trim(),
+        Phone: studentPhoneInput.value.trim(),
+        Department: studentDepartmentInput.value,
+        AcademicYear: Number(academicYearInput.value)
+    };
+}
+
+/* ------------------------------------------------------
+   LOAD STUDENTS FROM BACKEND
+------------------------------------------------------ */
+
+async function loadStudents() {
     try {
-        const parsedStudents = JSON.parse(storedStudents);
+        studentTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    Loading students...
+                </td>
+            </tr>
+        `;
 
-        return Array.isArray(parsedStudents)
-            ? parsedStudents
-            : [];
+        const responseData = await fetchWithAuth("/students");
+
+        students = unwrapApiArray(responseData).map(normalizeStudent);
+
+        displayStudents();
+
     } catch (error) {
-        console.error(
-            "Unable to read students:",
-            error
+        console.error("Unable to load students:", error);
+
+        students = [];
+
+        displayStudents();
+
+        showPageMessage(
+            error.message || "Unable to load student records.",
+            "danger"
         );
-
-        return [];
     }
-}
-
-function saveStudents(students) {
-    localStorage.setItem(
-        "students",
-        JSON.stringify(students)
-    );
 }
 
 /* ------------------------------------------------------
@@ -330,25 +253,14 @@ function saveStudents(students) {
 ------------------------------------------------------ */
 
 function displayStudents() {
-    const students = getStudents();
-
-    const searchValue =
-        studentSearchInput.value.trim().toLowerCase();
-
-    const selectedDepartment =
-        departmentFilter.value;
+    const searchValue = studentSearchInput.value.trim().toLowerCase();
+    const selectedDepartment = departmentFilter.value;
 
     const filteredStudents = students.filter((student) => {
         const matchesSearch =
-            student.registrationNumber
-                .toLowerCase()
-                .includes(searchValue) ||
-            student.fullName
-                .toLowerCase()
-                .includes(searchValue) ||
-            student.email
-                .toLowerCase()
-                .includes(searchValue);
+            student.registrationNumber.toLowerCase().includes(searchValue) ||
+            student.fullName.toLowerCase().includes(searchValue) ||
+            student.email.toLowerCase().includes(searchValue);
 
         const matchesDepartment =
             selectedDepartment === "" ||
@@ -367,28 +279,20 @@ function displayStudents() {
                         <div class="student-empty-icon">
                             <i class="bi bi-people"></i>
                         </div>
-
                         <h4>No students found</h4>
-
-                        <p>
-                            Try changing the search text or department filter.
-                        </p>
+                        <p>Try changing the search text or department filter.</p>
                     </div>
                 </td>
             </tr>
         `;
 
-        studentRecordCount.textContent =
-            "Showing 0 students";
-
+        studentRecordCount.textContent = "Showing 0 students";
         updateSummaryCards(students);
-
         return;
     }
 
     filteredStudents.forEach((student) => {
         const row = document.createElement("tr");
-
         const initials = getInitials(student.fullName);
 
         const statusClass =
@@ -399,43 +303,29 @@ function displayStudents() {
         row.innerHTML = `
             <td>
                 <span class="student-id-badge">
-                    ${student.studentId}
+                    ${escapeHTML(student.studentId)}
                 </span>
             </td>
 
-            <td>
-                ${escapeHTML(student.registrationNumber)}
-            </td>
+            <td>${escapeHTML(student.registrationNumber)}</td>
 
             <td>
                 <div class="student-name-cell">
                     <div class="student-table-avatar">
-                        ${initials}
+                        ${escapeHTML(initials)}
                     </div>
-
                     <div class="student-name-details">
-                        <strong>
-                            ${escapeHTML(student.fullName)}
-                        </strong>
-
-                        <span>
-                            ${escapeHTML(student.email)}
-                        </span>
+                        <strong>${escapeHTML(student.fullName)}</strong>
+                        <span>${escapeHTML(student.email)}</span>
                     </div>
                 </div>
             </td>
 
-            <td>
-                ${escapeHTML(student.department)}
-            </td>
+            <td>${escapeHTML(student.department)}</td>
 
-            <td>
-                Year ${Number(student.academicYear)}
-            </td>
+            <td>Year ${escapeHTML(student.academicYear)}</td>
 
-            <td>
-                ${escapeHTML(student.phone || "Not provided")}
-            </td>
+            <td>${escapeHTML(student.phone || "Not provided")}</td>
 
             <td>
                 <span class="student-status-badge ${statusClass}">
@@ -445,12 +335,11 @@ function displayStudents() {
 
             <td>
                 <div class="table-action-group">
-
                     <button
                         type="button"
                         class="table-action-button view-student-button"
                         title="View student"
-                        onclick="viewStudent(${student.studentId})"
+                        onclick="viewStudent(${Number(student.studentId)})"
                     >
                         <i class="bi bi-eye"></i>
                     </button>
@@ -459,7 +348,7 @@ function displayStudents() {
                         type="button"
                         class="table-action-button edit-student-button"
                         title="Edit student"
-                        onclick="editStudent(${student.studentId})"
+                        onclick="editStudent(${Number(student.studentId)})"
                     >
                         <i class="bi bi-pencil-square"></i>
                     </button>
@@ -468,11 +357,10 @@ function displayStudents() {
                         type="button"
                         class="table-action-button delete-student-button"
                         title="Delete student"
-                        onclick="openDeleteStudentModal(${student.studentId})"
+                        onclick="openDeleteStudentModal(${Number(student.studentId)})"
                     >
                         <i class="bi bi-trash3"></i>
                     </button>
-
                 </div>
             </td>
         `;
@@ -490,31 +378,22 @@ function displayStudents() {
    SUMMARY CARDS
 ------------------------------------------------------ */
 
-function updateSummaryCards(students) {
-    totalStudentsValue.textContent = students.length;
+function updateSummaryCards(studentList) {
+    totalStudentsValue.textContent = studentList.length;
 
     const departments = new Set(
-        students.map((student) => student.department)
+        studentList
+            .map((student) => student.department)
+            .filter(Boolean)
     );
 
-    departmentCountValue.textContent =
-        departments.size;
-
-    const firstYearStudents = students.filter(
-        (student) =>
-            Number(student.academicYear) === 1
-    );
-
-    const finalYearStudents = students.filter(
-        (student) =>
-            Number(student.academicYear) === 4
-    );
+    departmentCountValue.textContent = departments.size;
 
     firstYearCountValue.textContent =
-        firstYearStudents.length;
+        studentList.filter((student) => Number(student.academicYear) === 1).length;
 
     finalYearCountValue.textContent =
-        finalYearStudents.length;
+        studentList.filter((student) => Number(student.academicYear) === 4).length;
 }
 
 /* ------------------------------------------------------
@@ -536,68 +415,43 @@ function validateStudentForm() {
 
     let isValid = true;
 
-    const registrationNumber =
-        registrationNumberInput.value.trim();
-
-    const fullName =
-        fullNameInput.value.trim();
-
-    const email =
-        studentEmailInput.value.trim();
-
-    const phone =
-        studentPhoneInput.value.trim();
-
-    const department =
-        studentDepartmentInput.value;
-
-    const academicYear =
-        academicYearInput.value;
+    const registrationNumber = registrationNumberInput.value.trim();
+    const fullName = fullNameInput.value.trim();
+    const email = studentEmailInput.value.trim();
+    const phone = studentPhoneInput.value.trim();
+    const department = studentDepartmentInput.value;
+    const academicYear = academicYearInput.value;
 
     if (registrationNumber === "") {
-        registrationNumberError.textContent =
-            "Registration number is required.";
-
+        registrationNumberError.textContent = "Registration number is required.";
         isValid = false;
     }
 
     if (fullName === "") {
-        fullNameError.textContent =
-            "Full name is required.";
-
+        fullNameError.textContent = "Full name is required.";
         isValid = false;
     }
 
     if (email === "") {
-        studentEmailError.textContent =
-            "Email address is required.";
-
+        studentEmailError.textContent = "Email address is required.";
         isValid = false;
     } else if (!isValidEmail(email)) {
-        studentEmailError.textContent =
-            "Enter a valid email address.";
-
+        studentEmailError.textContent = "Enter a valid email address.";
         isValid = false;
     }
 
     if (phone !== "" && !/^[0-9]{10}$/.test(phone)) {
-        studentPhoneError.textContent =
-            "Phone number must contain 10 digits.";
-
+        studentPhoneError.textContent = "Phone number must contain 10 digits.";
         isValid = false;
     }
 
     if (department === "") {
-        studentDepartmentError.textContent =
-            "Select a department.";
-
+        studentDepartmentError.textContent = "Select a department.";
         isValid = false;
     }
 
     if (academicYear === "") {
-        academicYearError.textContent =
-            "Select an academic year.";
-
+        academicYearError.textContent = "Select an academic year.";
         isValid = false;
     }
 
@@ -608,131 +462,40 @@ function validateStudentForm() {
    ADD STUDENT
 ------------------------------------------------------ */
 
-function addStudent() {
-    const students = getStudents();
+async function addStudent() {
+    const payload = buildStudentPayload();
 
-    const registrationNumber =
-        registrationNumberInput.value.trim();
+    await fetchWithAuth("/students", {
+        method: "POST",
+        body: JSON.stringify(payload)
+    });
 
-    const duplicateRegistration = students.some(
-        (student) =>
-            student.registrationNumber.toLowerCase() ===
-            registrationNumber.toLowerCase()
-    );
-
-    if (duplicateRegistration) {
-        registrationNumberError.textContent =
-            "This registration number already exists.";
-
-        return;
-    }
-
-    const newStudent = {
-        studentId: generateStudentId(students),
-
-        registrationNumber,
-
-        fullName: fullNameInput.value.trim(),
-
-        email: studentEmailInput.value.trim(),
-
-        phone: studentPhoneInput.value.trim(),
-
-        department: studentDepartmentInput.value,
-
-        academicYear: Number(
-            academicYearInput.value
-        ),
-
-        status: studentStatusInput.value
-    };
-
-    students.push(newStudent);
-
-    saveStudents(students);
-
-    showPageMessage(
-        "Student added successfully.",
-        "success"
-    );
+    showPageMessage("Student added successfully.", "success");
 
     studentModal.hide();
-
     resetStudentForm();
 
-    displayStudents();
+    await loadStudents();
 }
 
 /* ------------------------------------------------------
    UPDATE STUDENT
 ------------------------------------------------------ */
 
-function updateStudent(studentId) {
-    const students = getStudents();
+async function updateStudent(studentId) {
+    const payload = buildStudentPayload();
 
-    const studentIndex = students.findIndex(
-        (student) =>
-            Number(student.studentId) === Number(studentId)
-    );
+    await fetchWithAuth(`/students/${studentId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload)
+    });
 
-    if (studentIndex === -1) {
-        showPageMessage(
-            "Student record was not found.",
-            "danger"
-        );
-
-        return;
-    }
-
-    const registrationNumber =
-        registrationNumberInput.value.trim();
-
-    const duplicateRegistration = students.some(
-        (student) =>
-            student.registrationNumber.toLowerCase() ===
-            registrationNumber.toLowerCase() &&
-            Number(student.studentId) !== Number(studentId)
-    );
-
-    if (duplicateRegistration) {
-        registrationNumberError.textContent =
-            "This registration number already exists.";
-
-        return;
-    }
-
-    students[studentIndex] = {
-        ...students[studentIndex],
-
-        registrationNumber,
-
-        fullName: fullNameInput.value.trim(),
-
-        email: studentEmailInput.value.trim(),
-
-        phone: studentPhoneInput.value.trim(),
-
-        department: studentDepartmentInput.value,
-
-        academicYear: Number(
-            academicYearInput.value
-        ),
-
-        status: studentStatusInput.value
-    };
-
-    saveStudents(students);
-
-    showPageMessage(
-        "Student updated successfully.",
-        "success"
-    );
+    showPageMessage("Student updated successfully.", "success");
 
     studentModal.hide();
-
     resetStudentForm();
 
-    displayStudents();
+    await loadStudents();
 }
 
 /* ------------------------------------------------------
@@ -740,44 +503,28 @@ function updateStudent(studentId) {
 ------------------------------------------------------ */
 
 function editStudent(studentId) {
-    const students = getStudents();
-
     const student = students.find(
-        (item) =>
-            Number(item.studentId) === Number(studentId)
+        (item) => Number(item.studentId) === Number(studentId)
     );
 
     if (!student) {
-        showPageMessage(
-            "Student record was not found.",
-            "danger"
-        );
-
+        showPageMessage("Student record was not found.", "danger");
         return;
     }
 
     clearFormErrors();
 
     studentIdInput.value = student.studentId;
-    registrationNumberInput.value =
-        student.registrationNumber;
-
+    registrationNumberInput.value = student.registrationNumber;
     fullNameInput.value = student.fullName;
     studentEmailInput.value = student.email;
     studentPhoneInput.value = student.phone || "";
-    studentDepartmentInput.value =
-        student.department;
+    studentDepartmentInput.value = student.department;
+    academicYearInput.value = String(student.academicYear);
+    studentStatusInput.value = student.status || "Active";
 
-    academicYearInput.value =
-        String(student.academicYear);
-
-    studentStatusInput.value = student.status;
-
-    studentModalTitle.textContent =
-        "Edit Student";
-
-    saveStudentButtonText.textContent =
-        "Update Student";
+    studentModalTitle.textContent = "Edit Student";
+    saveStudentButtonText.textContent = "Update Student";
 
     studentModal.show();
 }
@@ -787,14 +534,12 @@ function editStudent(studentId) {
 ------------------------------------------------------ */
 
 function viewStudent(studentId) {
-    const students = getStudents();
-
     const student = students.find(
-        (item) =>
-            Number(item.studentId) === Number(studentId)
+        (item) => Number(item.studentId) === Number(studentId)
     );
 
     if (!student) {
+        showPageMessage("Student record was not found.", "danger");
         return;
     }
 
@@ -819,44 +564,45 @@ function openDeleteStudentModal(studentId) {
     deleteStudentModal.show();
 }
 
-function deleteStudent() {
-    const studentId = Number(
-        deleteStudentIdInput.value
-    );
+async function deleteStudent() {
+    const studentId = Number(deleteStudentIdInput.value);
 
-    const students = getStudents();
-
-    const updatedStudents = students.filter(
-        (student) =>
-            Number(student.studentId) !== studentId
-    );
-
-    if (updatedStudents.length === students.length) {
-        showPageMessage(
-            "Student record was not found.",
-            "danger"
-        );
-
+    if (!studentId) {
+        showPageMessage("Invalid student record.", "danger");
         return;
     }
 
-    saveStudents(updatedStudents);
+    try {
+        confirmDeleteStudentButton.disabled = true;
 
-    deleteStudentModal.hide();
+        await fetchWithAuth(`/students/${studentId}`, {
+            method: "DELETE"
+        });
 
-    showPageMessage(
-        "Student deleted successfully.",
-        "success"
-    );
+        deleteStudentModal.hide();
 
-    displayStudents();
+        showPageMessage("Student deleted successfully.", "success");
+
+        await loadStudents();
+
+    } catch (error) {
+        console.error("Unable to delete student:", error);
+
+        showPageMessage(
+            error.message || "Unable to delete student.",
+            "danger"
+        );
+
+    } finally {
+        confirmDeleteStudentButton.disabled = false;
+    }
 }
 
 /* ------------------------------------------------------
    FORM SUBMISSION
 ------------------------------------------------------ */
 
-studentForm.addEventListener("submit", (event) => {
+studentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!validateStudentForm()) {
@@ -865,17 +611,27 @@ studentForm.addEventListener("submit", (event) => {
 
     setSaveButtonLoading(true);
 
-    window.setTimeout(() => {
+    try {
         const studentId = studentIdInput.value;
 
         if (studentId) {
-            updateStudent(Number(studentId));
+            await updateStudent(Number(studentId));
         } else {
-            addStudent();
+            await addStudent();
         }
 
+    } catch (error) {
+        console.error("Unable to save student:", error);
+
+        studentFormMessage.innerHTML = `
+            <div class="alert alert-danger">
+                ${escapeHTML(error.message || "Unable to save student.")}
+            </div>
+        `;
+
+    } finally {
         setSaveButtonLoading(false);
-    }, 500);
+    }
 });
 
 /* ------------------------------------------------------
@@ -886,65 +642,39 @@ function resetStudentForm() {
     studentForm.reset();
 
     studentIdInput.value = "";
-
     studentStatusInput.value = "Active";
 
-    studentModalTitle.textContent =
-        "Add New Student";
-
-    saveStudentButtonText.textContent =
-        "Save Student";
+    studentModalTitle.textContent = "Add New Student";
+    saveStudentButtonText.textContent = "Save Student";
 
     clearFormErrors();
 }
 
-openAddStudentButton.addEventListener(
-    "click",
-    resetStudentForm
-);
+openAddStudentButton.addEventListener("click", resetStudentForm);
 
-studentModalElement.addEventListener(
-    "hidden.bs.modal",
-    resetStudentForm
-);
+studentModalElement.addEventListener("hidden.bs.modal", resetStudentForm);
 
 /* ------------------------------------------------------
    SEARCH AND FILTER
 ------------------------------------------------------ */
 
-studentSearchInput.addEventListener(
-    "input",
-    displayStudents
-);
+studentSearchInput.addEventListener("input", displayStudents);
+departmentFilter.addEventListener("change", displayStudents);
 
-departmentFilter.addEventListener(
-    "change",
-    displayStudents
-);
+refreshStudentsButton.addEventListener("click", async () => {
+    studentSearchInput.value = "";
+    departmentFilter.value = "";
 
-refreshStudentsButton.addEventListener(
-    "click",
-    () => {
-        studentSearchInput.value = "";
-        departmentFilter.value = "";
+    await loadStudents();
 
-        displayStudents();
-
-        showPageMessage(
-            "Student records refreshed.",
-            "info"
-        );
-    }
-);
+    showPageMessage("Student records refreshed.", "info");
+});
 
 /* ------------------------------------------------------
    DELETE CONFIRMATION
 ------------------------------------------------------ */
 
-confirmDeleteStudentButton.addEventListener(
-    "click",
-    deleteStudent
-);
+confirmDeleteStudentButton.addEventListener("click", deleteStudent);
 
 /* ------------------------------------------------------
    MOBILE SIDEBAR
@@ -962,20 +692,9 @@ function closeSidebar() {
     document.body.style.overflow = "";
 }
 
-mobileMenuButton.addEventListener(
-    "click",
-    openSidebar
-);
-
-sidebarCloseButton.addEventListener(
-    "click",
-    closeSidebar
-);
-
-sidebarOverlay.addEventListener(
-    "click",
-    closeSidebar
-);
+mobileMenuButton.addEventListener("click", openSidebar);
+sidebarCloseButton.addEventListener("click", closeSidebar);
+sidebarOverlay.addEventListener("click", closeSidebar);
 
 window.addEventListener("resize", () => {
     if (window.innerWidth > 900) {
@@ -988,49 +707,31 @@ window.addEventListener("resize", () => {
 ------------------------------------------------------ */
 
 function logout() {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("loggedUser");
+    if (typeof clearSession === "function") {
+        clearSession();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("loggedUser");
+    }
 
     window.location.replace("login.html");
 }
 
-sidebarLogoutButton.addEventListener(
-    "click",
-    logout
-);
-
-topLogoutButton.addEventListener(
-    "click",
-    logout
-);
+sidebarLogoutButton.addEventListener("click", logout);
+topLogoutButton.addEventListener("click", logout);
 
 /* ------------------------------------------------------
    HELPER FUNCTIONS
 ------------------------------------------------------ */
 
-function generateStudentId(students) {
-    if (students.length === 0) {
-        return 1;
-    }
-
-    const highestId = Math.max(
-        ...students.map(
-            (student) =>
-                Number(student.studentId) || 0
-        )
-    );
-
-    return highestId + 1;
-}
-
 function getInitials(fullName) {
-    return fullName
+    return String(fullName || "")
         .trim()
         .split(/\s+/)
         .slice(0, 2)
-        .map((namePart) =>
-            namePart.charAt(0).toUpperCase()
-        )
+        .map((namePart) => namePart.charAt(0).toUpperCase())
         .join("");
 }
 
@@ -1041,20 +742,14 @@ function isValidEmail(email) {
 function setSaveButtonLoading(isLoading) {
     saveStudentButton.disabled = isLoading;
 
-    saveStudentSpinner.classList.toggle(
-        "d-none",
-        !isLoading
-    );
+    saveStudentSpinner.classList.toggle("d-none", !isLoading);
 
     if (isLoading) {
-        saveStudentButtonText.textContent =
-            "Saving...";
+        saveStudentButtonText.textContent = "Saving...";
     } else if (studentIdInput.value) {
-        saveStudentButtonText.textContent =
-            "Update Student";
+        saveStudentButtonText.textContent = "Update Student";
     } else {
-        saveStudentButtonText.textContent =
-            "Save Student";
+        saveStudentButtonText.textContent = "Save Student";
     }
 }
 
@@ -1080,52 +775,11 @@ function escapeHTML(value) {
 }
 
 /* ------------------------------------------------------
-   FUTURE BACKEND VERSION
-
-   Later, replace localStorage functions with fetch calls.
-
-   Example:
-
-   const API_BASE_URL =
-       "http://localhost:5001/api";
-
-   GET:
-   fetch(`${API_BASE_URL}/students`);
-
-   POST:
-   fetch(`${API_BASE_URL}/students`, {
-       method: "POST",
-       headers: {
-           "Content-Type": "application/json"
-       },
-       body: JSON.stringify(studentData)
-   });
-
-   PUT:
-   fetch(`${API_BASE_URL}/students/${studentId}`, {
-       method: "PUT",
-       headers: {
-           "Content-Type": "application/json"
-       },
-       body: JSON.stringify(studentData)
-   });
-
-   DELETE:
-   fetch(`${API_BASE_URL}/students/${studentId}`, {
-       method: "DELETE"
-   });
------------------------------------------------------- */
-
-/* ------------------------------------------------------
    INITIAL PAGE LOAD
 ------------------------------------------------------ */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        protectPage();
-        initializeStudents();
-        loadUserInformation();
-        displayStudents();
-    }
-);
+document.addEventListener("DOMContentLoaded", async () => {
+    protectPage();
+    loadUserInformation();
+    await loadStudents();
+});
