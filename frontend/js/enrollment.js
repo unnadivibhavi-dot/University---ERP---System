@@ -705,11 +705,10 @@ function validateEnrollmentForm() {
 
 async function createEnrollment() {
     const payload = {
-        StudentID: Number(enrollmentStudent.value),
-        CourseID: Number(enrollmentCourse.value),
-        EnrollmentDate: enrollmentDate.value
+        studentId: Number(enrollmentStudent.value),
+        courseId: Number(enrollmentCourse.value),
+        enrollmentDate: enrollmentDate.value
     };
-
     await fetchWithAuth("/enrollments", {
         method: "POST",
         body: JSON.stringify(payload)
