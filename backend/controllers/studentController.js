@@ -227,36 +227,99 @@ const updateStudent = async (req, res) => {
 };
 
 const deleteStudent = async (req, res) => {
+    let transaction;
+
     try {
+        const studentId = Number(req.params.id);
+
+        if (!Number.isInteger(studentId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid student ID"
+            });
+        }
+
         const pool = getPool();
 
-        const result = await pool.request()
-            .input("studentId", sql.Int, req.params.id)
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Find the student and the connected login account.
+        const studentResult = await new sql.Request(transaction)
+            .input("studentId", sql.Int, studentId)
             .query(`
-                DELETE FROM Students
+                SELECT UserID
+                FROM Students
                 WHERE StudentID = @studentId;
             `);
 
-        if (result.rowsAffected[0] === 0) {
+        if (studentResult.recordset.length === 0) {
+            await transaction.rollback();
+            transaction = null;
+
             return res.status(404).json({
                 success: false,
                 message: "Student not found"
             });
         }
 
+        const userId = studentResult.recordset[0].UserID;
+
+        // Remove only records belonging to this student.
+        await new sql.Request(transaction)
+            .input("studentId", sql.Int, studentId)
+            .query(`
+                DELETE FROM Attendance
+                WHERE StudentID = @studentId;
+
+                DELETE FROM Results
+                WHERE StudentID = @studentId;
+
+                DELETE FROM Enrollments
+                WHERE StudentID = @studentId;
+
+                DELETE FROM Students
+                WHERE StudentID = @studentId;
+            `);
+
+        // Remove the connected student login account when it is not used elsewhere.
+        if (userId !== null && userId !== undefined) {
+            await new sql.Request(transaction)
+                .input("userId", sql.Int, userId)
+                .query(`
+                    DELETE FROM Users
+                    WHERE UserID = @userId
+                      AND Role = 'Student'
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM Students
+                          WHERE UserID = @userId
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM Lecturers
+                          WHERE UserID = @userId
+                      );
+                `);
+        }
+
+        await transaction.commit();
+        transaction = null;
+
         res.status(200).json({
             success: true,
-            message: "Student deleted successfully"
+            message: "Student and related records deleted successfully"
         });
     } catch (error) {
-        console.error("Delete student error:", error.message);
-
-        if (error.number === 547) {
-            return res.status(409).json({
-                success: false,
-                message: "Cannot delete this student because the student is used by enrollments, attendance or results"
-            });
+        if (transaction) {
+            try {
+                await transaction.rollback();
+            } catch (rollbackError) {
+                console.error("Student deletion rollback error:", rollbackError.message);
+            }
         }
+
+        console.error("Delete student error:", error.message);
 
         res.status(500).json({
             success: false,
