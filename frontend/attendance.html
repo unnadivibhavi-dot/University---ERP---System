@@ -18,7 +18,7 @@
 
     <!-- Shared stylesheet -->
     <link rel="stylesheet" href="css/style.css">
-    
+
     <!-- Custom embedded style to style attendance status buttons beautifully -->
     <style>
         .status-btn-group {
@@ -97,7 +97,8 @@
             letter-spacing: 0.5px;
         }
 
-        .attendance-select, .attendance-date-input {
+        .attendance-select,
+        .attendance-date-input {
             height: 42px;
             min-width: 200px;
             border-radius: 8px;
@@ -109,7 +110,8 @@
             transition: all var(--transition);
         }
 
-        .attendance-select:focus, .attendance-date-input:focus {
+        .attendance-select:focus,
+        .attendance-date-input:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 3px rgba(36, 86, 216, 0.1);
@@ -204,7 +206,7 @@
                 </div>
 
                 <div class="sidebar-brand">
-                    <h1>University ERP</h1>
+                    <h1>EDUPortal</h1>
                     <p>Academic Management</p>
                 </div>
 
@@ -477,7 +479,8 @@
                         </div>
 
                         <div class="attendance-actions">
-                            <button type="button" class="btn btn-sm btn-outline-success" id="markAllPresentBtn" disabled>
+                            <button type="button" class="btn btn-sm btn-outline-success" id="markAllPresentBtn"
+                                disabled>
                                 <i class="bi bi-check-all me-1"></i> Mark All Present
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary" id="resetSheetBtn" disabled>
@@ -492,7 +495,7 @@
 
                     <!-- Interactive Sheet Container -->
                     <div id="attendanceSheetContainer">
-                        
+
                         <!-- Empty State initially shown -->
                         <div class="empty-sheet-state">
                             <div class="empty-sheet-icon">
