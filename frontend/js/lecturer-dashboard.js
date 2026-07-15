@@ -54,6 +54,19 @@ async function initializeLecturerDashboard() {
    Load dashboard data
 ========================================================= */
 async function loadDashboardData() {
+    if (
+        typeof LECTURER_CONFIG !== "undefined" &&
+        LECTURER_CONFIG.USE_MOCK_DATA
+    ) {
+        return {
+            lecturer: LECTURER_MOCK_DATA.lecturer,
+            summary: {},
+            courses: LECTURER_MOCK_DATA.courses,
+            students: LECTURER_MOCK_DATA.students,
+            examinations: LECTURER_MOCK_DATA.examinations
+        };
+    }
+
     return loadApiDashboardData();
 }
 async function loadApiDashboardData() {
@@ -212,32 +225,24 @@ function displayLecturerInformation(lecturer) {
 ========================================================= */
 
 function calculateTotalStudentCount(courses, students) {
-    const coursesHaveStudentCounts = courses.some(
-        (course) =>
-            course.studentCount !== undefined &&
-            course.studentCount !== null
-    );
-
-    if (coursesHaveStudentCounts) {
-        return courses.reduce((total, course) => {
-            return total + Number(course.studentCount || 0);
-        }, 0);
-    }
-
-    /*
-     * If the API does not include studentCount,
-     * count unique students from mock/local student data.
-     */
-
     const uniqueStudentIds = new Set();
 
     students.forEach((student) => {
-        if (student.studentId !== undefined) {
+        if (
+            student.studentId !== undefined &&
+            student.studentId !== null
+        ) {
             uniqueStudentIds.add(student.studentId);
         }
     });
 
-    return uniqueStudentIds.size;
+    if (uniqueStudentIds.size > 0) {
+        return uniqueStudentIds.size;
+    }
+
+    return courses.reduce((total, course) => {
+        return total + Number(course.studentCount || 0);
+    }, 0);
 }
 
 function displayDashboardStatistics(statistics) {
@@ -336,9 +341,9 @@ function displayUpcomingExaminations(
 
                         <p>
                             ${escapeLecturerHtml(courseCode)}
-                            Â·
+                            ·
                             ${escapeLecturerHtml(courseName)}
-                            Â·
+                            ·
                             Total Marks:
                             ${escapeLecturerHtml(
                 examination.totalMarks
