@@ -1,0 +1,670 @@
+/* =========================================================
+   EDUPortal Login Theme
+   Visual changes only — no functionality changes
+   ========================================================= */
+
+.login-page {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #f4f7fb;
+}
+
+.login-page .login-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(430px, 0.88fr);
+    min-height: 100vh;
+}
+
+/* =========================================================
+   LEFT BRAND SECTION
+   ========================================================= */
+
+.login-page .login-information {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 46px 64px;
+    overflow: hidden;
+    color: #ffffff;
+    background:
+        radial-gradient(circle at 16% 18%,
+            rgba(52, 152, 219, 0.26),
+            transparent 26%),
+        radial-gradient(circle at 90% 82%,
+            rgba(30, 136, 229, 0.22),
+            transparent 30%),
+        linear-gradient(145deg,
+            #071a3a 0%,
+            #0b2f67 48%,
+            #124b96 100%);
+}
+
+.login-page .login-information::before {
+    content: "";
+    position: absolute;
+    top: -170px;
+    right: -130px;
+    width: 410px;
+    height: 410px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.login-page .login-information::after {
+    content: "";
+    position: absolute;
+    bottom: -230px;
+    left: -140px;
+    width: 480px;
+    height: 480px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.login-page .login-information-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    max-width: 760px;
+    min-height: calc(100vh - 92px);
+    flex-direction: column;
+}
+
+/* ---------- Desktop brand ---------- */
+
+.login-page .desktop-brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.login-page .desktop-brand .brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    margin: 0;
+    color: #ffffff;
+    font-size: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(10px);
+}
+
+.login-page .desktop-brand span {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+/* ---------- Main welcome text ---------- */
+
+.login-page .login-hero-content {
+    max-width: 650px;
+    margin-top: auto;
+    margin-bottom: 26px;
+}
+
+.login-page .brand-label {
+    margin-bottom: 12px;
+    color: #a9d6ff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2.4px;
+}
+
+.login-page .login-information h1 {
+    max-width: 620px;
+    margin: 0;
+    font-size: clamp(42px, 4.7vw, 68px);
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -1.5px;
+}
+
+.login-page .login-information h1 span {
+    display: block;
+    color: #59b7ff;
+}
+
+.login-page .brand-accent-line {
+    width: 76px;
+    height: 5px;
+    margin: 22px 0;
+    border-radius: 20px;
+    background: linear-gradient(90deg,
+            #3fa9f5,
+            #8fd5ff);
+    box-shadow: 0 0 20px rgba(63, 169, 245, 0.45);
+}
+
+.login-page .brand-description {
+    max-width: 580px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 16px;
+    line-height: 1.75;
+}
+
+/* ---------- Decorative campus icon ---------- */
+
+.login-page .campus-illustration {
+    position: absolute;
+    right: 18px;
+    bottom: 112px;
+    z-index: -1;
+    color: rgba(255, 255, 255, 0.065);
+    font-size: clamp(180px, 19vw, 310px);
+    line-height: 1;
+    transform: rotate(-2deg);
+    pointer-events: none;
+}
+
+/* ---------- Feature cards ---------- */
+
+.login-page .feature-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: auto;
+}
+
+.login-page .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.075);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.09);
+    backdrop-filter: blur(9px);
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.login-page .feature-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.23);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.login-page .feature-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #dff2ff;
+    font-size: 18px;
+    border-radius: 12px;
+    background: rgba(74, 172, 247, 0.24);
+}
+
+.login-page .feature-item h2 {
+    margin: 0 0 3px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.login-page .feature-item p {
+    margin: 0;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.67);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+/* =========================================================
+   RIGHT LOGIN SECTION
+   ========================================================= */
+
+.login-page .login-form-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 42px;
+    background:
+        radial-gradient(circle at top right,
+            rgba(37, 99, 235, 0.09),
+            transparent 34%),
+        linear-gradient(160deg,
+            #ffffff 0%,
+            #f5f8fd 100%);
+}
+
+.login-page .login-form-section::before {
+    content: "";
+    position: absolute;
+    top: 28px;
+    right: 30px;
+    width: 90px;
+    height: 90px;
+    border-radius: 28px;
+    background:
+        linear-gradient(135deg,
+            rgba(36, 86, 216, 0.07),
+            rgba(30, 136, 229, 0.015));
+    transform: rotate(18deg);
+}
+
+.login-page .login-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 470px;
+    padding: 40px 42px 30px;
+    border: 1px solid rgba(215, 224, 237, 0.88);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow:
+        0 24px 65px rgba(22, 45, 85, 0.13),
+        0 4px 15px rgba(22, 45, 85, 0.05);
+}
+
+/* ---------- Heading ---------- */
+
+.login-page .login-heading {
+    margin-bottom: 27px;
+}
+
+.login-page .welcome-label {
+    margin-bottom: 8px;
+    color: #2563d9;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+}
+
+.login-page .login-heading h2 {
+    margin-bottom: 10px;
+    color: #11213d;
+    font-size: 29px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.4px;
+}
+
+.login-page .login-heading>p:last-child {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+/* ---------- Form labels ---------- */
+
+.login-page .form-label {
+    margin-bottom: 8px;
+    color: #24324a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ---------- Inputs ---------- */
+
+.login-page .custom-input-group {
+    overflow: hidden;
+    border: 1px solid #d8e0eb;
+    border-radius: 11px;
+    background: #fdfefe;
+    box-shadow: 0 2px 6px rgba(25, 49, 83, 0.025);
+    transition:
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        background 0.22s ease;
+}
+
+.login-page .custom-input-group:hover {
+    border-color: #becbe0;
+}
+
+.login-page .custom-input-group:focus-within {
+    border-color: #3478df;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(52, 120, 223, 0.11);
+}
+
+.login-page .custom-input-group .input-group-text {
+    padding: 0 14px;
+    color: #718096;
+    border: none;
+    background: transparent;
+}
+
+.login-page .custom-input-group .form-control {
+    min-height: 50px;
+    padding: 11px 5px;
+    color: #172033;
+    font-size: 13px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.login-page .custom-input-group .form-control::placeholder {
+    color: #a3adbb;
+}
+
+.login-page .password-toggle-button {
+    width: 48px;
+    color: #718096;
+    border: none;
+    background: transparent;
+}
+
+.login-page .password-toggle-button:hover,
+.login-page .password-toggle-button:focus {
+    color: #2456d8;
+    background: #eef4ff;
+}
+
+/* ---------- Forgot password ---------- */
+
+.login-page .forgot-password-button {
+    padding: 0;
+    color: #2563d9;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+}
+
+.login-page .forgot-password-button:hover {
+    color: #173a96;
+}
+
+/* ---------- Checkbox ---------- */
+
+.login-page .form-check-input {
+    border-color: #b7c2d1;
+}
+
+.login-page .form-check-input:checked {
+    border-color: #2456d8;
+    background-color: #2456d8;
+}
+
+.login-page .form-check-label {
+    color: #5f6e83;
+    font-size: 12px;
+}
+
+/* ---------- Sign-in button ---------- */
+
+.login-page .login-button {
+    min-height: 51px;
+    border: none;
+    border-radius: 11px;
+    background:
+        linear-gradient(135deg,
+            #2563d9 0%,
+            #1947a6 100%);
+    box-shadow: 0 12px 24px rgba(36, 86, 216, 0.24);
+}
+
+.login-page .login-button:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(36, 86, 216, 0.3);
+}
+
+.login-page .login-button:focus {
+    box-shadow:
+        0 0 0 4px rgba(36, 86, 216, 0.14),
+        0 12px 24px rgba(36, 86, 216, 0.24);
+}
+
+/* ---------- Error and response messages ---------- */
+
+.login-page .field-error {
+    min-height: 17px;
+    margin-top: 5px;
+    font-size: 11px;
+}
+
+.login-page .login-message .alert {
+    margin-bottom: 18px;
+    padding: 11px 13px;
+    font-size: 12px;
+    border-radius: 9px;
+}
+
+/* ---------- Demo account ---------- */
+
+.login-page .demo-login-box {
+    margin-top: 20px;
+    padding: 13px 15px;
+    border: 1px solid #d9e5fa;
+    border-radius: 11px;
+    background:
+        linear-gradient(135deg,
+            #f5f9ff,
+            #eef5ff);
+}
+
+.login-page .demo-login-title {
+    margin-bottom: 6px;
+    color: #234b91;
+    font-size: 12px;
+}
+
+.login-page .demo-login-box p {
+    margin: 2px 0;
+    font-size: 11px;
+}
+
+/* ---------- Footer ---------- */
+
+.login-page .login-footer {
+    margin-top: 22px;
+    padding-top: 17px;
+    border-top: 1px solid #e6ebf2;
+}
+
+.login-page .login-footer p {
+    color: #909bad;
+    font-size: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+
+@media (max-width: 1180px) {
+    .login-page .login-wrapper {
+        grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+    }
+
+    .login-page .login-information {
+        padding: 42px;
+    }
+
+    .login-page .feature-item {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 980px) {
+    .login-page .login-wrapper {
+        display: block;
+    }
+
+    .login-page .login-information {
+        display: none;
+    }
+
+    .login-page .login-form-section {
+        min-height: 100vh;
+        padding: 30px;
+    }
+
+    .login-page .mobile-brand {
+        display: flex;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-page .login-form-section {
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .login-page .login-card {
+        margin-top: 12px;
+        padding: 28px 22px 24px;
+        border-radius: 18px;
+    }
+
+    .login-page .login-heading h2 {
+        font-size: 25px;
+    }
+
+    .login-page .login-footer {
+        align-items: center;
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 360px) {
+    .login-page .login-card {
+        padding-right: 17px;
+        padding-left: 17px;
+    }
+
+    .login-page .password-label-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+/* =========================================================
+   COMPACT DESKTOP HEIGHT
+   Keeps the complete login page visible on shorter screens
+   ========================================================= */
+
+@media (min-width: 981px) and (max-height: 900px) {
+
+    .login-page .login-information {
+        padding: 30px 56px;
+    }
+
+    .login-page .login-information-content {
+        min-height: calc(100vh - 60px);
+    }
+
+    .login-page .desktop-brand .brand-logo {
+        width: 46px;
+        height: 46px;
+        font-size: 21px;
+    }
+
+    .login-page .desktop-brand span {
+        font-size: 20px;
+    }
+
+    .login-page .login-hero-content {
+        margin-bottom: 18px;
+    }
+
+    .login-page .login-information h1 {
+        font-size: clamp(40px, 4.4vw, 60px);
+    }
+
+    .login-page .brand-accent-line {
+        margin: 16px 0;
+    }
+
+    .login-page .brand-description {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .login-page .feature-list {
+        gap: 12px;
+    }
+
+    .login-page .feature-item {
+        padding: 10px 12px;
+    }
+
+    .login-page .feature-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .login-page .feature-item h2 {
+        font-size: 13px;
+    }
+
+    .login-page .feature-item p {
+        font-size: 10px;
+    }
+
+    .login-page .login-form-section {
+        padding: 24px 38px;
+    }
+
+    .login-page .login-card {
+        padding: 28px 38px 20px;
+    }
+
+    .login-page .login-heading {
+        margin-bottom: 18px;
+    }
+
+    .login-page .login-heading h2 {
+        margin-bottom: 7px;
+        font-size: 27px;
+    }
+
+    .login-page .login-heading>p:last-child {
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .login-page .login-card .mb-4 {
+        margin-bottom: 14px !important;
+    }
+
+    .login-page .login-card .mb-3 {
+        margin-bottom: 10px !important;
+    }
+
+    .login-page .custom-input-group .form-control {
+        min-height: 46px;
+    }
+
+    .login-page .login-button {
+        min-height: 47px;
+    }
+
+    .login-page .demo-login-box {
+        margin-top: 14px;
+        padding: 10px 14px;
+    }
+
+    .login-page .login-footer {
+        margin-top: 14px;
+        padding-top: 12px;
+    }
+}
