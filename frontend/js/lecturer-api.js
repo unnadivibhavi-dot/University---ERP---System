@@ -402,10 +402,12 @@ const LecturerAPI = (() => {
                 "ExaminationDate",
                 "examinationDate"
             ),
-            totalMarks: pick(
-                examination,
-                "totalMarks",
-                "TotalMarks"
+            totalMarks: Number(
+                pick(
+                    examination,
+                    "totalMarks",
+                    "TotalMarks"
+                ) || 100
             )
         };
     }
@@ -427,6 +429,17 @@ const LecturerAPI = (() => {
                 result,
                 "studentId",
                 "StudentID"
+            ),
+            studentNumber: pick(
+                result,
+                "studentNumber",
+                "RegistrationNumber",
+                "registrationNumber"
+            ),
+            fullName: pick(
+                result,
+                "fullName",
+                "FullName"
             ),
             courseId: pick(
                 result,
@@ -528,6 +541,40 @@ const LecturerAPI = (() => {
         });
     }
 
+    async function getExaminations() {
+        const response = await request(
+            "/lecturer/examinations"
+        );
+
+        const examinations =
+            extractArray(response, "examinations")
+                .map(normalizeExamination);
+
+        return {
+            ...response,
+            data: examinations,
+            examinations
+        };
+    }
+
+    async function getResults(examinationId) {
+        const response = await request(
+            `/lecturer/results/${encodeURIComponent(
+                examinationId
+            )}`
+        );
+
+        const results =
+            extractArray(response, "results")
+                .map(normalizeResult);
+
+        return {
+            ...response,
+            data: results,
+            results
+        };
+    }
+
     async function createExamination(payload) {
         const backendPayload = {
             courseId: payload.courseId,
@@ -594,6 +641,8 @@ const LecturerAPI = (() => {
         getCourseStudents,
         getAttendance,
         saveAttendance,
+        getExaminations,
+        getResults,
         createExamination,
         createResult,
         updateResult

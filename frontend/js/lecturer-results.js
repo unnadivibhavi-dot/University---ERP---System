@@ -121,22 +121,25 @@ async function loadResultExaminations() {
         );
     }
 
-    /*
-     * The current route agreement includes only:
-     *
-     * POST /api/lecturer/examinations
-     *
-     * A GET examinations route is also needed for this page.
-     * Until it is added, localStorage is used.
-     */
+    if (
+        typeof LecturerAPI === "undefined" ||
+        typeof LecturerAPI.getExaminations !== "function"
+    ) {
+        throw new Error(
+            "The Lecturer Examinations API is not available."
+        );
+    }
 
-    return getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.EXAMINATIONS,
-        []
+    const response =
+        await LecturerAPI.getExaminations();
+
+    return normalizeResultArrayResponse(
+        response,
+        "examinations"
     );
 }
 
-async function loadSavedResults() {
+async function loadSavedResults(examinationId = null) {
     if (LECTURER_CONFIG.USE_MOCK_DATA === true) {
         return getLocalStorageData(
             LECTURER_CONFIG.STORAGE_KEYS.RESULTS,
@@ -144,15 +147,25 @@ async function loadSavedResults() {
         );
     }
 
-    /*
-     * The current route agreement does not include a GET
-     * results route. Existing results are temporarily loaded
-     * from localStorage.
-     */
+    if (!examinationId) {
+        return [];
+    }
 
-    return getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.RESULTS,
-        []
+    if (
+        typeof LecturerAPI === "undefined" ||
+        typeof LecturerAPI.getResults !== "function"
+    ) {
+        throw new Error(
+            "The Lecturer Results API is not available."
+        );
+    }
+
+    const response =
+        await LecturerAPI.getResults(examinationId);
+
+    return normalizeResultArrayResponse(
+        response,
+        "results"
     );
 }
 
@@ -342,6 +355,13 @@ async function handleLoadResultStudents(event) {
             await loadStudentsForSelectedCourse(
                 selectedResultCourse.courseId
             );
+
+        savedResults = await loadSavedResults(
+            selectedResultExamination.examinationId
+        );
+
+        displayExistingResults(savedResults);
+        updateSavedResultCount(savedResults.length);
 
         displaySelectedExaminationInformation();
 
@@ -674,7 +694,9 @@ async function handleSaveResults(event) {
             await saveApiResults(collectedResults);
         }
 
-        savedResults = await loadSavedResults();
+        savedResults = await loadSavedResults(
+            selectedResultExamination.examinationId
+        );
 
         displayExistingResults(savedResults);
         updateSavedResultCount(savedResults.length);
@@ -987,13 +1009,13 @@ function displayExistingResults(results) {
                     <td>
                         <strong>
                             ${escapeLecturerHtml(
-                student?.fullName || "-"
+                student?.fullName || result.fullName || "-"
             )}
                         </strong>
 
                         <div class="table-secondary-text">
                             ${escapeLecturerHtml(
-                student?.studentNumber || ""
+                student?.studentNumber || result.studentNumber || ""
             )}
                         </div>
                     </td>
@@ -1073,8 +1095,8 @@ function handleResultSearch(event) {
             );
 
             const searchableText = [
-                student?.fullName,
-                student?.studentNumber,
+                student?.fullName || result.fullName,
+                student?.studentNumber || result.studentNumber,
                 course?.courseCode,
                 course?.courseName,
                 examination?.examName,
