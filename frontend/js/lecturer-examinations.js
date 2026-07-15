@@ -32,6 +32,7 @@ async function initializeLecturerExaminationsPage() {
 
     setMinimumExaminationDate();
     initializeExaminationPageEvents();
+    configureTotalMarksInput();
 
     showLoading(
         "examinationsLoading",
@@ -119,20 +120,21 @@ async function loadLecturerExaminations() {
         );
     }
 
-    /*
-     * The agreed backend route list currently contains:
-     *
-     * POST /api/lecturer/examinations
-     *
-     * but no GET examination route.
-     *
-     * Until a GET route is provided, existing examination
-     * records are read from localStorage.
-     */
+    if (
+        typeof LecturerAPI === "undefined" ||
+        typeof LecturerAPI.getExaminations !== "function"
+    ) {
+        throw new Error(
+            "The Lecturer Examinations API is not available."
+        );
+    }
 
-    return getLocalStorageData(
-        LECTURER_CONFIG.STORAGE_KEYS.EXAMINATIONS,
-        []
+    const response =
+        await LecturerAPI.getExaminations();
+
+    return normalizeExaminationArrayResponse(
+        response,
+        "examinations"
     );
 }
 
@@ -766,6 +768,34 @@ function updateExaminationCount(count) {
     );
 }
 
+function configureTotalMarksInput() {
+    const totalMarksInput = document.getElementById(
+        "totalMarksInput"
+    );
+
+    if (!totalMarksInput) {
+        return;
+    }
+
+    totalMarksInput.value = "100";
+
+    if (LECTURER_CONFIG.USE_MOCK_DATA === true) {
+        totalMarksInput.readOnly = false;
+        totalMarksInput.removeAttribute("aria-readonly");
+        totalMarksInput.title = "";
+
+        return;
+    }
+
+    totalMarksInput.readOnly = true;
+    totalMarksInput.setAttribute(
+        "aria-readonly",
+        "true"
+    );
+    totalMarksInput.title =
+        "The current backend uses 100 total marks.";
+}
+
 /* =========================================================
    Clear form
 ========================================================= */
@@ -781,6 +811,7 @@ function clearExaminationForm() {
 
     clearExaminationValidationErrors();
     setMinimumExaminationDate();
+    configureTotalMarksInput();
 }
 
 /* =========================================================
