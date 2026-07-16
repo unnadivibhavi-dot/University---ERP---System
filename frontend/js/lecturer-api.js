@@ -16,7 +16,7 @@ const LecturerAPI = (() => {
             return LECTURER_CONFIG.API_BASE_URL;
         }
 
-        return "http://localhost:5001/api";
+        return "https://university-erp-api-eduportal.azurewebsites.net/api";
     }
 
     function getToken() {

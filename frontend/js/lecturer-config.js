@@ -13,7 +13,7 @@
 const LECTURER_CONFIG = Object.freeze({
     USE_MOCK_DATA: true,
 
-    API_BASE_URL: "http://localhost:5001/api",
+    API_BASE_URL: "https://university-erp-api-eduportal.azurewebsites.net/api",
 
     STORAGE_KEYS: Object.freeze({
         AUTH_TOKEN: "universityErpAuthToken",

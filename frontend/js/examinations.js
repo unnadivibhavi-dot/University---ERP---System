@@ -21,7 +21,7 @@ DELETE /api/examinations/:id
 
 const EXAM_API_BASE_URL =
     window.ERP_CONFIG?.API_BASE_URL ||
-    "http://localhost:5001/api";
+    "https://university-erp-api-eduportal.azurewebsites.net/api";
 
 
 /* ------------------------------------------------------
